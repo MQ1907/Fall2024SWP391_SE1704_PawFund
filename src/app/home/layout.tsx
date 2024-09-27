@@ -10,7 +10,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <div>
         <Header />
       </div>
-      <div>
+      <div >
         <div>{children}</div>
       </div>
       <div>
