@@ -2,7 +2,7 @@ import Image from "next/image";
 import React from "react";
 import { Input } from "antd";
 
-const Page = () => {
+const SignIn = () => {
   return (
     <div className="flex h-screen">
       <div className="w-[50%] bg-gray-200  h-full">
@@ -50,4 +50,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default SignIn;

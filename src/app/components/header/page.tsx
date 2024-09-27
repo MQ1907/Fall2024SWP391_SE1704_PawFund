@@ -1,10 +1,19 @@
+'use client';
 import React from "react";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const Header = () => {
+  const router = useRouter(); 
+  const handleClick = () => {
+    router.push("/adopt");
+  };
+  const handleClick2 = () => {
+    router.push("/home");
+  };
   return (
-    <div className="h-[148px] ">
+    <div className="h-[148px]   ">
       <div className="h-[42px] bg-[#FFCC00] flex items-center justify-between ">
         <ul className="flex  gap-10 pl-96 items-center">
           <li className="flex items-center gap-2">
@@ -37,8 +46,8 @@ const Header = () => {
           <li>
             <Image src="/images/logo.png" alt="" width={106} height={106} />
           </li>
-          <li className="text-[#D94E66]">HOMEPAGE</li>
-          <li className="hover:text-[#D94E66] cursor-pointer">ADOPT</li>
+          <li className="text-[#D94E66] cursor-pointer " onClick={handleClick2}>HOMEPAGE</li>
+          <li className="hover:text-[#D94E66] cursor-pointer" onClick={handleClick}>ADOPT</li>
           <li className="hover:text-[#D94E66] cursor-pointer">DONATE</li>
           <li className="hover:text-[#D94E66] cursor-pointer">VOLUNTEER</li>
           <li className="hover:text-[#D94E66] cursor-pointer">NEWS</li>
