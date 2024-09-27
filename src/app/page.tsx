@@ -1,9 +1,18 @@
-import React from 'react'
+ "use client"
 
-const Home = () => {
+import Footer from "./components/footer/page"
+import Header from "./components/header/page"
+import Home from "./home/page"
+
+
+
+
+export default function Main() {
   return (
-    <div> Home </div>
+    <div className="h-screen bg-white font-Poppins">
+    <Header/>
+    <Home/>
+    <Footer/>
+    </div>
   )
 }
-
-export default Home
