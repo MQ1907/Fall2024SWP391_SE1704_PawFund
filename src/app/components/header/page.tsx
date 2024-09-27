@@ -19,7 +19,7 @@ const Header = () => {
     router.push("/volunteer");
   };
   return (
-    <div className="h-[148px]   ">
+    <div className="h-[148px] fixed z-50  w-full  ">
       <div className="h-[42px] bg-[#FFCC00] flex items-center justify-between ">
         <ul className="flex  gap-10 pl-96 items-center">
           <li className="flex items-center gap-2">

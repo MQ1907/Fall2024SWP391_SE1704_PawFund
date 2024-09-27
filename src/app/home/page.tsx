@@ -40,7 +40,7 @@ const Home = () => {
   };
 
   return (
-    <div>
+    <div className="pt-[148px]">
       <Carousel />
       <div className="h-[996px] w-full bg-[#FFFFFF]">
         <div className="flex items-center justify-center">
@@ -100,7 +100,33 @@ const Home = () => {
         </div>
       </div>
       <GoodBaby />
-      <Video/>
+      <Video />
+      <div className="h-[300px] w-full relative">
+        <Image src="/images/image.png" alt="" layout="fill" objectFit="cover"  />
+        <div className="absolute inset-0 flex items-center justify-center gap-52">
+   <div className="flex flex-col items-center justify-center gap-5">
+   <Image src="/images/paw.png" alt="" width={122} height={122}/>
+   <div className="text-4xl font-bold text-white ">2508</div>
+   <div className="text-2xl  font-semibold text-white">Recuse case</div>
+   </div>
+   <div className="flex flex-col items-center justify-center gap-5 ">
+   <Image src="/images/house.png" alt="" width={122} height={122}/>
+   <div className="text-4xl font-bold text-white ">1059</div>
+   <div className="text-2xl  font-semibold text-white">Has owner</div>
+   </div>
+   <div className="flex flex-col items-center justify-center gap-5">
+   <Image src="/images/train.png" alt="" width={122} height={122}/>
+   <div className="text-4xl font-bold text-white ">332</div>
+   <div className="text-2xl  font-semibold text-white">Waiting for owner</div>
+   </div>
+   <div className="flex flex-col items-center justify-center gap-5">
+   <Image src="/images/food.png" alt="" width={122} height={122}/>
+   <div className="text-4xl font-bold text-white ">150</div>
+   <div  className="text-2xl  font-semibold text-white">Not ready</div>
+   </div>
+  </div>
+      </div>
+
     </div>
   );
 };

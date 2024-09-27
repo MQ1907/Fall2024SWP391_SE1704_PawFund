@@ -4,7 +4,7 @@ import React from "react";
 
 const Adopt = () => {
   return (
-    <div>
+    <div className="pt-[148px]">
       <div
         className="w-full bg-cover bg-center relative"
         style={{ backgroundImage: "url('/images/adopt1.jpg')" }}
