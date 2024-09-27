@@ -10,7 +10,13 @@ const Header = () => {
     router.push("/adopt");
   };
   const handleClick2 = () => {
-    router.push("/home");
+    router.push("/");
+  };
+  const handleClick3 = () => {
+    router.push("/donate");
+  };
+  const handleClick4 = () => {
+    router.push("/volunteer");
   };
   return (
     <div className="h-[148px]   ">
@@ -48,8 +54,8 @@ const Header = () => {
           </li>
           <li className="text-[#D94E66] cursor-pointer " onClick={handleClick2}>HOMEPAGE</li>
           <li className="hover:text-[#D94E66] cursor-pointer" onClick={handleClick}>ADOPT</li>
-          <li className="hover:text-[#D94E66] cursor-pointer">DONATE</li>
-          <li className="hover:text-[#D94E66] cursor-pointer">VOLUNTEER</li>
+          <li className="hover:text-[#D94E66] cursor-pointer" onClick={handleClick3}>DONATE</li>
+          <li className="hover:text-[#D94E66] cursor-pointer" onClick={handleClick4}>VOLUNTEER</li>
           <li className="hover:text-[#D94E66] cursor-pointer">NEWS</li>
           <li className="hover:text-[#D94E66] cursor-pointer">CONTACT</li>
         </ul>
