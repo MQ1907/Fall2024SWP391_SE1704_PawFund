@@ -46,6 +46,9 @@ const Header = () => {
   const handleClick4 = () => {
     router.push("/volunteer");
   };
+  const handleClick5 = () => {
+    router.push("/news");
+  };
 
   return (
     <div className="fixed z-50 w-full">
@@ -106,7 +109,7 @@ const Header = () => {
           <li className="hover:text-[#D94E66] cursor-pointer" onClick={handleClick4}>
             VOLUNTEER
           </li>
-          <li className="hover:text-[#D94E66] cursor-pointer">NEWS</li>
+          <li className="hover:text-[#D94E66] cursor-pointer" onClick={handleClick5}>NEWS</li>
           <li className="hover:text-[#D94E66] cursor-pointer">CONTACT</li>
         </ul>
       </div>
