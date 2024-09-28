@@ -1,24 +1,34 @@
 "use client";
 import Image from "next/image";
 import React from "react";
+import FindPet from "../findpet/page";
+// import { useRouter } from "next/navigation";
 
 const Adopt = () => {
+  // const router = useRouter();
+  // const handleHomePage = (link: string) => {
+  //   router.push(link);
+  // };
   return (
     <div className="pt-[148px]">
       <div
         className="w-full bg-cover bg-center relative"
         style={{ backgroundImage: "url('/images/adopt1.jpg')" }}
       >
-        <div className="bg-black bg-opacity-50 w-full flex items-center justify-between px-8 py-16">
+        <div className="bg-black bg-opacity-50 w-full h-[210px] flex items-center justify-between px-8 py-16">
           <div>
-            <h1 className="text-white text-3xl font-bold ml-[170px]">
-            ADOPT
-            </h1>
-            <p className="text-white text-[17px] mt-2 ml-[170px]">
-            Learn about all rescues, hospitalized, in foster care, deceased, adopted...
-            </p>
+            <h1 className="text-white text-[45px] font-bold ml-[170px]">ADOPTION</h1>
+
+            <div className="bg-[#D51C63] text-white text-[16px] py-2 px-2 rounded-md inline-flex items-center ml-[170px]">
+              <a href="/" className="hover:text-blue-600">
+                HomePage
+              </a>
+              <span className="mx-2">&gt;</span>
+              <a href="/adopt">
+               Adopt
+              </a>
+            </div>
           </div>
-          
         </div>
       </div>
       <div className="grid grid-cols-3 gap-4 mt-10">
@@ -89,8 +99,8 @@ const Adopt = () => {
                 height={22}
               />
               <p className="text-[#6f6f6f]">
-                Regularly update the baby situation, especially when there is
-                an incident to receive timely advice.
+                Regularly update the baby situation, especially when there is an
+                incident to receive timely advice.
               </p>
             </div>
           </div>
@@ -111,8 +121,8 @@ const Adopt = () => {
             the Page. <br />
             - The interview may have many private questions, so please be
             patient! <br />
-            - Each baby  money will be different depending on the baby
-            condition when rescued as well as the medical services (vaccination,
+            - Each baby money will be different depending on the baby condition
+            when rescued as well as the medical services (vaccination,
             sterilization) performed. <br />
             - Money is used to pay for previous medical expenses for the baby,
             as well as to support the cost of caring for and raising other
@@ -211,19 +221,76 @@ const Adopt = () => {
         <div className="bg-black bg-opacity-50 w-full flex items-center justify-between px-8 py-16">
           <div>
             <h1 className="text-white text-3xl font-bold ml-[170px]">
-            All Rescues
+              All Rescues
             </h1>
             <p className="text-white text-[17px] mt-2 ml-[170px]">
-            Learn about all rescues, hospitalized, in foster care, deceased, adopted...
+              Learn about all rescues, hospitalized, in foster care, deceased,
+              adopted...
             </p>
           </div>
           <div>
             <a
               href="#"
-              className="bg-[#d4376e] text-white text-lg font-bold py-3 px-8 rounded-full mr-[170px]"
+              className="bg-[#d4376e] hover:bg-[#008ADF] text-white text-lg font-bold py-3 px-8 rounded-full mr-[170px]"
             >
-             VIEW ALL
+              VIEW ALL
             </a>
+          </div>
+        </div>
+      </div>
+      {/* <div>
+        <div className="text-[35px] font-bold items-center">FIND PET</div>
+        <div className="flex gap-3">
+          <div>
+            <button
+              type="button"
+              className="text-white, text-[20px] bg-[#008ADF] w-[120px] h-[50px] rounded-lg"
+             
+            >
+              Default
+            </button>
+          </div>
+          <div>
+            <button
+              type="button"
+              className="text-white, text-[20px] bg-[#008ADF] w-[120px] h-[50px] rounded-lg"
+             
+            >
+              Default
+            </button>
+          </div>
+          <div>
+            <button
+              type="button"
+              className="text-white, text-[20px] bg-[#008ADF] w-[120px] h-[50px] rounded-lg"
+             
+            >
+              Default
+            </button>
+          </div>
+        </div>
+      </div> */}
+      <FindPet />
+      <div
+        className="w-full bg-cover bg-center relative mt-5"
+        style={{ backgroundImage: "url('/images/adopt2.png')" }}
+      >
+        <div className="bg-black bg-opacity-50 w-full flex items-center justify-between px-8 py-16">
+          <div className="flex-col-reverse">
+            <div>
+              <h1 className="text-white text-2xl font-medium mt-2 ml-[120px] w-[600px] text-center">
+                You are Not Qualified To Bring The Boss Home? Join the Virtual
+                Adoption program.
+              </h1>
+            </div>
+            <div className="ml-[300px] mt-10">
+              <a
+                href="#"
+                className="bg-[#d4376e] hover:bg-[#008ADF] text-white text-lg font-bold py-3 px-8 rounded-full mr-[170px]"
+              >
+                FIND NOW
+              </a>
+            </div>
           </div>
         </div>
       </div>
