@@ -38,7 +38,7 @@ const Page: React.FC = () => {
   ];
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen text-center justify-center align-middle">
       <div className="w-[50%] bg-gray-200">
         <Image
           src="/images/btlogin.png"
@@ -48,7 +48,7 @@ const Page: React.FC = () => {
           className="w-[100%] h-[100%]"
         />
       </div>
-      <div className="w-[50%] text-center w-[100%]">
+      <div className="w-[50%]  w-[100%]">
         <div className="relative">
           <div className="absolute w-[15%] h-[15%]">
             <Image
