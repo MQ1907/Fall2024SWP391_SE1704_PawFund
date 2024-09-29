@@ -49,7 +49,9 @@ const Header = () => {
   const handleClick5 = () => {
     router.push("/news");
   };
-
+  const handleClick6 = () => {
+    router.push("/signin");
+  };
   return (
     <div className="fixed z-50 w-full">
       
@@ -80,7 +82,7 @@ const Header = () => {
             <Image src="/images/vietnam.png" alt="" width={30} height={30} />
           </li>
           <li>
-            <button className="rounded-md border border-black px-4 text-white hover:text-[#D94E66] hover:bg-white">
+            <button onClick={handleClick6} className="rounded-md border border-black px-4 text-white hover:text-[#D94E66] hover:bg-white">
               Login
             </button>
           </li>

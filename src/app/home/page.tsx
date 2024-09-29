@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Carousel from "../components/carousel/page";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import GoodBaby from "../goodpet/page";
 import Video from "../videopage/page";
-
+import "animate.css";
+import NewsHome from "../newshome/page";
 const Home = () => {
   const cardData = [
     {
@@ -38,7 +39,46 @@ const Home = () => {
   const handleLearnMore = (link: string) => {
     router.push(link);
   };
+  const [isAnimating] = useState(true); 
+  const [rescues, setRescues] = useState(0);
+  const [hasOwner, setHasOwner] = useState(0);
+  const [waitingForOwner, setWaitingForOwner] = useState(0);
+  const [notReady, setNotReady] = useState(0);
 
+  const stats = [
+    { value: 2508, setValue: setRescues },
+    { value: 1059, setValue: setHasOwner },
+    { value: 332, setValue: setWaitingForOwner },
+    { value: 150, setValue: setNotReady },
+  ];
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const section = document.getElementById('stats-section');
+      if (section) {
+        const { top, bottom } = section.getBoundingClientRect();
+        if (top < window.innerHeight && bottom > 0) {
+          stats.forEach(({ value, setValue }) => {
+            let count = 0;
+            const increment = Math.ceil(value / 100); 
+            const interval = setInterval(() => {
+              if (count < value) {
+                count += increment;
+                if (count > value) count = value;
+                setValue(count);
+              } else {
+                clearInterval(interval);
+              }
+            }, 20);
+          });
+          window.removeEventListener('scroll', handleScroll); 
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll); // Cleanup
+  }, []);
   return (
     <div className="pt-[148px]">
       <Carousel />
@@ -48,7 +88,7 @@ const Home = () => {
             <div className="font-bold text-3xl">
               PET ADOPTION - SAIGON PET ADOPTION
             </div>
-            <div className="font-medium text-lg italic">
+            <div className="animate__animated animate__tada   font-medium text-lg italic">
               We are a group of young Vietnamese volunteers and some foreigners,
               working together for the love of dogs <br /> and cats. Our motto
               is to never give up on any animal, no matter how sick or disabled
@@ -61,7 +101,7 @@ const Home = () => {
               through social networks and volunteer activities.
             </div>
           </div>
-          <Image src="/images/dogadoptme.png" alt="" width={383} height={383} />
+          <Image className={`${isAnimating ? 'animate__animated animate__rotateIn animate__delay-1s animate__duration-3s' : ''}`} src="/images/dogadoptme.png" alt="" width={383} height={383} />
         </div>
         <div className="flex justify-center">
           <button className="bg-blue-500 text-white py-2 px-20 rounded-3xl hover:bg-[#FFCC00]">
@@ -70,7 +110,7 @@ const Home = () => {
           </button>
         </div>
 
-        <div className="flex justify-center gap-10  p-6 mt-24">
+        <div className={`flex justify-center gap-10  p-6 mt-24 ${isAnimating ? 'animate__animated animate__slideInUp animate__delay-1s animate__duration-4s' : ''}  `}>
           {cardData.map((card) => (
             <div
               key={card.id}
@@ -101,32 +141,63 @@ const Home = () => {
       </div>
       <GoodBaby />
       <Video />
-      <div className="h-[300px] w-full relative">
-        <Image src="/images/image.png" alt="" layout="fill" objectFit="cover"  />
-        <div className="absolute inset-0 flex items-center justify-center gap-52">
-   <div className="flex flex-col items-center justify-center gap-5">
-   <Image src="/images/paw.png" alt="" width={122} height={122}/>
-   <div className="text-4xl font-bold text-white ">2508</div>
-   <div className="text-2xl  font-semibold text-white">Recuse case</div>
-   </div>
-   <div className="flex flex-col items-center justify-center gap-5 ">
-   <Image src="/images/house.png" alt="" width={122} height={122}/>
-   <div className="text-4xl font-bold text-white ">1059</div>
-   <div className="text-2xl  font-semibold text-white">Has owner</div>
-   </div>
-   <div className="flex flex-col items-center justify-center gap-5">
-   <Image src="/images/train.png" alt="" width={122} height={122}/>
-   <div className="text-4xl font-bold text-white ">332</div>
-   <div className="text-2xl  font-semibold text-white">Waiting for owner</div>
-   </div>
-   <div className="flex flex-col items-center justify-center gap-5">
-   <Image src="/images/food.png" alt="" width={122} height={122}/>
-   <div className="text-4xl font-bold text-white ">150</div>
-   <div  className="text-2xl  font-semibold text-white">Not ready</div>
-   </div>
-  </div>
+      <div
+      id="stats-section"
+      className="h-[300px] w-full relative bg-fixed bg-center bg-cover bg-no-repeat flex items-center justify-center"
+      style={{
+        backgroundImage:
+          'linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.33)), url("/images/image.png")',
+        backgroundSize: "120% 80%",
+      }}
+    >
+      <div className="flex items-center justify-center gap-52">
+        <div className="flex flex-col items-center justify-center gap-5">
+          <Image src="/images/paw.png" alt="" width={122} height={122} />
+          <div className="text-4xl font-bold text-white">{rescues}</div>
+          <div className="text-2xl font-semibold text-white">Recuse case</div>
+        </div>
+        <div className="flex flex-col items-center justify-center gap-5">
+          <Image src="/images/house.png" alt="" width={122} height={122} />
+          <div className="text-4xl font-bold text-white">{hasOwner}</div>
+          <div className="text-2xl font-semibold text-white">Has owner</div>
+        </div>
+        <div className="flex flex-col items-center justify-center gap-5">
+          <Image src="/images/train.png" alt="" width={122} height={122} />
+          <div className="text-4xl font-bold text-white">{waitingForOwner}</div>
+          <div className="text-2xl font-semibold text-white">Waiting for owner</div>
+        </div>
+        <div className="flex flex-col items-center justify-center gap-5">
+          <Image src="/images/food.png" alt="" width={122} height={122} />
+          <div className="text-4xl font-bold text-white">{notReady}</div>
+          <div className="text-2xl font-semibold text-white">Not ready</div>
+        </div>
       </div>
-
+    </div>
+      <NewsHome />
+      <div
+        className="h-[150px] w-full  relative bg-fixed bg-center bg-cover bg-no-repeat flex items-center justify-center"
+        style={{
+          backgroundImage:
+            'linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.33)), url("/images/support.jpg")',
+          backgroundSize: "120% 80%",
+        }}
+      >
+        <div className="flex items-center justify-center gap-52">
+          <div className="flex flex-col items-center justify-center gap-5">
+            <div className="text-4xl font-bold text-white">
+              ARE YOU READY TO DONATE ?
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              router.push("/donate");
+            }}
+            className="bg-pink-600 text-white py-3 px-20 rounded-full font-semibold hover:bg-[#018AE0] "
+          >
+            DONATE NOW
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
