@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation'
 const SignIn = () => {
      const router = useRouter()
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen text-center justify-center align-middle">
       <div className="w-[50%] bg-gray-200  ">
         <Image
           src="/images/btlogin.png"
