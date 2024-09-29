@@ -1,14 +1,112 @@
 "use client";
 import Image from "next/image";
 import React from "react";
-import FindPet from "../findpet/page";
-// import { useRouter } from "next/navigation";
 
 const Adopt = () => {
-  // const router = useRouter();
-  // const handleHomePage = (link: string) => {
-  //   router.push(link);
-  // };
+  const petData2 = [
+    {
+      id: 1,
+      name: "Win",
+      gender: "Đực",
+      age: "Trưởng thành",
+      vaccination: "Có",
+      image: "/images/pet1.jpeg",
+    },
+    {
+      id: 2,
+      name: "Win",
+      gender: "Đực",
+      age: "Trưởng thành",
+      vaccination: "Có",
+      image: "/images/pet2.jpeg",
+    },
+    {
+      id: 3,
+      name: "Win",
+      gender: "Đực",
+      age: "Trưởng thành",
+      vaccination: "Có",
+      image: "/images/pet3.jpeg",
+    },
+    {
+      id: 4,
+      name: "Win",
+      gender: "Đực",
+      age: "Trưởng thành",
+      vaccination: "Có",
+      image: "/images/pet4.jpeg",
+    },
+    {
+      id: 5,
+      name: "Win",
+      gender: "Đực",
+      age: "Trưởng thành",
+      vaccination: "Có",
+      image: "/images/pet4.jpeg",
+    },
+
+    {
+      id: 6,
+      name: "Win",
+      gender: "Đực",
+      age: "Trưởng thành",
+      vaccination: "Có",
+      image: "/images/pet4.jpeg",
+    },
+
+    {
+      id: 7,
+      name: "Win",
+      gender: "Đực",
+      age: "Trưởng thành",
+      vaccination: "Có",
+      image: "/images/pet4.jpeg",
+    },
+
+    {
+      id: 8,
+      name: "Win",
+      gender: "Đực",
+      age: "Trưởng thành",
+      vaccination: "Có",
+      image: "/images/pet4.jpeg",
+    },
+
+    {
+      id: 9,
+      name: "Win",
+      gender: "Đực",
+      age: "Trưởng thành",
+      vaccination: "Có",
+      image: "/images/pet4.jpeg",
+    },
+
+    {
+      id: 10,
+      name: "Win",
+      gender: "Đực",
+      age: "Trưởng thành",
+      vaccination: "Có",
+      image: "/images/pet4.jpeg",
+    },
+    {
+      id: 11,
+      name: "Win",
+      gender: "Đực",
+      age: "Trưởng thành",
+      vaccination: "Có",
+      image: "/images/pet1.jpeg",
+    },
+    {
+      id: 12,
+      name: "Win",
+      gender: "Đực",
+      age: "Trưởng thành",
+      vaccination: "Có",
+      image: "/images/pet2.jpeg",
+    },
+  ];
+
   return (
     <div className="pt-[148px]">
       <div
@@ -17,16 +115,16 @@ const Adopt = () => {
       >
         <div className="bg-black bg-opacity-50 w-full h-[210px] flex items-center justify-between px-8 py-16">
           <div>
-            <h1 className="text-white text-[45px] font-bold ml-[170px]">ADOPTION</h1>
+            <h1 className="text-white text-[45px] font-bold ml-[170px]">
+              ADOPTION
+            </h1>
 
             <div className="bg-[#D51C63] text-white text-[16px] py-2 px-2 rounded-md inline-flex items-center ml-[170px]">
               <a href="/" className="hover:text-blue-600">
                 HomePage
               </a>
               <span className="mx-2">&gt;</span>
-              <a href="/adopt">
-               Adopt
-              </a>
+              <a href="/adopt">Adopt</a>
             </div>
           </div>
         </div>
@@ -216,7 +314,7 @@ const Adopt = () => {
       </div>
       <div
         className="w-full bg-cover bg-center relative mt-5"
-        style={{ backgroundImage: "url('/images/rescure.png')" }}
+        style={{ backgroundImage: "url('/images/rescure.jpg')" }}
       >
         <div className="bg-black bg-opacity-50 w-full flex items-center justify-between px-8 py-16">
           <div>
@@ -238,39 +336,143 @@ const Adopt = () => {
           </div>
         </div>
       </div>
-      {/* <div>
-        <div className="text-[35px] font-bold items-center">FIND PET</div>
-        <div className="flex gap-3">
-          <div>
-            <button
-              type="button"
-              className="text-white, text-[20px] bg-[#008ADF] w-[120px] h-[50px] rounded-lg"
-             
-            >
-              Default
-            </button>
+
+      {/* <FindPet /> */}
+      <div>
+        <div className="flex flex-col items-center justify-center pt-10 gap-3">
+          <div className="font-semibold text-3xl">FIND PETS</div>
+          <Image
+            src="/images/dogfoot.png"
+            alt="Pet search logo"
+            width={30}
+            height={30}
+            className="transform rotate-12"
+          />
+        </div>
+
+        <div className="flex items-center justify-center mt-6 gap-6">
+          <button
+            type="button"
+            className="text-white text-[20px] bg-[#008ADF] w-[120px] h-[50px] rounded-[30px]"
+          >
+            All
+          </button>
+          <button
+            type="button"
+            className="text-white text-[20px] bg-yellow-400 hover:bg-blue-400 w-[120px] h-[50px] rounded-[30px]"
+          >
+            Dogs
+          </button>
+          <button
+            type="button"
+            className="text-white text-[20px] bg-yellow-400 hover:bg-blue-400 w-[120px] h-[50px] rounded-[30px]"
+          >
+            Cats
+          </button>
+          <button
+            type="button"
+            className="text-white text-[20px] bg-yellow-400 hover:bg-blue-400 w-[120px] h-[50px] rounded-[30px]"
+          >
+            Others
+          </button>
+        </div>
+
+        <div className="w-[1100px] mx-auto p-4 mt-[40px]">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">
+                Gender
+              </label>
+              <select className="block w-full border border-red-500 text-gray-700 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                <option>All</option>
+                <option>Male</option>
+                <option>Female</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">
+                Age
+              </label>
+              <select className="block w-full border border-red-500 text-gray-700 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                <option>All</option>
+                <option>1-2 years</option>
+                <option>3-5 years</option>
+                <option>Over 5 years</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">
+                Sterilization
+              </label>
+              <select className="block w-full border border-red-500 text-gray-700 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                <option>All</option>
+                <option>Yes</option>
+                <option>No</option>
+              </select>
+            </div>
           </div>
-          <div>
-            <button
-              type="button"
-              className="text-white, text-[20px] bg-[#008ADF] w-[120px] h-[50px] rounded-lg"
-             
-            >
-              Default
-            </button>
-          </div>
-          <div>
-            <button
-              type="button"
-              className="text-white, text-[20px] bg-[#008ADF] w-[120px] h-[50px] rounded-lg"
-             
-            >
-              Default
-            </button>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 mt-6">
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">
+                Color
+              </label>
+              <select className="block w-full border border-red-500 text-gray-700 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                <option>All</option>
+                <option>White</option>
+                <option>Black</option>
+                <option>Yellow</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">
+                Name
+              </label>
+              <input
+                type="text"
+                className="block w-full border border-red-500 text-gray-700 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                placeholder="Enter Name..."
+              />
+            </div>
+
+            <div className="flex items-end ml-[100px]">
+              <button className="bg-pink-500 hover:bg-[#008ADF] text-white text-lg font-bold py-3 px-8 rounded-full w-[200px]">
+                Search
+              </button>
+            </div>
           </div>
         </div>
-      </div> */}
-      <FindPet />
+
+        <div>
+          <div className="grid grid-cols-4 gap-6 p-6 w-[1100px] ml-[200px]">
+            {petData2.slice(0, 16).map((pet, index) => (
+              <div
+                key={index}
+                className="bg-[#F6F6F6n] rounded-lg shadow-md p-4"
+              >
+                <Image
+                  src={pet.image}
+                  alt={pet.name}
+                  width={200}
+                  height={200}
+                  className="w-full h-[150px] object-cover rounded-md"
+                />
+                <div className="mt-4">
+                  <h3 className="text-lg font-bold">{pet.name}</h3>
+                  <p className="text-sm text-gray-700">Gender: {pet.gender}</p>
+                  <p className="text-sm text-gray-700">Age: {pet.age}</p>
+                  <p className="text-sm text-gray-700">
+                    Vaccination: {pet.vaccination}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
       <div
         className="w-full bg-cover bg-center relative mt-5"
         style={{ backgroundImage: "url('/images/adopt2.png')" }}
