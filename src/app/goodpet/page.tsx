@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useRouter } from 'next/navigation';
 const GoodBaby = () => {
   const router = useRouter();
-
+  const [isAnimating] = useState(true);
     const petsData = [
         {
           id: 1,
@@ -89,7 +89,7 @@ const GoodBaby = () => {
       const currentPets = petsData.slice(currentIndex, currentIndex + petsPerPage);
   return (
     <div className="h-[775px] bg-[#F6F6F7] ">
-    <div className="flex flex-col items-center justify-center pt-10 gap-3">
+    <div className={`flex flex-col items-center justify-center pt-10 gap-3 ${isAnimating ? 'animate__animated animate__fadeInLeft animate__delay-3s animate__duration-4s' : ''}`}>
     <div className="font-semibold text-3xl">GOOD BABY OF THE WEEK</div>
     <Image src="/images/dogfoot.png" alt="" width={30} height={30} className="transform rotate-12" />
     </div>
@@ -97,7 +97,7 @@ const GoodBaby = () => {
 
     <div className="w-[1111px] h-[581px] bg-white mx-auto shadow-lg rounded-lg p-8 relative mt-5">
   <div className="flex justify-between items-center">
-    {/* Nút Trái */}
+   
     <button
       onClick={handlePrevClick}
       className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-300 p-3 rounded-full hover:bg-gray-400"
@@ -105,7 +105,7 @@ const GoodBaby = () => {
       &#9664;
     </button>
 
-    {/* Thông tin thú cưng */}
+ 
     <div className="flex justify-center gap-14">
       {currentPets.map((pet) => (
         <div key={pet.id} className="text-center w-[220px] mx-auto">
@@ -125,7 +125,7 @@ const GoodBaby = () => {
       ))}
     </div>
 
-    {/* Nút Phải */}
+   
     <button
       onClick={handleNextClick}
       className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-300 p-3 rounded-full hover:bg-gray-400 "
@@ -134,7 +134,7 @@ const GoodBaby = () => {
     </button>
   </div>
 
-  {/* Nút Nhận Nuôi */}
+  
   <div className="flex justify-center mt-8">
     <button onClick={()=>{router.push('/adopt')}} className="bg-pink-600 text-white py-3 px-20 rounded-full font-semibold hover:bg-[#018AE0] mt-10">
       ADOPT

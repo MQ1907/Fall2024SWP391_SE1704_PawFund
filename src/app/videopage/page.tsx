@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link"; 
 
@@ -37,10 +37,10 @@ const Video = () => {
       link: "https://www.youtube.com/watch?v=nN3huAUR6_4", 
     },
   ];
-
+  const [isAnimating] = useState(true);
   return (
     <div className="h-[887px] bg-[#F6F6F6]">
-      <div className="flex flex-col items-center justify-center pt-10 gap-3">
+      <div className={`flex flex-col items-center justify-center pt-10 gap-3 ${isAnimating ? 'animate__animated animate__fadeInLeft animate__delay-2s animate__duration-4s' : ''}`}>
         <div className="font-semibold text-3xl">VIDEO</div>
         <Image
           src="/images/dogfoot.png"
