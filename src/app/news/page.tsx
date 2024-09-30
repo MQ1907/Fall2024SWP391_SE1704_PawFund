@@ -3,8 +3,10 @@ import React from 'react';
 import Newpet from '../newpet/page';
 import Event from '../event/page';
 import Image from 'next/image';
+import { useRouter } from "next/navigation";
 
 const News = () => {
+  const router = useRouter();
   return (
     <div className='pt-[148px]'>
       <div
@@ -48,14 +50,27 @@ const News = () => {
       </div>
       <Event />
       <div
-        className="w-full bg-cover bg-center relative"
-        style={{ backgroundImage: "url('/images/support.png')" }}
+        className="h-[150px] w-full  relative bg-fixed bg-center bg-cover bg-no-repeat flex items-center justify-center"
+        style={{
+          backgroundImage:
+            'linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.33)), url("/images/support.jpg")',
+          backgroundSize: "120% 80%",
+        }}
       >
-        <div className="bg-black bg-opacity-20 w-full h-[210px] flex items-center justify-between px-8 py-16">
-        <h1 className="text-2xl text-white ml-[350px]">Are you ready for help?</h1>
-          <button className="mt-4 bg-[#018AE0] text-white w-[172px] h-[44px] rounded hover:bg-[#F1CC63] transition-colors  mr-[300px]">
-            Support now
-          </button>   
+        <div className="flex items-center justify-center gap-52">
+          <div className="flex flex-col items-center justify-center gap-5">
+            <div className="text-4xl font-bold text-white">
+              ARE YOU READY TO DONATE ?
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              router.push("/donate");
+            }}
+            className="bg-pink-600 text-white py-3 px-20 rounded-full font-semibold hover:bg-[#F1CC63] "
+          >
+            DONATE NOW
+          </button>
         </div>
       </div>
     </div>
