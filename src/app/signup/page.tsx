@@ -85,7 +85,7 @@ const Page: React.FC = () => {
         </div>
         <div className="w-[50%] ml-[200px] pt-[50px]">
           <Input
-            className="h-[40px]"
+            className="h-[40px] "
             placeholder="Username"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -114,8 +114,8 @@ const Page: React.FC = () => {
             type="password"
             className="h-[40px]"
             placeholder="Confirm Password"
-            // value={confirmPassword}
-            // onChange={(e) => setConfirmPassword(e.target.value)}
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
             style={{
               backgroundColor: "#e5e4e4",
               border: "none",
@@ -145,8 +145,43 @@ const Page: React.FC = () => {
             <p className="px-5 pt-2">or</p>
             <hr className="bg-black w-44 mt-5 px-2 h-[2px]" />
           </div>
-          {/* Các nút đăng nhập bằng mạng xã hội */}
-          {/* ... (phần còn lại của component không thay đổi) */}
+          <div className="flex">
+            <div>
+              <button className="flex items-center gap-4 font-semibold duration-300 mt-6 rounded-md text-[15px] w-full relative border-2 border-gray-800 bg-transparent py-2.5 px-10 font-medium uppercase text-gray-800 transition-colors before:absolute before:left-0 before:top-0 before:-z-10 before:h-full before:w-full before:origin-top-left before:scale-x-0 before:bg-[#4b6cff] before:transition-transform before:duration-300 before:content-[''] hover:text-white before:hover:scale-x-100">
+                <Image
+                  src="/images/facebook.png"
+                  alt="Facebook"
+                  width={1000}
+                  height={1000}
+                  className="w-[20px] h-[20px] ml-[-30px]"
+                />
+                Facebook
+              </button>
+            </div>
+            <div className="ml-[70px]">
+              <button className="flex font-semibold gap-4 duration-300  mt-6 rounded-md text-[15px] w-[100%] relative border-2 border-gray-800 bg-transparent py-2.5 px-10 font-medium uppercase text-gray-800 transition-colors before:absolute before:left-0 before:top-0 before:-z-10 before:h-full before:w-full before:origin-top-left before:scale-x-0 before:bg-[#000000] before:transition-transform before:duration-300 before:content-[''] hover:text-white before:hover:scale-x-100">
+                <Image
+                  src="/images/google.png"
+                  alt="Google"
+                  width={1000}
+                  height={1000}
+                  className="w-[20px] h-[20px] ml-[-30px]"
+                />
+                Google
+              </button>
+            </div>
+          </div>
+          <div className="pt-5">
+            <p className="text-[15px]">
+              You already have account
+              <a
+                className="text-[#FFEB55] cursor-pointer px-2"
+                onClick={() => router.push("/signin")}
+              >
+                Sign In
+              </a>
+            </p>
+          </div>
         </div>
       </div>
     </div>
