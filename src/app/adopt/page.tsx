@@ -1,7 +1,6 @@
 "use client";
 import Image from "next/image";
 import React from "react";
-import "animate.css";
 
 const Adopt = () => {
   const petData2 = [
@@ -114,7 +113,7 @@ const Adopt = () => {
         className="w-full bg-cover bg-center relative"
         style={{ backgroundImage: "url('/images/adopt1.jpg')" }}
       >
-        <div className="bg-black bg-opacity-50 w-full h-[210px] flex items-center justify-between px-8 py-16 ">
+        <div className="bg-black bg-opacity-50 w-full h-[210px] flex items-center justify-between px-8 py-16">
           <div>
             <h1 className="text-white text-[45px] font-bold ml-[170px]">
               ADOPTION
@@ -132,11 +131,9 @@ const Adopt = () => {
       </div>
       <div className="grid grid-cols-3 gap-4 mt-10">
         <div className="col-span-2 bg-[#FFFFFF] ml-[200px]">
-          <h1 className="text-[35px] font-medium text-3xl ">
-            ADOPTION PROCESS
-          </h1>
+          <h1 className="text-[35px] font-medium text-3xl">ADOPTION PROCESS</h1>
           <hr className="w-[60px] border-[1px] text-[#cecece] mt-2" />
-          <p className=" mt-4 text-black text-lg italic font-medium">
+          <p className="mt-4 text-black text-lg italic font-medium">
             Before deciding to adopt a dog or cat, ask yourself if you are ready
             to take on the lifelong responsibility of a dog or cat, financially,
             physically and emotionally. Adoption requires a great deal of
@@ -316,10 +313,14 @@ const Adopt = () => {
         </div>
       </div>
       <div
-        className="w-full bg-cover bg-center relative mt-5"
-        style={{ backgroundImage: "url('/images/rescure.jpg')" }}
+       className="h-[200px] w-full  relative bg-fixed bg-center bg-cover bg-no-repeat flex items-center justify-center"
+        style={{
+          backgroundImage:
+            'linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.33)), url("/images/rescure.jpg")',
+          backgroundSize: "100% 100%",
+        }}
       >
-        <div className="bg-black bg-opacity-50 w-full flex items-center justify-between px-8 py-16">
+        <div className=" bg-opacity-50 w-full flex items-center justify-between px-8 py-16">
           <div>
             <h1 className="text-white text-3xl font-bold ml-[170px]">
               All Rescues
@@ -443,7 +444,7 @@ const Adopt = () => {
 
             <div className="flex items-end ml-[100px]">
               <button className="bg-pink-500 hover:bg-[#008ADF] text-white text-lg font-bold py-3 px-8 rounded-full w-[200px]">
-                Search
+                Add Pet
               </button>
             </div>
           </div>
@@ -452,22 +453,22 @@ const Adopt = () => {
         <div>
           <div className="grid grid-cols-4 gap-6 p-6 w-[1100px] ml-[200px]">
             {petData2.slice(0, 16).map((pet, index) => (
-              <div key={index} className="bg-gray-200 rounded-sm shadow-md p-4">
+              <div
+                key={index}
+                className="bg-[#F6F6F6n] rounded-lg shadow-md p-4"
+              >
                 <Image
                   src={pet.image}
                   alt={pet.name}
                   width={200}
                   height={200}
-                 className="w-[350px] h-[200px]  rounded-md  hover:scale-110 duration-500"
+                  className="w-full h-[150px] object-cover rounded-md"
                 />
-                <div className="mt-4 flex flex-col gap-4">
-                  <h3 className="text-[21px] text-black cursor-pointer hover:text-red-500 font-bold">
-                    {pet.name}
-                  </h3>
-                  <hr className="w-[60px] bg-red-500 border-[2px]"></hr>
-                  <p className="text-[18px] text-black">Gender: {pet.gender}</p>
-                  <p className="text-[18px] text-black">Age: {pet.age}</p>
-                  <p className="text-[18px] text-black">
+                <div className="mt-4">
+                  <h3 className="text-lg font-bold">{pet.name}</h3>
+                  <p className="text-sm text-gray-700">Gender: {pet.gender}</p>
+                  <p className="text-sm text-gray-700">Age: {pet.age}</p>
+                  <p className="text-sm text-gray-700">
                     Vaccination: {pet.vaccination}
                   </p>
                 </div>
@@ -477,10 +478,14 @@ const Adopt = () => {
         </div>
       </div>
       <div
-        className="w-full bg-cover bg-center relative mt-5"
-        style={{ backgroundImage: "url('/images/adopt2.png')" }}
+       className="h-[200px] w-full  relative bg-fixed bg-center bg-cover bg-no-repeat flex items-center justify-center"
+        style={{
+          backgroundImage:
+            'linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.33)), url("/images/adopt2.png")',
+          backgroundSize: "100% 100%",
+        }}
       >
-        <div className="bg-black bg-opacity-50 w-full flex items-center justify-between px-8 py-16">
+        <div className="bg-opacity-50 w-full flex items-center justify-between px-8 py-16">
           <div className="flex-col-reverse">
             <div>
               <h1 className="text-white text-2xl font-medium mt-2 ml-[120px] w-[600px] text-center">
