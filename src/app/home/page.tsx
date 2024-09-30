@@ -104,7 +104,9 @@ const Home = () => {
           <Image className={`${isAnimating ? 'animate__animated animate__rotateIn animate__delay-1s animate__duration-3s' : ''}`} src="/images/dogadoptme.png" alt="" width={383} height={383} />
         </div>
         <div className="flex justify-center">
-          <button className="bg-blue-500 text-white py-2 px-20 rounded-3xl hover:bg-[#FFCC00]">
+          <button onClick={() => {
+              router.push("/aboutus");
+            }} className="bg-blue-500 text-white py-2 px-20 rounded-3xl hover:bg-[#FFCC00]">
             {" "}
             About Us{" "}
           </button>
