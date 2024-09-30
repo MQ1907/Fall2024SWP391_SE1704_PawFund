@@ -41,7 +41,7 @@ const Event = () => {
   ];
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const petsPerPage = 3; // Hiển thị 3 sản phẩm mỗi trang
+  const petsPerPage = 3; 
 
   const handlePrevClick = () => {
     setCurrentIndex((prevIndex) =>
@@ -56,17 +56,18 @@ const Event = () => {
   };
 
   const currentEvents = events.slice(currentIndex, currentIndex + petsPerPage);
+  const [isAnimating] = useState(true);
 
   return (
     <div>
       <div className="h-[620px] bg-[#F6F6F7]">
-        <div className="flex flex-col items-center justify-center pt-10 gap-3">
+        <div className={`flex flex-col items-center justify-center pt-10 gap-3 ${isAnimating ? 'animate__animated animate__fadeInLeft animate__delay-2s animate__duration-4s' : ''}`}>
           <div className="font-semibold text-3xl">Event</div>
           <Image src="/images/dogfoot.png" alt="" width={30} height={30} className="transform rotate-12" />
         </div>
         <div className="flex justify-center gap-14"> 
           {currentEvents.map((event) => (
-            <div key={event.id} className="bg-white w-80 h-auto rounded-lg shadow-md overflow-hidden relative">
+            <div key={event.id} className={`bg-white w-80 h-auto rounded-lg shadow-md overflow-hidden relative ${isAnimating ? 'animate__animated animate__fadeInLeft animate__delay-2s animate__duration-4s' : ''}`}>
               <div className="overflow-hidden" style={{ height: '200px' }}>
                 <Image
                   src={event.image}
