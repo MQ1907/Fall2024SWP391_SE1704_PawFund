@@ -2,15 +2,16 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-
 import { logout } from "../../../lib/features/auth/authSlice"; 
 import { useAppDispatch, useAppSelector } from "@/lib/hook";
+import { usePathname } from 'next/navigation'; // Import usePathname từ Next.js
 
 const Header = () => {
   const router = useRouter(); 
   const dispatch = useAppDispatch(); 
   const token = useAppSelector((state) => state.auth.token); 
-  console.log('Current token:', token);
+  const pathname = usePathname(); // Lấy đường dẫn hiện tại
+  
   const [showTopBar, setShowTopBar] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
 
@@ -35,24 +36,8 @@ const Header = () => {
     }
   }, [lastScrollY]);
 
-  useEffect(() => {
-    console.log('Current token after login:', token);
-  }, [token]);
-
-  const handleClick = () => {
-    router.push("/adopt");
-  };
-  const handleClick2 = () => {
-    router.push("/");
-  };
-  const handleClick3 = () => {
-    router.push("/donate");
-  };
-  const handleClick4 = () => {
-    router.push("/volunteer");
-  };
-  const handleClick5 = () => {
-    router.push("/news");
+  const handleClick = (path: string) => {
+    router.push(path); // Điều hướng đến trang mới
   };
 
   const handleLoginClick = () => {
@@ -112,20 +97,37 @@ const Header = () => {
           <li>
             <Image src="/images/logo.png" alt="" width={106} height={106} />
           </li>
-          <li className="text-[#D94E66] cursor-pointer" onClick={handleClick2}>
+          <li
+            className={`cursor-pointer ${pathname === "/" ? "text-[#D94E66]" : "text-black hover:text-[#D94E66]"}`}
+            onClick={() => handleClick("/")}
+          >
             HOMEPAGE
           </li>
-          <li className="hover:text-[#D94E66] cursor-pointer" onClick={handleClick}>
+          <li
+            className={`cursor-pointer ${pathname === "/adopt" ? "text-[#D94E66]" : "text-black hover:text-[#D94E66]"}`}
+            onClick={() => handleClick("/adopt")}
+          >
             ADOPT
           </li>
-          <li className="hover:text-[#D94E66] cursor-pointer" onClick={handleClick3}>
+          <li
+            className={`cursor-pointer ${pathname === "/donate" ? "text-[#D94E66]" : "text-black hover:text-[#D94E66]"}`}
+            onClick={() => handleClick("/donate")}
+          >
             DONATE
           </li>
-          <li className="hover:text-[#D94E66] cursor-pointer" onClick={handleClick4}>
+          <li
+            className={`cursor-pointer ${pathname === "/volunteer" ? "text-[#D94E66]" : "text-black hover:text-[#D94E66]"}`}
+            onClick={() => handleClick("/volunteer")}
+          >
             VOLUNTEER
           </li>
-          <li className="hover:text-[#D94E66] cursor-pointer" onClick={handleClick5}>NEWS</li>
-          <li className="hover:text-[#D94E66] cursor-pointer">CONTACT</li>
+          <li
+            className={`cursor-pointer ${pathname === "/news" ? "text-[#D94E66]" : "text-black hover:text-[#D94E66]"}`}
+            onClick={() => handleClick("/news")}
+          >
+            NEWS
+          </li>
+          <li className="cursor-pointer text-black hover:text-[#D94E66]">CONTACT</li>
         </ul>
       </div>
     </div>
