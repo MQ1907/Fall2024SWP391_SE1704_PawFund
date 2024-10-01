@@ -18,14 +18,23 @@ const SignIn = () => {
   const handleSignin = () => {
     console.log('email:', email);
     console.log('password:', password);
-    dispatch(signin({ email, password }));
+    dispatch(signin({ email, password })).then((result) => {
+      console.log('Signin result:', result);
+      if (result.meta.requestStatus === 'fulfilled') {
+        const token = result.payload.token;
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('token', token); 
+        }
+        router.push('/'); 
+      }
+    });
   };
 
   useEffect(() => {
-    if (authStatus === 'succeeded') {
-      router.push('/home');  // Điều hướng sau khi đăng nhập thành công
+    if (authStatus === 'failed') {
+      console.log('Login failed:', error); 
     }
-  }, [authStatus, router]);
+  }, [authStatus, error]);
 
   return (
     <div className="flex h-screen text-center justify-center align-middle">
@@ -41,7 +50,7 @@ const SignIn = () => {
       <div className="w-[50%] text-center w-[100%]">
         <div>
           <h1 className="text-[40px] font-bold pt-[140px]">Sign In</h1>
-          {authStatus === 'failed' && <p className="text-red-500">{error}</p>} {/* Hiển thị lỗi nếu có */}
+          {authStatus === 'failed' && <p className="text-red-500">{error}</p>} 
           <div className="w-[50%] ml-[200px] pt-[50px]">
             <Input
               className="h-[40px]"
