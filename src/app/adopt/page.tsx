@@ -2,6 +2,8 @@
 import Image from "next/image";
 import React from "react";
 import "animate.css";
+import Router from "next/router";
+// import Router from "next/router";
 
 const Adopt = () => {
   const petData2 = [
@@ -115,7 +117,7 @@ const Adopt = () => {
         style={{ backgroundImage: "url('/images/adopt1.jpg')" }}
       >
         <div className="bg-black bg-opacity-50 w-full h-[210px] flex items-center justify-between px-8 py-16 ">
-          <div>
+          <div className="animate__animated animate__fadeInLeft">
             <h1 className="text-white text-[45px] font-bold ml-[170px]">
               ADOPTION
             </h1>
@@ -130,7 +132,13 @@ const Adopt = () => {
           </div>
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-4 mt-10">
+       <div
+        className="flex transition-transform ease-out duration-700"
+       
+      >
+
+      </div>
+      <div className="grid grid-cols-3 gap-4 mt-10 animate__animated animate__zoomIn ">
         <div className="col-span-2 bg-[#FFFFFF] ml-[200px]">
           <h1 className="text-[35px] font-medium text-3xl ">
             ADOPTION PROCESS
@@ -320,7 +328,7 @@ const Adopt = () => {
         style={{ backgroundImage: "url('/images/rescure.jpg')" }}
       >
         <div className="bg-black bg-opacity-50 w-full flex items-center justify-between px-8 py-16">
-          <div>
+          <div className="animate__animated animate__slideInUp">
             <h1 className="text-white text-3xl font-bold ml-[170px]">
               All Rescues
             </h1>
@@ -330,15 +338,45 @@ const Adopt = () => {
             </p>
           </div>
           <div>
-            <a
-              href="#"
-              className="bg-[#d4376e] hover:bg-[#008ADF] text-white text-lg font-bold py-3 px-8 rounded-full mr-[170px]"
-            >
-              VIEW ALL
-            </a>
+          <button
+            onClick={() => {
+              Router.push("/adopt");
+            }}
+            className="bg-pink-600 text-white py-3 px-20 rounded-full font-semibold hover:bg-[#018AE0] mr-[200px] "
+          >
+           VIEW ALL
+          </button>
           </div>
         </div>
       </div>
+      {/* <div
+        className="h-[150px] w-full  relative bg-fixed bg-center bg-cover bg-no-repeat flex items-center justify-center"
+        style={{
+          backgroundImage:
+            'linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.33)), url("/images/rescure.jpg")',
+          backgroundSize: "120% 90%",
+        }}
+      >
+        <div className="flex items-center justify-center gap-52">
+          <div className="flex flex-col justify-center gap-5">
+            <div className="text-2xl font-bold text-white">
+              All Rescures
+            </div>
+            <div className="text-xl font-medium text-white">
+            Learn about all rescues, hospitalized, in foster care, deceased,
+            adopted...
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              Router.push("/donate");
+            }}
+            className="bg-pink-600 text-white py-3 px-20 rounded-full font-semibold hover:bg-[#018AE0] "
+          >
+           VIEW ALL
+          </button>
+        </div>
+      </div> */}
 
       {/* <FindPet /> */}
       <div>
@@ -481,7 +519,7 @@ const Adopt = () => {
         style={{ backgroundImage: "url('/images/adopt2.png')" }}
       >
         <div className="bg-black bg-opacity-50 w-full flex items-center justify-between px-8 py-16">
-          <div className="flex-col-reverse">
+          <div className="flex-col-reverse animate__animated animate__zoomIn">
             <div>
               <h1 className="text-white text-2xl font-medium mt-2 ml-[120px] w-[600px] text-center">
                 You are Not Qualified To Bring The Boss Home? Join the Virtual

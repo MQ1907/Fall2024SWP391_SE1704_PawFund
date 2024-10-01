@@ -24,7 +24,7 @@ const AboutUs = () => {
       name: "Dinh Ba Minh Quan",
       role: "Marketing",
       detail:"Trước khi sáng lập nên Hanoi Pet Adoption vào năm 2015, Quỳnh đã từng tham gia hoạt động cứu hộ chó mèo ở Hà Nội nhiều năm. Nhìn vóc dáng nhỏ bé và trẻ trung của Quỳnh, không ai nghĩ rằng bạn có được sức mạnh và quyết tâm to lớn để mang lại cuộc sống tốt đẹp hơn cho chó mèo, cũng như năng lượng tích cực để kết nối những người cùng chung chí hướng. Quỳnh luôn ấp ủ ước mơ xây dựng được nhà chung to đẹp nhất Việt Nam để có thể cưu mang nhiều bé chó mèo cơ nhỡ hơn..",
-      image: "/images/minhquan.jpg",
+      image: "/images/quanAP.jpg",
     },
     {
       id: 4,
@@ -50,7 +50,7 @@ const AboutUs = () => {
         style={{ backgroundImage: "url('/images/aboutuspic.png')" }}
       >
         <div className="bg-black bg-opacity-50 w-full h-[210px] flex items-center justify-between px-8 py-16">
-          <div>
+          <div className="animate__animated animate__fadeInLeft">
             <h1 className="text-white text-[45px] font-bold ml-[170px]">
               ABOUT US
             </h1>
@@ -65,11 +65,11 @@ const AboutUs = () => {
           </div>
         </div>
       </div>
-      <div className="w-[1000px] justify-center ml-[250px]">
+      <div className="w-[1000px] justify-center ml-[250px] animate__animated animate__zoomIn">
         <h1 className="mt-[20px] text-[34px] font-medium">ABOUT US</h1>
         <hr className="w-[60px] border-[1px] bg-black"></hr>
         <br/>
-        <p>
+        <p className="font-bold">
           Chúng tôi là một nhóm trẻ gồm tình nguyện viên Việt Nam và một số bạn
           nước ngoài, cùng hoạt động vì tình yêu chó mèo. Tôn chỉ hoạt động của
           chúng tôi là không từ bỏ nỗ lực với bất kỳ con vật nào, dù bé có ốm
@@ -82,17 +82,17 @@ const AboutUs = () => {
           hội và các hoạt động thiện nguyện.
         </p>
         <br/>
-        <p>Là một trong những trạm cứu hộ thú cưng ít ỏi tại Hà Nội, hoạt động từ năm 2015 đến nay, Nhóm đã góp phần cứu giúp trên 4,000 ca chó mèo bị bỏ rơi, hoang lạc, bị bạo hành, đồng thời tìm mái ấm mới cho hàng trăm bé.
+        <p className="font-bold">Là một trong những trạm cứu hộ thú cưng ít ỏi tại Hà Nội, hoạt động từ năm 2015 đến nay, Nhóm đã góp phần cứu giúp trên 4,000 ca chó mèo bị bỏ rơi, hoang lạc, bị bạo hành, đồng thời tìm mái ấm mới cho hàng trăm bé.
 
 </p>
       </div>
       <div className="bg-[#F6F6F6] mt-6">
-      <div className={`flex flex-col items-center justify-center pt-10 gap-3 ${isAnimating ? 'animate__animated animate__fadeInLeft animate__delay-3s animate__duration-4s' : ''}`}>
+      <div className={`flex flex-col items-center justify-center pt-10 gap-3 ${isAnimating ? 'animate__animated animate__backInUp  animate__duration-4s' : ''}`}>
     <div className="font-semibold text-3xl">OUR TEAM</div>
     <Image src="/images/dogfoot.png" alt="" width={30} height={30} className="transform rotate-12" />
     </div>
-    <div>
-          <div className="grid grid-cols-4 gap-6 p-6 w-[1100px] ml-[200px]">
+    <div className=" flex justify-center">
+          <div className="grid grid-cols-4 gap-6 p-6 w-[1100px]">
             {memberData.slice(0, 16).map((member, index) => (
               <div
                 key={index}
@@ -103,7 +103,7 @@ const AboutUs = () => {
                   alt=""
                   width={200}
                   height={200}
-                  className="w-[350px] h-[250px]  rounded-md  hover:scale-110 duration-500"
+                  className="w-[300px] h-[270px] object-fill  rounded-md  hover:scale-110 duration-500"
                 />
                 <div className="mt-4">
                   <h3 className="text-[21px] font-bold">{member.name}</h3>
