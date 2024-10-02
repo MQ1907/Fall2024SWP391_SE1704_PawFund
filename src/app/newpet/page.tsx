@@ -84,13 +84,17 @@ const Newpet = () => {
   };
 
   const currentPets = petsData.slice(currentIndex, currentIndex + petsPerPage);
+  const [isAnimating] = useState(true);
 
   return (
     <div className="h-auto">
       <div className=" bg-white relative">
         <div className=" grid grid-cols-2 gap-y-5"> 
           {currentPets.map((pet) => (
-            <div key={pet.id} className="bg-white w-80 h-[500px] rounded-lg shadow-md overflow-hidden relative">
+            <div
+            key={pet.id}
+            className="bg-white w-80 h-[500px] rounded-lg shadow-md overflow-hidden relative animate__animated animate__fadeInUp animate__delay-1s animate__duration-3s"
+          >                  
               <div className="overflow-hidden" style={{ height: '200px' }}> 
                 <Image
                   src={pet.image}
