@@ -1,9 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit'
 import authReducer from '../lib/features/auth/authSlice';
+import petReducer from "../lib/features/pet/petSlice"
 export const makeStore = () => {
   return configureStore({
     reducer: {
         auth: authReducer,
+         pets: petReducer,
     }
   })
 }

@@ -83,7 +83,7 @@ const Page: React.FC = () => {
           <h1 className="text-[40px] font-bold pt-[50px] ">Sign Up </h1>
           <h2 className="text-[35px] font-bold pt-5 ">Welcome to PawFund </h2>
         </div>
-        <div className="w-[50%] ml-[200px] pt-[50px]">
+        <div className="w-[50%] ml-[200px] pt-[50px] flex flex-col gap-3">
           <Input
             className="h-[40px] "
             placeholder="Username"
@@ -91,37 +91,24 @@ const Page: React.FC = () => {
             onChange={(e) => setName(e.target.value)}
             style={{ backgroundColor: "#e5e4e4", border: "none" }}
           />
+
           <Input
-            className="h-[40px]"
+            className="h-[40px] "
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             style={{ backgroundColor: "#e5e4e4", border: "none" }}
           />
-          <Input
+         
+           <Input.Password 
             type="password"
-            className="h-[40px]"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            style={{
-              backgroundColor: "#e5e4e4",
-              border: "none",
-              marginTop: "30px",
-            }}
-          />
-          {/* <Input
-            type="password"
-            className="h-[40px]"
-            placeholder="Confirm Password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            style={{
-              backgroundColor: "#e5e4e4",
-              border: "none",
-              marginTop: "30px",
-            }}
-          /> */}
+              className="h-[40px]"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={{ backgroundColor: "#e5e4e4", border: "none" }}/>
+
+         
           <Dropdown menu={{ items }} placement="bottomLeft">
             <Button
               style={buttonChooseRole(isHovered)}
@@ -132,12 +119,10 @@ const Page: React.FC = () => {
               <DownOutlined className="text-[50px]" />
             </Button>
           </Dropdown>
-          <button
-            onClick={handleSignup}
-            className="font-semibold duration-300 hover:text-white mt-6 rounded-md text-[15px] w-[100%] relative font-medium -top-1 -left-1 hover:top-0 hover:left-0 transition-all bg-[#FFEB55] hover:bg-[#2b74d4] py-2.5 px-5 uppercase text-black before:content-[''] before:absolute before:top-1 before:left-1 before:hover:top-0 before:hover:left-0 before:w-full before:border-2 before:border-[#FFEB55] before:-z-10 before:transition-all"
-          >
-            Get Started
-          </button>
+          
+           <button  onClick={handleSignup}  className="font-semibold duration-300 hover:text-white mt-6 rounded-md text-[15px] w-[100%] relative font-medium -top-1 -left-1 hover:top-0 hover:left-0 transition-all bg-[#FFEB55] hover:bg-[#2b74d4] py-2.5 px-5 uppercase text-black before:content-[''] before:absolute before:top-1 before:left-1 before:hover:top-0 before:hover:left-0 before:w-full before:border-2 before:border-[#FFEB55] before:-z-10 before:transition-all">
+              Get Started
+            </button>
           {authStatus === "failed" && <p className="text-red-500">{error}</p>}{" "}
           {/* Hiển thị lỗi nếu có */}
           <div className="flex pt-5">
@@ -171,7 +156,7 @@ const Page: React.FC = () => {
               </button>
             </div>
           </div>
-          <div className="pt-5">
+          <div className="pt-2">
             <p className="text-[15px]">
               You already have account
               <a
