@@ -8,7 +8,7 @@ const News = () => {
   return (
     <div className='pt-[148px]'>
       <div
-        className="w-full bg-cover bg-center relative"
+        className="w-full bg-cover bg-center relative bg-red"
         style={{ backgroundImage: "url('/images/news.png')" }}
       >
         <div className="bg-black bg-opacity-20 w-full h-[210px] flex items-center justify-between px-8 py-16">
