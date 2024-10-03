@@ -15,9 +15,18 @@ export const signin = createAsyncThunk('auth/login', async (credentials: { email
   }
 });
 
-export const signup = createAsyncThunk('auth/signup', async (userData: { name: string, password: string, email: string, role: string[] }) => {
-  const response = await axios.post('http://localhost:8000/auth/signup', userData);
-  return response.data; 
+export const signup = createAsyncThunk('auth/signup', async (userData: { name: string, password: string, email: string, role: string }, { rejectWithValue }) => {
+  try {
+    const response = await axios.post('http://localhost:8000/auth/sign-up', userData);
+    console.log('Signup response:', response.data); 
+    return response.data;
+  } catch (error: any) {
+    console.error('Signup error:', error.response?.data || error.message);
+    if (error.response) {
+      return rejectWithValue(error.response.data.message || 'Signup failed');
+    }
+    throw error;
+  }
 });
 
 interface AuthState {
@@ -67,10 +76,12 @@ const authSlice = createSlice({
       .addCase(signup.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.token = action.payload.token; 
+        console.log('Signup successful:', action.payload); // Log the signup response
         if (typeof window !== 'undefined') {
           localStorage.setItem('token', action.payload.token); 
         }
       })
+      
       .addCase(signup.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message || 'Signup failed';

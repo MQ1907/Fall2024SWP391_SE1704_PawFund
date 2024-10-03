@@ -35,18 +35,18 @@ const Page: React.FC = () => {
   const items: MenuProps["items"] = [
     {
       key: "1",
-      label: "Customer",
-      onClick: () => setRole("customers"),
+      label: "CUSTOMER",
+      onClick: () => setRole("CUSTOMER"),
     },
     {
       key: "2",
-      label: "Volunteer",
-      onClick: () => setRole("volunteers"),
+      label: "VOLUNTEER",
+      onClick: () => setRole("VOLUNTEER"),
     },
   ];
 
   const handleSignup = () => {
-    dispatch(signup({ name, password, email, role: [role] })); // Đặt role vào mảng
+    dispatch(signup({ name, email, password, role }));
   };
 
   React.useEffect(() => {
