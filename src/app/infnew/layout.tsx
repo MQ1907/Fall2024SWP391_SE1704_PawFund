@@ -7,8 +7,8 @@ import ClientLayout from "../ClientLayout";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-   <ClientLayout>
-     <div>
+    <ClientLayout>
+    <div>
       <div>
         <Header />
       </div>
@@ -19,6 +19,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <Footer />
       </div>
     </div>
-   </ClientLayout>
+    </ClientLayout>
   );
 }

@@ -3,10 +3,12 @@
 import React from "react";
 import Header from "../components/header/page";
 import Footer from "../components/footer/page";
+import ClientLayout from "../ClientLayout";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div>
+    <ClientLayout>
+      <div>
       <div>
         <Header />
       </div>
@@ -17,5 +19,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <Footer />
       </div>
     </div>
+    </ClientLayout>
   );
 }

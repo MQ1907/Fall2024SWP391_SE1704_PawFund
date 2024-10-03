@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 const Newpet = () => {
+  const router = useRouter();
   const petsData = [
     {
       id: 1,
@@ -51,6 +53,12 @@ const Newpet = () => {
       detail: 'Khuyết tật bẩm sinh khiến chú chó gặp rất nhiều trở ngại nhưng sức sống mãnh liệt đã chiến thắng tất cả.',
       image: '/images/corgi.png',
     },
+    {
+      id: 9,
+      title: 'Chú chó Corgi sinh ra với 1 mắt và 2 mũi sống sót kỳ diệu',
+      detail: 'Khuyết tật bẩm sinh khiến chú chó gặp rất nhiều trở ngại nhưng sức sống mãnh liệt đã chiến thắng tất cả.',
+      image: '/images/corgi.png',
+    },
   ];
 
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -76,13 +84,17 @@ const Newpet = () => {
   };
 
   const currentPets = petsData.slice(currentIndex, currentIndex + petsPerPage);
+  const [isAnimating] = useState(true);
 
   return (
     <div className="h-auto">
       <div className=" bg-white relative">
-        <div className=" grid grid-cols-2 gap-y-"> 
+        <div className=" grid grid-cols-2 gap-y-5"> 
           {currentPets.map((pet) => (
-            <div key={pet.id} className="bg-white w-80 h-[500px] rounded-lg shadow-md overflow-hidden relative">
+            <div
+            key={pet.id}
+            className="bg-white w-80 h-[500px] rounded-lg shadow-md overflow-hidden relative animate__animated animate__fadeInUp animate__delay-1s animate__duration-3s"
+          >                  
               <div className="overflow-hidden" style={{ height: '200px' }}> 
                 <Image
                   src={pet.image}
@@ -90,6 +102,8 @@ const Newpet = () => {
                   width={320}
                   height={300}
                   className="rounded-lg shadow-md object-cover"
+                  // onClick={() => router.push(`/pets/${pet.id}`)}
+                  onClick={() => router.push('/infnew')}
                 />
                 <div className="absolute top-[180px] ml-5 left-0 text-white bg-[#D61C62] w-[40px] h-[20px] z-10 flex items-center justify-center">23</div>
                 <div className="absolute top-[200px] ml-5 left-0 text-white bg-[#D61C62] w-[40px] h-[20px] z-10 flex items-center justify-center">T9</div>
