@@ -11,11 +11,11 @@ const Donate = () => {
   return (
     <div className="mt-[148px]">
       <div
-        className="w-full bg-cover bg-center relative"
+        className="w-full bg-cover bg-center relative "
         style={{ backgroundImage: "url('/images/donate.png')" }}
       >
-        <div className="bg-black bg-opacity-50 w-full h-[210px] flex items-center justify-between px-8 py-16">
-          <div>
+        <div className="bg-black bg-opacity-50 w-full h-[210px] flex items-center justify-between px-8 py-16 ">
+          <div className="animate__animated animate__fadeInLeft">
             <h1 className="text-white text-[45px] font-bold ml-[170px]">
               DONATE
             </h1>
@@ -30,7 +30,7 @@ const Donate = () => {
           </div>
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-4 mt-10">
+      <div className="grid grid-cols-3 gap-10 mt-10 animate__animated animate__zoomIn">
         <div className="col-span-2 bg-[#FFFFFF] ml-[200px]">
           <h1 className="text-[35px] font-medium text-3xl">I WANT TO DONATE</h1>
           <hr className="w-[60px] border-[1px] text-[#cecece] mt-2" />
@@ -61,22 +61,35 @@ const Donate = () => {
           <br />
         </div>
         <div>
-        <Image
-                    src="/images/donatepic.jpg"
-                    alt="pets"
-                    width={230}
-                    height={230}
-                    
-                  />
+          <Image
+            src="/images/donatepic.jpg"
+            alt="pets"
+            width={230}
+            height={230}
+          />
         </div>
         <div className="flex items-end ml-[200px]">
-              <button onClick={() => {
+          <button
+            onClick={() => {
               router.push("/contact");
             }}
-              className="bg-pink-500 hover:bg-[#008ADF] text-white text-lg font-bold py-3 px-8 rounded-full w-[200px]">
-                DONATE NOW
-              </button>
-            </div>
+            className="bg-pink-500 hover:bg-[#008ADF] text-white text-lg font-bold py-3 px-8 rounded-full w-[200px]"
+          >
+            DONATE NOW
+          </button>
+        </div>
+      </div>
+      <div>
+        <div className="flex flex-col items-center justify-center pt-10 mt-8 gap-3 bg-gray-400">
+          <div className="font-semibold text-3xl">SUPPORTER COMMUNITY</div>
+          <Image
+            src="/images/dogfoot.png"
+            alt="Pet search logo"
+            width={30}
+            height={30}
+            className="transform rotate-12"
+          />
+        </div>
       </div>
     </div>
   );

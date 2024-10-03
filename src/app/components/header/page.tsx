@@ -121,13 +121,22 @@ const Header = () => {
           >
             VOLUNTEER
           </li>
+
+         
+
           <li
             className={`cursor-pointer ${pathname === "/news" ? "text-[#D94E66]" : "text-black hover:text-[#D94E66]"}`}
             onClick={() => handleClick("/news")}
           >
             NEWS
           </li>
-          <li className="cursor-pointer text-black hover:text-[#D94E66]">CONTACT</li>
+     <li
+            className={`cursor-pointer ${pathname === "/contact" ? "text-[#D94E66]" : "text-black hover:text-[#D94E66]"}`}
+            onClick={() => handleClick("/contact")}
+          >
+           CONTACT
+          </li>
+
         </ul>
       </div>
     </div>
