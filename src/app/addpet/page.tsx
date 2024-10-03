@@ -11,8 +11,6 @@ const AddPet: React.FC = () => {
   const dispatch = useAppDispatch();
   const { status, error } = useAppSelector((state) => state.pets);
   const [petData, setPetData] = useState({
-    id: '',
-    
     shelterId: '',
     petCode: '',
     name: '',
@@ -21,7 +19,6 @@ const AddPet: React.FC = () => {
     color: '',
     breed: '',
     age: '',
-    species: '',
     isVacinted: false,
     isVerified: false,
     deliveryStatus: '',
@@ -35,7 +32,7 @@ const AddPet: React.FC = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    const parsedValue = ['age', 'shelterId', 'rescueBy', 'species', 'rescueFee','id'].includes(name)
+    const parsedValue = ['age', 'shelterId',  'species', 'rescueFee'].includes(name)
       ? parseInt(value, 10)
       : value;
 
@@ -68,10 +65,6 @@ const AddPet: React.FC = () => {
           <Input name="name" value={petData.name} onChange={handleChange} />
         </Form.Item>
 
-        <Form.Item label="ID">
-          <Input name="id" value={petData.id} onChange={handleChange} />
-        </Form.Item>
-
         <Form.Item label="Shelter ID">
           <Input name="shelterId" value={petData.shelterId} onChange={handleChange} />
         </Form.Item>
@@ -91,9 +84,7 @@ const AddPet: React.FC = () => {
         <Form.Item label="Age">
           <Input name="age" value={petData.age} onChange={handleChange} />
         </Form.Item>
-         <Form.Item label="species">
-          <Input name="species" value={petData.species} onChange={handleChange} />
-        </Form.Item>
+        
 
         <Form.Item label="Description">
           <TextArea name="description" value={petData.description} onChange={handleChange} rows={4} />

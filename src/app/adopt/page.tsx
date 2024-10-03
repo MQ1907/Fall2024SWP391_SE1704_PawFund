@@ -1,114 +1,24 @@
 "use client";
 import Image from "next/image";
-import React from "react";
-import "animate.css";
-import Router from "next/router";
-
+import React, { useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "../../lib/hook"; // Import hooks
+import { fetchPets } from "../../lib/features/pet/petSlice"; // Đường dẫn đến file petSlice
 
 const Adopt = () => {
-  const petData2 = [
-    {
-      id: 1,
-      name: "Win",
-      gender: "Đực",
-      age: "Trưởng thành",
-      vaccination: "Có",
-      image: "/images/pet1.jpeg",
-    },
-    {
-      id: 2,
-      name: "Win",
-      gender: "Đực",
-      age: "Trưởng thành",
-      vaccination: "Có",
-      image: "/images/pet2.jpeg",
-    },
-    {
-      id: 3,
-      name: "Win",
-      gender: "Đực",
-      age: "Trưởng thành",
-      vaccination: "Có",
-      image: "/images/pet3.jpeg",
-    },
-    {
-      id: 4,
-      name: "Win",
-      gender: "Đực",
-      age: "Trưởng thành",
-      vaccination: "Có",
-      image: "/images/pet4.jpeg",
-    },
-    {
-      id: 5,
-      name: "Win",
-      gender: "Đực",
-      age: "Trưởng thành",
-      vaccination: "Có",
-      image: "/images/pet4.jpeg",
-    },
+  const dispatch = useAppDispatch();
+  const { pets, status, error } = useAppSelector((state) => state.pets);
 
-    {
-      id: 6,
-      name: "Win",
-      gender: "Đực",
-      age: "Trưởng thành",
-      vaccination: "Có",
-      image: "/images/pet4.jpeg",
-    },
+  useEffect(() => {
+    dispatch(fetchPets());
+  }, [dispatch]);
 
-    {
-      id: 7,
-      name: "Win",
-      gender: "Đực",
-      age: "Trưởng thành",
-      vaccination: "Có",
-      image: "/images/pet4.jpeg",
-    },
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
 
-    {
-      id: 8,
-      name: "Win",
-      gender: "Đực",
-      age: "Trưởng thành",
-      vaccination: "Có",
-      image: "/images/pet4.jpeg",
-    },
-
-    {
-      id: 9,
-      name: "Win",
-      gender: "Đực",
-      age: "Trưởng thành",
-      vaccination: "Có",
-      image: "/images/pet4.jpeg",
-    },
-
-    {
-      id: 10,
-      name: "Win",
-      gender: "Đực",
-      age: "Trưởng thành",
-      vaccination: "Có",
-      image: "/images/pet4.jpeg",
-    },
-    {
-      id: 11,
-      name: "Win",
-      gender: "Đực",
-      age: "Trưởng thành",
-      vaccination: "Có",
-      image: "/images/pet1.jpeg",
-    },
-    {
-      id: 12,
-      name: "Win",
-      gender: "Đực",
-      age: "Trưởng thành",
-      vaccination: "Có",
-      image: "/images/pet2.jpeg",
-    },
-  ];
+  if (status === "failed") {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <div className="pt-[148px]">
@@ -116,10 +26,8 @@ const Adopt = () => {
         className="w-full bg-cover bg-center relative"
         style={{ backgroundImage: "url('/images/adopt1.jpg')" }}
       >
-
-        <div className="bg-black bg-opacity-50 w-full h-[210px] flex items-center justify-between px-8 py-16 ">
-          <div className="animate__animated animate__fadeInLeft">
-
+        <div className="bg-black bg-opacity-50 w-full h-[210px] flex items-center justify-between px-8 py-16">
+          <div>
             <h1 className="text-white text-[45px] font-bold ml-[170px]">
               ADOPTION
             </h1>
@@ -134,13 +42,7 @@ const Adopt = () => {
           </div>
         </div>
       </div>
-       <div
-        className="flex transition-transform ease-out duration-700"
-       
-      >
-
-      </div>
-      <div className="grid grid-cols-3 gap-4 mt-10 animate__animated animate__zoomIn ">
+      <div className="grid grid-cols-3 gap-4 mt-10">
         <div className="col-span-2 bg-[#FFFFFF] ml-[200px]">
           <h1 className="text-[35px] font-medium text-3xl">ADOPTION PROCESS</h1>
           <hr className="w-[60px] border-[1px] text-[#cecece] mt-2" />
@@ -324,17 +226,15 @@ const Adopt = () => {
         </div>
       </div>
       <div
-       className="h-[200px] w-full  relative bg-fixed bg-center bg-cover bg-no-repeat flex items-center justify-center"
+        className="h-[200px] w-full  relative bg-fixed bg-center bg-cover bg-no-repeat flex items-center justify-center"
         style={{
           backgroundImage:
             'linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.33)), url("/images/rescure.jpg")',
           backgroundSize: "100% 100%",
         }}
       >
-
-        <div className="bg-black bg-opacity-50 w-full flex items-center justify-between px-8 py-16">
-          <div className="animate__animated animate__slideInUp">
-
+        <div className=" bg-opacity-50 w-full flex items-center justify-between px-8 py-16">
+          <div>
             <h1 className="text-white text-3xl font-bold ml-[170px]">
               All Rescues
             </h1>
@@ -344,45 +244,15 @@ const Adopt = () => {
             </p>
           </div>
           <div>
-          <button
-            onClick={() => {
-              Router.push("/adopt");
-            }}
-            className="bg-pink-600 text-white py-3 px-20 rounded-full font-semibold hover:bg-[#018AE0] mr-[200px] "
-          >
-           VIEW ALL
-          </button>
+            <a
+              href="#"
+              className="bg-[#d4376e] hover:bg-[#008ADF] text-white text-lg font-bold py-3 px-8 rounded-full mr-[170px]"
+            >
+              VIEW ALL
+            </a>
           </div>
         </div>
       </div>
-      {/* <div
-        className="h-[150px] w-full  relative bg-fixed bg-center bg-cover bg-no-repeat flex items-center justify-center"
-        style={{
-          backgroundImage:
-            'linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.33)), url("/images/rescure.jpg")',
-          backgroundSize: "120% 90%",
-        }}
-      >
-        <div className="flex items-center justify-center gap-52">
-          <div className="flex flex-col justify-center gap-5">
-            <div className="text-2xl font-bold text-white">
-              All Rescures
-            </div>
-            <div className="text-xl font-medium text-white">
-            Learn about all rescues, hospitalized, in foster care, deceased,
-            adopted...
-            </div>
-          </div>
-          <button
-            onClick={() => {
-              Router.push("/donate");
-            }}
-            className="bg-pink-600 text-white py-3 px-20 rounded-full font-semibold hover:bg-[#018AE0] "
-          >
-           VIEW ALL
-          </button>
-        </div>
-      </div> */}
 
       {/* <FindPet /> */}
       <div>
@@ -495,10 +365,10 @@ const Adopt = () => {
 
         <div>
           <div className="grid grid-cols-4 gap-6 p-6 w-[1100px] ml-[200px]">
-            {petData2.slice(0, 16).map((pet, index) => (
+            {pets.map((pet) => (
               <div
-                key={index}
-                className="bg-[#F6F6F6n] rounded-lg shadow-md p-4"
+                key={pet.petCode}
+                className="bg-[#F6F6F6] rounded-lg shadow-md p-4"
               >
                 <Image
                   src={pet.image}
@@ -509,29 +379,23 @@ const Adopt = () => {
                 />
                 <div className="mt-4">
                   <h3 className="text-lg font-bold">{pet.name}</h3>
-                  <p className="text-sm text-gray-700">Gender: {pet.gender}</p>
-                  <p className="text-sm text-gray-700">Age: {pet.age}</p>
-                  <p className="text-sm text-gray-700">
-                    Vaccination: {pet.vaccination}
-                  </p>
                 </div>
               </div>
             ))}
           </div>
         </div>
       </div>
+
       <div
-       className="h-[200px] w-full  relative bg-fixed bg-center bg-cover bg-no-repeat flex items-center justify-center"
+        className="h-[200px] w-full  relative bg-fixed bg-center bg-cover bg-no-repeat flex items-center justify-center"
         style={{
           backgroundImage:
             'linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.33)), url("/images/adopt2.png")',
           backgroundSize: "100% 100%",
         }}
       >
-
-        <div className="bg-black bg-opacity-50 w-full flex items-center justify-between px-8 py-16">
-          <div className="flex-col-reverse animate__animated animate__zoomIn">
-
+        <div className="bg-opacity-50 w-full flex items-center justify-between px-8 py-16">
+          <div className="flex-col-reverse">
             <div>
               <h1 className="text-white text-2xl font-medium mt-2 ml-[120px] w-[600px] text-center">
                 You are Not Qualified To Bring The Boss Home? Join the Virtual

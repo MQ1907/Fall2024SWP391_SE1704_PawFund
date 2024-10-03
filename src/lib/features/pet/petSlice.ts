@@ -5,22 +5,20 @@ import axios from 'axios';
 export const createPet = createAsyncThunk(
   'pet/create',
   async (petData: {
-    id:number;
     shelterId: string;
     petCode: string;
     name: string;
     description: string;
     image: string;
     color: string;
-    breed: string;
+    breed: string; 
     age: number;
-    species: string;
     isVacinted: boolean;
     isVerified: boolean;
     deliveryStatus: string;
     isAdopted: boolean;
     note: string;
-    rescueBy: string;
+    rescueBy: string; 
     rescueFee: number;
     locationFound: string;
     petStatus: string;
@@ -31,6 +29,21 @@ export const createPet = createAsyncThunk(
     } catch (error: any) {
       if (error.response) {
         throw new Error(error.response.data.message || 'Failed to create pet');
+      }
+      throw error;
+    }
+  }
+);
+
+export const fetchPets = createAsyncThunk(
+  'pet/fetchAll',
+  async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/pet/find-all');
+      return response.data; // Trả về dữ liệu mà bạn nhận được
+    } catch (error: any) {
+      if (error.response) {
+        throw new Error(error.response.data.message || 'Failed to fetch pets');
       }
       throw error;
     }
@@ -65,14 +78,46 @@ const petSlice = createSlice({
       })
       .addCase(createPet.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.pets.push(action.payload); // Add the new pet to the pets array
+        state.pets.push(action.payload); 
       })
       .addCase(createPet.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message || 'Failed to create pet';
-      });
+      })
+       .addCase(fetchPets.pending, (state) => {
+      state.status = 'loading';
+    })
+    .addCase(fetchPets.fulfilled, (state, action) => {
+      state.status = 'succeeded';
+      state.pets = action.payload; // Cập nhật danh sách thú cưng
+    })
+    .addCase(fetchPets.rejected, (state, action) => {
+      state.status = 'failed';
+      state.error = action.error.message || 'Failed to fetch pets';
+    });
   }
 });
+
+// //Featch
+// export const fetchPets = createAsyncThunk(
+//   'pet/fetchAll',
+//   async () => {
+//     try {
+//       const response = await axios.get('http://localhost:8000/pet/find-all');
+   
+//       return response.data.map((pet: { name: string; image: string }) => ({
+//         name: pet.name,
+//         image: pet.image,
+//       }));
+//     } catch (error: any) {
+//       if (error.response) {
+//         throw new Error(error.response.data.message || 'Failed to fetch pets');
+//       }
+//       throw error;
+//     }
+//   }
+// );
+
 
 // Export the actions (if needed)
 export const { clearError } = petSlice.actions;
