@@ -4,16 +4,17 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { logout } from "../../../lib/features/auth/authSlice"; 
 import { useAppDispatch, useAppSelector } from "@/lib/hook";
-import { usePathname } from 'next/navigation'; // Import usePathname từ Next.js
+import { usePathname } from 'next/navigation'; 
 
 const Header = () => {
   const router = useRouter(); 
   const dispatch = useAppDispatch(); 
   const token = useAppSelector((state) => state.auth.token); 
-  const pathname = usePathname(); // Lấy đường dẫn hiện tại
+  const pathname = usePathname(); 
   
   const [showTopBar, setShowTopBar] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [hasHydrated, setHasHydrated] = useState(false); 
 
   const controlHeader = () => {
     if (typeof window !== "undefined") {
@@ -36,8 +37,13 @@ const Header = () => {
     }
   }, [lastScrollY]);
 
+  
+  useEffect(() => {
+    setHasHydrated(true);
+  }, []);
+
   const handleClick = (path: string) => {
-    router.push(path); // Điều hướng đến trang mới
+    router.push(path); 
   };
 
   const handleLoginClick = () => {
@@ -49,12 +55,15 @@ const Header = () => {
     router.push("/signin");
   };
 
+ 
+  if (!hasHydrated) {
+    return null; 
+  }
+
   return (
     <div className="fixed z-50 w-full">
       <div
-        className={`h-[42px] bg-[#FFCC00] flex items-center justify-between fixed top-0 left-0 right-0 z-40 transition-transform duration-300 ease-in-out ${
-          showTopBar ? "translate-y-0" : "-translate-y-full"
-        }`}
+        className={`h-[42px] bg-[#FFCC00] flex items-center justify-between fixed top-0 left-0 right-0 z-40 transition-transform duration-300 ease-in-out ${showTopBar ? "translate-y-0" : "-translate-y-full"}`}
       >
         <ul className="flex gap-10 pl-96 items-center">
           <li className="flex items-center gap-2">
@@ -82,16 +91,14 @@ const Header = () => {
               onClick={token ? handleLogoutClick : handleLoginClick}
               className="rounded-md border border-black px-4 text-white hover:text-[#D94E66] hover:bg-white"
             >
-              {token ? "Logout" : "Login"} 
+              {token ? "Logout" : "Login"}
             </button>
           </li>
         </ul>
       </div>
 
       <div
-        className={`h-[106px] bg-[#F4F4F4] flex items-center justify-center fixed top-0 left-0 right-0 z-30 transition-transform duration-300 ease-in-out ${
-          showTopBar ? "mt-[42px]" : "mt-0"
-        }`}
+        className={`h-[106px] bg-[#F4F4F4] flex items-center justify-center fixed top-0 left-0 right-0 z-30 transition-transform duration-300 ease-in-out ${showTopBar ? "mt-[42px]" : "mt-0"}`}
       >
         <ul className="flex gap-[60px] items-center">
           <li>
@@ -121,22 +128,18 @@ const Header = () => {
           >
             VOLUNTEER
           </li>
-
-         
-
           <li
             className={`cursor-pointer ${pathname === "/news" ? "text-[#D94E66]" : "text-black hover:text-[#D94E66]"}`}
             onClick={() => handleClick("/news")}
           >
             NEWS
           </li>
-     <li
+          <li
             className={`cursor-pointer ${pathname === "/contact" ? "text-[#D94E66]" : "text-black hover:text-[#D94E66]"}`}
             onClick={() => handleClick("/contact")}
           >
            CONTACT
           </li>
-
         </ul>
       </div>
     </div>
