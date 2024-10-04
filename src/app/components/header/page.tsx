@@ -140,6 +140,12 @@ const Header = () => {
           >
            CONTACT
           </li>
+          <li
+            className={`cursor-pointer ${pathname === "/contact" ? "text-[#D94E66]" : "text-black hover:text-[#D94E66]"}`}
+            onClick={() => handleClick("/admin")}
+          >
+           ADMIN
+          </li>
         </ul>
       </div>
     </div>
