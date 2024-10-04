@@ -370,7 +370,7 @@ const Adopt = () => {
                 key={pet.petCode}
                 className="bg-[#F6F6F6] rounded-lg shadow-md p-4"
               >
-                <Image
+                <img
                   src={pet.image}
                   alt={pet.name}
                   width={200}
