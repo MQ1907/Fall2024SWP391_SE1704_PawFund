@@ -17,13 +17,13 @@ interface DecodedToken {
 const Header = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const token = localStorage.getItem("token");
   const pathname = usePathname();
-
+  const [token, setToken] = useState<string | null>(null);
   const [showTopBar, setShowTopBar] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [hasHydrated, setHasHydrated] = useState(false);
   const [name, setName] = useState<string | null>(null);
+  const [role, setRole] = useState<string | null>(null);
 
   const controlHeader = () => {
     if (typeof window !== "undefined") {
@@ -48,30 +48,35 @@ const Header = () => {
 
   useEffect(() => {
     setHasHydrated(true);
-    if (token) {
-      const decodedToken = jwtDecode<DecodedToken>(token);
-      const userId = decodedToken.id;
+    if (typeof window !== "undefined") {
+      const storedToken = localStorage.getItem("token"); // Check client-side before accessing localStorage
+      setToken(storedToken);
 
-      console.log("userId", userId);
-      
+      if (storedToken) {
+        const decodedToken = jwtDecode<DecodedToken>(storedToken);
+        const userId = decodedToken.id;
 
-      // Gọi API để lấy thông tin người dùng
-      const fetchUser = async () => {
-        try {
-          const response = await axios.get(
-            `http://localhost:8000/users/${userId}`
-          );
-          console.log("User data:", response.data);
-          
-          setName(response.data.name);
-        } catch (error) {
-          console.error("Error fetching user data:", error);
-        }
-      };
+        console.log("userId", userId);
 
-      fetchUser();
+        // Gọi API để lấy thông tin người dùng
+        const fetchUser = async () => {
+          try {
+            const response = await axios.get(
+              `http://localhost:8000/users/${userId}`
+            );
+            console.log("User data:", response.data);
+
+            setName(response.data.name);
+            setRole(response.data.role);
+          } catch (error) {
+            console.error("Error fetching user data:", error);
+          }
+        };
+
+        fetchUser();
+      }
     }
-  }, [token]);
+  }, []);
 
   const handleClick = (path: string) => {
     router.push(path);
@@ -84,6 +89,14 @@ const Header = () => {
   const handleLogoutClick = () => {
     dispatch(logout());
     router.push("/signin");
+  };
+
+  const handleAdminClick = () => {
+    router.push("/admin");
+  };
+
+  const handleShelterStaffClick = () => {
+    router.push("/shelterStaff");
   };
 
   if (!hasHydrated) {
@@ -118,9 +131,7 @@ const Header = () => {
           <li>
             <Image src="/images/vietnam.png" alt="" width={30} height={30} />
           </li>
-          <li>
-            Hi {name ? name : "Guest"}
-          </li>
+          <li>Hi {name ? name : "Guest"} ❤️</li>
           <li>
             <button
               onClick={token ? handleLogoutClick : handleLoginClick}
@@ -203,13 +214,20 @@ const Header = () => {
           </li>
           <li
             className={`cursor-pointer ${
-              pathname === "/contact"
+              pathname === "/admin"
                 ? "text-[#D94E66]"
                 : "text-black hover:text-[#D94E66]"
             }`}
-            onClick={() => handleClick("/admin")}
+            onClick={
+              role === "ADMIN"
+                ? handleAdminClick
+                : role === "SHELTER_STAFF"
+                ? handleShelterStaffClick
+                : undefined
+            }
           >
-            ADMIN
+            {role === "ADMIN" && "ADMIN DASHBOARD"}
+            {role === "SHELTER_STAFF" && "SHELTERSTAFF DASHBOARD"}
           </li>
         </ul>
       </div>
