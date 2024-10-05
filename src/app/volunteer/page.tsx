@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import Image from "next/image";
 import React, { useState } from "react";
 
@@ -6,8 +6,28 @@ import { Button, Input, Modal, Select } from "antd";
 import { CheckingType, HealthStatus } from "../../enum";
 import { createHealthCheck } from "@/lib/features/pet/HealthCheckSlice";
 import { useAppDispatch } from "@/lib/hook";
+import AddPet from "../addpet/page";
 
 const Volunteer = () => {
+  
+  //Create Pet
+  const [openAddPetModal, setOpenAddPetModal] = useState(false);
+   const showAddPetModal = () => {
+    setOpenAddPetModal(true); // Mở modal AddPet
+  };
+
+  const handleCancelAddPet = () => {
+    setOpenAddPetModal(false); // Đóng modal AddPet
+  };
+
+  const handleOkAddPet = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      setOpenAddPetModal(false); // Đóng modal sau khi xử lý xong
+    }, 3000);
+  };
+  
   const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
@@ -27,39 +47,43 @@ const Volunteer = () => {
   const handleCancel = () => {
     setOpen(false);
   };
- 
-    const [petId, setPetId] = useState('');
-    const [healthStatus, setHealthStatus] = useState<HealthStatus | undefined>(undefined);
-    const [healthStatusDescription, setHealthStatusDescription] = useState('');
-    const [note, setNote] = useState('');
-    const [weight, setWeight] = useState<number | undefined>(undefined);
-    const [temperature, setTemperature] = useState<number | undefined>(undefined);
-    const [checkingDate, setCheckingDate] = useState('');
-    const [checkingBy, setCheckingBy] = useState('');
-    const [checkingType, setCheckingType] = useState<CheckingType | undefined>(undefined);
-  
-    const handleSubmit = async () => {
-      const healthCheckData = {
-        petId,
-        healthStatus,
-        healthStatusDescription,
-        note,
-        weight,
-        temperature,
-        checkingDate,
-        checkingBy,
-        checkingType,
-      };
-  
-      try {
-        // Gọi action để tạo health check
-        await dispatch(createHealthCheck(healthCheckData)).unwrap();
-        handleOk(); // Đóng modal nếu thành công
-      } catch (error) {
-        console.error(error);
-        // Bạn có thể hiển thị thông báo lỗi nếu cần
-      }
+
+  const [petId, setPetId] = useState("");
+  const [healthStatus, setHealthStatus] = useState<HealthStatus | undefined>(
+    undefined
+  );
+  const [healthStatusDescription, setHealthStatusDescription] = useState("");
+  const [note, setNote] = useState("");
+  const [weight, setWeight] = useState<number | undefined>(undefined);
+  const [temperature, setTemperature] = useState<number | undefined>(undefined);
+  const [checkingDate, setCheckingDate] = useState("");
+  const [checkingBy, setCheckingBy] = useState("");
+  const [checkingType, setCheckingType] = useState<CheckingType | undefined>(
+    undefined
+  );
+
+  const handleSubmit = async () => {
+    const healthCheckData = {
+      petId,
+      healthStatus,
+      healthStatusDescription,
+      note,
+      weight,
+      temperature,
+      checkingDate,
+      checkingBy,
+      checkingType,
     };
+
+    try {
+      // Gọi action để tạo health check
+      await dispatch(createHealthCheck(healthCheckData)).unwrap();
+      handleOk(); // Đóng modal nếu thành công
+    } catch (error) {
+      console.error(error);
+      // Bạn có thể hiển thị thông báo lỗi nếu cần
+    }
+  };
   return (
     <div className="pt-[148px]">
       <div
@@ -95,11 +119,11 @@ const Volunteer = () => {
               </h1>
               <hr className="w-[15%] bg-gray-400 h-[2px]" />
               <div className="pt-7">
-                PawFund Adoptions rescue operation can only be successful
-                thanks to the combined efforts of the community and Volunteers.
-                There are many ways for you to do your part to change the life
-                of a dog or cat: become a Foster Caretaker, Volunteer at a Home
-                or Rescue Volunteer. Please see more information below.
+                PawFund Adoptions rescue operation can only be successful thanks
+                to the combined efforts of the community and Volunteers. There
+                are many ways for you to do your part to change the life of a
+                dog or cat: become a Foster Caretaker, Volunteer at a Home or
+                Rescue Volunteer. Please see more information below.
               </div>
             </div>
           </div>
@@ -223,101 +247,145 @@ const Volunteer = () => {
                   Besides, you also have the opportunity to learn more...
                 </p>
                 <div className="flex justify-center gap-10">
-                <button className="font-semibold duration-300 hover:text-white mt-6 rounded-md text-[15px] w-[30%] relative font-medium -top-1 -left-1 hover:top-0 hover:left-0 transition-all bg-[#FFEB55] hover:bg-[#2b74d4] py-2.5 px-5 uppercase text-black before:content-[''] before:absolute before:top-1 before:left-1 before:hover:top-0 before:hover:left-0 before:w-full before:border-2 before:border-[#FFEB55] before:-z-10 before:transition-all">
+                  <button
+                    onClick={showAddPetModal}
+                    className="font-semibold duration-300 hover:text-white mt-6 rounded-md text-[15px] w-[30%] relative font-medium -top-1 -left-1 hover:top-0 hover:left-0 transition-all bg-[#FFEB55] hover:bg-[#2b74d4] py-2.5 px-5 uppercase text-black before:content-[''] before:absolute before:top-1 before:left-1 before:hover:top-0 before:hover:left-0 before:w-full before:border-2 before:border-[#FFEB55] before:-z-10 before:transition-all"
+                  >
                     Create Pet
                   </button>
-                  <button onClick={showModal} className="font-semibold duration-300 hover:text-white mt-6 rounded-md text-[15px] w-[30%] relative font-medium -top-1 -left-1 hover:top-0 hover:left-0 transition-all bg-[#FFEB55] hover:bg-[#2b74d4] py-2.5 px-5 uppercase text-black before:content-[''] before:absolute before:top-1 before:left-1 before:hover:top-0 before:hover:left-0 before:w-full before:border-2 before:border-[#FFEB55] before:-z-10 before:transition-all">
-          Create Health Check
-        </button>
-        <Modal
-          open={open}
-          title="Create Health Check"
-          onCancel={handleCancel}
-          footer={[
-            <Button key="back" onClick={handleCancel}>
-              Return
-            </Button>,
-            <Button key="submit" type="primary" loading={loading} onClick={handleSubmit}>
-              Submit
-            </Button>,
-          ]}
-        >
-          <div className="space-y-4">
-            <div className="flex flex-col">
-              <label className="font-semibold">Pet ID:</label>
-              <Input value={petId} onChange={(e) => setPetId(e.target.value)} />
-            </div>
-            <div className="flex flex-col">
-              <label className="font-semibold">Health Status:</label>
-              <Select
-                value={healthStatus}
-                onChange={(value) => setHealthStatus(value as HealthStatus)}
-                placeholder="Select Health Status"
-              >
-                {Object.values(HealthStatus).map((status) => (
-                  <Select.Option key={status} value={status}>
-                    {status}
-                  </Select.Option>
-                ))}
-              </Select>
-            </div>
-            <div className="flex flex-col">
-              <label className="font-semibold">Health Status Description:</label>
-              <Input.TextArea
-                value={healthStatusDescription}
-                onChange={(e) => setHealthStatusDescription(e.target.value)}
-              />
-            </div>
-            <div className="flex flex-col">
-              <label className="font-semibold">Note:</label>
-              <Input.TextArea value={note} onChange={(e) => setNote(e.target.value)} />
-            </div>
-            <div className="flex flex-col">
-              <label className="font-semibold">Weight:</label>
-              <Input
-                type="number"
-                value={weight}
-                onChange={(e) => setWeight(Number(e.target.value))}
-              />
-            </div>
-            <div className="flex flex-col">
-              <label className="font-semibold">Temperature:</label>
-              <Input
-                type="number"
-                value={temperature}
-                onChange={(e) => setTemperature(Number(e.target.value))}
-              />
-            </div>
-            <div className="flex flex-col">
-              <label className="font-semibold">Checking Date:</label>
-              <Input
-                type="datetime-local"
-                value={checkingDate}
-                onChange={(e) => setCheckingDate(e.target.value)}
-              />
-            </div>
-            <div className="flex flex-col">
-              <label className="font-semibold">Checked By:</label>
-              <Input value={checkingBy} onChange={(e) => setCheckingBy(e.target.value)} />
-            </div>
-            <div className="flex flex-col">
-              <label className="font-semibold">Checking Type:</label>
-              <Select
-                value={checkingType}
-                onChange={(value) => setCheckingType(value as CheckingType)}
-                placeholder="Select Checking Type"
-              >
-                {Object.values(CheckingType).map((type) => (
-                  <Select.Option key={type} value={type}>
-                    {type}
-                  </Select.Option>
-                ))}
-              </Select>
-            </div>
-          </div>
-        </Modal>
+                     <Modal
+                        open={openAddPetModal}
+                        title="Add a new pet"
+                        onOk={handleOkAddPet}
+                        onCancel={handleCancelAddPet}
+                        footer={[
+                          <Button key="cancel" onClick={handleCancelAddPet}>
+                            Cancel
+                          </Button>,
+                        
+                        ]}
+                      >
+                        <AddPet />
+                      </Modal>
+                 
+                  <button
+                    onClick={showModal}
+                    className="font-semibold duration-300 hover:text-white mt-6 rounded-md text-[15px] w-[30%] relative font-medium -top-1 -left-1 hover:top-0 hover:left-0 transition-all bg-[#FFEB55] hover:bg-[#2b74d4] py-2.5 px-5 uppercase text-black before:content-[''] before:absolute before:top-1 before:left-1 before:hover:top-0 before:hover:left-0 before:w-full before:border-2 before:border-[#FFEB55] before:-z-10 before:transition-all"
+                  >
+                    Create Health Check
+                  </button>
+                  <Modal
+                    open={open}
+                    title="Create Health Check"
+                    onCancel={handleCancel}
+                    footer={[
+                      <Button key="back" onClick={handleCancel}>
+                        Return
+                      </Button>,
+                      <Button
+                        key="submit"
+                        type="primary"
+                        loading={loading}
+                        onClick={handleSubmit}
+                      >
+                        Submit
+                      </Button>,
+                    ]}
+                  >
+                    <div className="space-y-4">
+                      <div className="flex flex-col">
+                        <label className="font-semibold">Pet ID:</label>
+                        <Input
+                          value={petId}
+                          onChange={(e) => setPetId(e.target.value)}
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="font-semibold">Health Status:</label>
+                        <Select
+                          value={healthStatus}
+                          onChange={(value) =>
+                            setHealthStatus(value as HealthStatus)
+                          }
+                          placeholder="Select Health Status"
+                        >
+                          {Object.values(HealthStatus).map((status) => (
+                            <Select.Option key={status} value={status}>
+                              {status}
+                            </Select.Option>
+                          ))}
+                        </Select>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="font-semibold">
+                          Health Status Description:
+                        </label>
+                        <Input.TextArea
+                          value={healthStatusDescription}
+                          onChange={(e) =>
+                            setHealthStatusDescription(e.target.value)
+                          }
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="font-semibold">Note:</label>
+                        <Input.TextArea
+                          value={note}
+                          onChange={(e) => setNote(e.target.value)}
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="font-semibold">Weight:</label>
+                        <Input
+                          type="number"
+                          value={weight}
+                          onChange={(e) => setWeight(Number(e.target.value))}
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="font-semibold">Temperature:</label>
+                        <Input
+                          type="number"
+                          value={temperature}
+                          onChange={(e) =>
+                            setTemperature(Number(e.target.value))
+                          }
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="font-semibold">Checking Date:</label>
+                        <Input
+                          type="datetime-local"
+                          value={checkingDate}
+                          onChange={(e) => setCheckingDate(e.target.value)}
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="font-semibold">Checked By:</label>
+                        <Input
+                          value={checkingBy}
+                          onChange={(e) => setCheckingBy(e.target.value)}
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="font-semibold">Checking Type:</label>
+                        <Select
+                          value={checkingType}
+                          onChange={(value) =>
+                            setCheckingType(value as CheckingType)
+                          }
+                          placeholder="Select Checking Type"
+                        >
+                          {Object.values(CheckingType).map((type) => (
+                            <Select.Option key={type} value={type}>
+                              {type}
+                            </Select.Option>
+                          ))}
+                        </Select>
+                      </div>
+                    </div>
+                  </Modal>
                 </div>
-               
               </div>
               <div className="w-[20%]">
                 <Image
@@ -333,9 +401,7 @@ const Volunteer = () => {
         </div>
       </div>
 
-      <div>
-        
-      </div>
+      <div></div>
     </div>
   );
 };
