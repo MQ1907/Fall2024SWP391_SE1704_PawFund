@@ -50,7 +50,7 @@ const SignIn = () => {
             />
           </div>
         </div>
-        <div>
+        <div >
           <h1 className="text-[40px] font-bold pt-[140px]">Sign In</h1>
            <h2 className="text-[35px] font-bold pt-5 ">Welcome to PawFund </h2>
           {authStatus === 'failed' && <p className="text-red-500">{error}</p>} {/* Hiển thị lỗi nếu có */}
