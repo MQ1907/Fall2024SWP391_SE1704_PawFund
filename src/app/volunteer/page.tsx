@@ -9,7 +9,7 @@ import { useAppDispatch, useAppSelector } from "@/lib/hook";
 import AddPet from "../addpet/page";
 import { jwtDecode } from "jwt-decode";
 import { fetchPets } from "@/lib/features/pet/petSlice";
-
+import axios from "axios";
 const Volunteer = () => {
   const { pets, status, error } = useAppSelector((state) => state.pets);
 
@@ -66,7 +66,7 @@ const Volunteer = () => {
   const [checkingType, setCheckingType] = useState<CheckingType | undefined>(
     undefined
   );
-
+  const [role, setRole] = useState<string | null>(null);
   const handleSubmit = async () => {
     const healthCheckData = {
       petId,
@@ -108,11 +108,26 @@ const Volunteer = () => {
       if (storedToken) {
         const decodedToken = jwtDecode<DecodedToken>(storedToken);
         const userId = decodedToken.id;
-
+        
         console.log("userId", userId);
 
         setCheckingBy(userId);
         console.log(setCheckingBy);
+        const fetchUser = async () => {
+          try {
+            const response = await axios.get(
+              `http://localhost:8000/users/${userId}`
+            );
+            console.log("User data:", response.data);
+
+          
+            setRole(response.data.role);
+          } catch (error) {
+            console.error("Error fetching user data:", error);
+          }
+        };
+
+        fetchUser();
       }
     }
   }, []);
@@ -298,13 +313,37 @@ const Volunteer = () => {
                   Besides, you also have the opportunity to learn more...
                 </p>
                 <div className="flex justify-center gap-10">
+                {role === "VOLUNTEER" ? (
+                <>
                   <button
                     onClick={showAddPetModal}
                     className="font-semibold duration-300 hover:text-white mt-6 rounded-md text-[15px] w-[30%] relative font-medium -top-1 -left-1 hover:top-0 hover:left-0 transition-all bg-[#FFEB55] hover:bg-[#2b74d4] py-2.5 px-5 uppercase text-black before:content-[''] before:absolute before:top-1 before:left-1 before:hover:top-0 before:hover:left-0 before:w-full before:border-2 before:border-[#FFEB55] before:-z-10 before:transition-all"
                   >
                     Create Pet
                   </button>
-                  <Modal
+                  <button
+                    onClick={showModal}
+                    className="font-semibold duration-300 hover:text-white mt-6 rounded-md text-[15px] w-[30%] relative font-medium -top-1 -left-1 hover:top-0 hover:left-0 transition-all bg-[#FFEB55] hover:bg-[#2b74d4] py-2.5 px-5 uppercase text-black before:content-[''] before:absolute before:top-1 before:left-1 before:hover:top-0 before:hover:left-0 before:w-full before:border-2 before:border-[#FFEB55] before:-z-10 before:transition-all"
+                  >
+                    Create Health Check
+                  </button>
+                </>
+              ) : role === "CUSTOMER" ? (
+                <button
+                  onClick={() => alert("You must have a volunteer account, please sign up now !")}
+                  className="font-semibold duration-300 hover:text-white mt-6 rounded-md text-[15px] w-[30%] relative font-medium -top-1 -left-1 hover:top-0 hover:left-0 transition-all bg-[#FFEB55] hover:bg-[#2b74d4] py-2.5 px-5 uppercase text-black before:content-[''] before:absolute before:top-1 before:left-1 before:hover:top-0 before:hover:left-0 before:w-full before:border-2 before:border-[#FFEB55] before:-z-10 before:transition-all"
+                >
+                  Join with Us !
+                </button>
+              ) : role !== "VOLUNTEER" && role !== "CUSTOMER" ? (
+                <button
+                  onClick={() => alert("You must Login with volunteer account to join with us !")}
+                  className="font-semibold duration-300 hover:text-white mt-6 rounded-md text-[15px] w-[30%] relative font-medium -top-1 -left-1 hover:top-0 hover:left-0 transition-all bg-[#FFEB55] hover:bg-[#2b74d4] py-2.5 px-5 uppercase text-black before:content-[''] before:absolute before:top-1 before:left-1 before:hover:top-0 before:hover:left-0 before:w-full before:border-2 before:border-[#FFEB55] before:-z-10 before:transition-all"
+                >
+                  Join with Us !
+                </button>
+              ): null}
+                   <Modal
                     open={openAddPetModal}
                     title="Add a new pet"
                     onOk={handleOkAddPet}
@@ -317,15 +356,6 @@ const Volunteer = () => {
                   >
                     <AddPet />
                   </Modal>
-
-                  {showCreateHealthCheckButton && (
-                    <button
-                      onClick={showModal}
-                      className="font-semibold duration-300 hover:text-white mt-6 rounded-md text-[15px] w-[30%] relative font-medium -top-1 -left-1 hover:top-0 hover:left-0 transition-all bg-[#FFEB55] hover:bg-[#2b74d4] py-2.5 px-5 uppercase text-black before:content-[''] before:absolute before:top-1 before:left-1 before:hover:top-0 before:hover:left-0 before:w-full before:border-2 before:border-[#FFEB55] before:-z-10 before:transition-all"
-                    >
-                      Create Health Check
-                    </button>
-                  )}
                   <Modal
                     open={open}
                     title="Create Health Check"
@@ -452,34 +482,36 @@ const Volunteer = () => {
               </div>
             </div>
           </div>
-          <div>
-            <div className="grid grid-cols-4 gap-6 p-6 w-[1100px] ml-[200px]">
-              {pets.map((pet) => (
-                <div
-                  key={pet.petCode}
-                  className="bg-[#F6F6F6] rounded-lg shadow-md p-4"
-                >
-                  <img
-                    src={pet.image}
-                    alt={pet.name}
-                    width={200}
-                    height={200}
-                    className="w-full h-[150px] object-cover rounded-md"
-                  />
-                  <div className="mt-4">
-                    <h3 className="text-lg font-bold">{pet.name}</h3>
-                    <Button
-                     onClick={() => handleCreateHealthCheckClick(pet)}
-                      className="mt-2"
-                      type="primary"
-                    >
-                      Create Health Check
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
+          {role === 'VOLUNTEER' && (
+  <div>
+    <div className="grid grid-cols-4 gap-6 p-6 w-[1100px] ml-[200px]">
+      {pets.map((pet) => (
+        <div
+          key={pet.petCode}
+          className="bg-[#F6F6F6] rounded-lg shadow-md p-4"
+        >
+          <img
+            src={pet.image}
+            alt={pet.name}
+            width={200}
+            height={200}
+            className="w-full h-[150px] object-cover rounded-md"
+          />
+          <div className="mt-4">
+            <h3 className="text-lg font-bold">{pet.name}</h3>
+            <Button
+              onClick={() => handleCreateHealthCheckClick(pet)}
+              className="mt-2"
+              type="primary"
+            >
+              Create Health Check
+            </Button>
           </div>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
         </div>
       </div>
 
