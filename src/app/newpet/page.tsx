@@ -84,7 +84,6 @@ const Newpet = () => {
   };
 
   const currentPets = petsData.slice(currentIndex, currentIndex + petsPerPage);
-  const [isAnimating] = useState(true);
 
   return (
     <div className="h-auto">

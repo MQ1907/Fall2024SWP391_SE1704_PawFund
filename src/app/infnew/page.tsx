@@ -3,6 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import Renews from "../renews/page";
 
 const Infnew = () => {
   const router = useRouter();
@@ -144,6 +145,7 @@ const Infnew = () => {
           </div>
         </div>
       </div>
+      <Renews/>
       <div
           className="h-[150px] w-full  relative bg-fixed bg-center bg-cover bg-no-repeat flex items-center justify-center"
           style={{
