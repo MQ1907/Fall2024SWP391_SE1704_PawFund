@@ -96,7 +96,7 @@ const Header = () => {
   };
 
   const handleShelterStaffClick = () => {
-    router.push("/shelterStaff");
+    router.push("/shelter-staff");
   };
 
   if (!hasHydrated) {
