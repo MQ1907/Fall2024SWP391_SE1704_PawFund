@@ -1,33 +1,36 @@
 "use client";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { Button, Input, Modal, Select } from "antd";
 import { CheckingType, HealthStatus } from "../../enum";
 import { createHealthCheck } from "@/lib/features/pet/HealthCheckSlice";
-import { useAppDispatch } from "@/lib/hook";
+import { useAppDispatch, useAppSelector } from "@/lib/hook";
 import AddPet from "../addpet/page";
+import { jwtDecode } from "jwt-decode";
+import { fetchPets } from "@/lib/features/pet/petSlice";
 
 const Volunteer = () => {
-  
+  const { pets, status, error } = useAppSelector((state) => state.pets);
+
   //Create Pet
   const [openAddPetModal, setOpenAddPetModal] = useState(false);
-   const showAddPetModal = () => {
-    setOpenAddPetModal(true); // Mở modal AddPet
+  const showAddPetModal = () => {
+    setOpenAddPetModal(true);
   };
 
   const handleCancelAddPet = () => {
-    setOpenAddPetModal(false); // Đóng modal AddPet
+    setOpenAddPetModal(false);
   };
 
   const handleOkAddPet = () => {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      setOpenAddPetModal(false); // Đóng modal sau khi xử lý xong
+      setOpenAddPetModal(false);
     }, 3000);
   };
-  
+
   const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
@@ -49,6 +52,7 @@ const Volunteer = () => {
   };
 
   const [petId, setPetId] = useState("");
+  const [displayPetId, setDisplayPetId] = useState("********");
   const [healthStatus, setHealthStatus] = useState<HealthStatus | undefined>(
     undefined
   );
@@ -58,6 +62,7 @@ const Volunteer = () => {
   const [temperature, setTemperature] = useState<number | undefined>(undefined);
   const [checkingDate, setCheckingDate] = useState("");
   const [checkingBy, setCheckingBy] = useState("");
+  const hiddenCheckingBy = checkingBy ? "*".repeat(checkingBy.length) : "";
   const [checkingType, setCheckingType] = useState<CheckingType | undefined>(
     undefined
   );
@@ -65,24 +70,70 @@ const Volunteer = () => {
   const handleSubmit = async () => {
     const healthCheckData = {
       petId,
-      healthStatus,
+      healthStatus: healthStatus ? healthStatus.toString() : "",
       healthStatusDescription,
       note,
       weight,
       temperature,
-      checkingDate,
+      checkingDate: new Date(checkingDate),
       checkingBy,
-      checkingType,
+      checkingType: checkingType ? checkingType.toString() : "",
     };
-
+    console.log("Health Check Data:", healthCheckData);
     try {
-      // Gọi action để tạo health check
       await dispatch(createHealthCheck(healthCheckData)).unwrap();
-      handleOk(); // Đóng modal nếu thành công
+      handleOk(); //
     } catch (error) {
-      console.error(error);
-      // Bạn có thể hiển thị thông báo lỗi nếu cần
+      console.error("Error from API:", error);
+      if (error instanceof Error) {
+        alert(`Error: ${error.message}`);
+      } else {
+        alert("Something went wrong");
+      }
     }
+  };
+  const [token, setToken] = useState<string | null>(null);
+  const [hasHydrated, setHasHydrated] = useState(false);
+  interface DecodedToken {
+    id: string;
+    exp: number;
+    iat: number;
+  }
+  useEffect(() => {
+    setHasHydrated(true);
+    if (typeof window !== "undefined") {
+      const storedToken = localStorage.getItem("token");
+      setToken(storedToken);
+
+      if (storedToken) {
+        const decodedToken = jwtDecode<DecodedToken>(storedToken);
+        const userId = decodedToken.id;
+
+        console.log("userId", userId);
+
+        setCheckingBy(userId);
+        console.log(setCheckingBy);
+      }
+    }
+  }, []);
+  useEffect(() => {
+    dispatch(fetchPets());
+  }, [dispatch]);
+
+  const [showCreateHealthCheckButton, setShowCreateHealthCheckButton] =
+    useState(false);
+
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
+
+  if (status === "failed") {
+    return <div>Error: {error}</div>;
+  }
+  const handleCreateHealthCheckClick = (pet) => {
+    setPetId(pet._id); // Lưu petCode thực vào petId
+    setDisplayPetId("********"); // Cập nhật biến hiển thị thành dấu sao
+    showModal();
   };
   return (
     <div className="pt-[148px]">
@@ -253,27 +304,28 @@ const Volunteer = () => {
                   >
                     Create Pet
                   </button>
-                     <Modal
-                        open={openAddPetModal}
-                        title="Add a new pet"
-                        onOk={handleOkAddPet}
-                        onCancel={handleCancelAddPet}
-                        footer={[
-                          <Button key="cancel" onClick={handleCancelAddPet}>
-                            Cancel
-                          </Button>,
-                        
-                        ]}
-                      >
-                        <AddPet />
-                      </Modal>
-                 
-                  <button
-                    onClick={showModal}
-                    className="font-semibold duration-300 hover:text-white mt-6 rounded-md text-[15px] w-[30%] relative font-medium -top-1 -left-1 hover:top-0 hover:left-0 transition-all bg-[#FFEB55] hover:bg-[#2b74d4] py-2.5 px-5 uppercase text-black before:content-[''] before:absolute before:top-1 before:left-1 before:hover:top-0 before:hover:left-0 before:w-full before:border-2 before:border-[#FFEB55] before:-z-10 before:transition-all"
+                  <Modal
+                    open={openAddPetModal}
+                    title="Add a new pet"
+                    onOk={handleOkAddPet}
+                    onCancel={handleCancelAddPet}
+                    footer={[
+                      <Button key="cancel" onClick={handleCancelAddPet}>
+                        Cancel
+                      </Button>,
+                    ]}
                   >
-                    Create Health Check
-                  </button>
+                    <AddPet />
+                  </Modal>
+
+                  {showCreateHealthCheckButton && (
+                    <button
+                      onClick={showModal}
+                      className="font-semibold duration-300 hover:text-white mt-6 rounded-md text-[15px] w-[30%] relative font-medium -top-1 -left-1 hover:top-0 hover:left-0 transition-all bg-[#FFEB55] hover:bg-[#2b74d4] py-2.5 px-5 uppercase text-black before:content-[''] before:absolute before:top-1 before:left-1 before:hover:top-0 before:hover:left-0 before:w-full before:border-2 before:border-[#FFEB55] before:-z-10 before:transition-all"
+                    >
+                      Create Health Check
+                    </button>
+                  )}
                   <Modal
                     open={open}
                     title="Create Health Check"
@@ -296,7 +348,7 @@ const Volunteer = () => {
                       <div className="flex flex-col">
                         <label className="font-semibold">Pet ID:</label>
                         <Input
-                          value={petId}
+                          value={displayPetId}
                           onChange={(e) => setPetId(e.target.value)}
                         />
                       </div>
@@ -363,8 +415,9 @@ const Volunteer = () => {
                       <div className="flex flex-col">
                         <label className="font-semibold">Checked By:</label>
                         <Input
-                          value={checkingBy}
+                          value={hiddenCheckingBy}
                           onChange={(e) => setCheckingBy(e.target.value)}
+                          disabled
                         />
                       </div>
                       <div className="flex flex-col">
@@ -396,6 +449,34 @@ const Volunteer = () => {
                   className="w-[100%] h-[100%]"
                 />
               </div>
+            </div>
+          </div>
+          <div>
+            <div className="grid grid-cols-4 gap-6 p-6 w-[1100px] ml-[200px]">
+              {pets.map((pet) => (
+                <div
+                  key={pet.petCode}
+                  className="bg-[#F6F6F6] rounded-lg shadow-md p-4"
+                >
+                  <img
+                    src={pet.image}
+                    alt={pet.name}
+                    width={200}
+                    height={200}
+                    className="w-full h-[150px] object-cover rounded-md"
+                  />
+                  <div className="mt-4">
+                    <h3 className="text-lg font-bold">{pet.name}</h3>
+                    <Button
+                     onClick={() => handleCreateHealthCheckClick(pet)}
+                      className="mt-2"
+                      type="primary"
+                    >
+                      Create Health Check
+                    </Button>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
