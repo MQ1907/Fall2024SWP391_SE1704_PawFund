@@ -350,6 +350,7 @@ const Volunteer = () => {
                         <Input
                           value={displayPetId}
                           onChange={(e) => setPetId(e.target.value)}
+                          disabled
                         />
                       </div>
                       <div className="flex flex-col">
