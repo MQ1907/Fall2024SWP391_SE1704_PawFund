@@ -1,12 +1,35 @@
 "use client";
 import Image from "next/image";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../lib/hook"; // Import hooks
 import { fetchPets } from "../../lib/features/pet/petSlice"; // Đường dẫn đến file petSlice
 
 const Adopt = () => {
   const dispatch = useAppDispatch();
   const { pets, status, error } = useAppSelector((state) => state.pets);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const petsPerPage = 4;
+
+  const totalPages = Math.ceil(pets.length / petsPerPage); // Use pets.length
+  const currentPage = Math.floor(currentIndex / petsPerPage) + 1;
+
+  const goToPage = (page) => {
+    setCurrentIndex((page - 1) * petsPerPage);
+  };
+
+  const handlePrevClick = () => {
+    if (currentPage > 1) {
+      goToPage(currentPage - 1);
+    }
+  };
+
+  const handleNextClick = () => {
+    if (currentPage < totalPages) {
+      goToPage(currentPage + 1);
+    }
+  };
+
+  const currentPets = pets.slice(currentIndex, currentIndex + petsPerPage);
 
   useEffect(() => {
     dispatch(fetchPets());
@@ -357,33 +380,101 @@ const Adopt = () => {
 
             <div className="flex items-end ml-[100px]">
               <button className="bg-pink-500 hover:bg-[#008ADF] text-white text-lg font-bold py-3 px-8 rounded-full w-[200px]">
-                Add Pet
+                Search Pet
               </button>
             </div>
           </div>
         </div>
 
         <div>
-          <div className="grid grid-cols-4 gap-6 p-6 w-[1100px] ml-[200px]">
-            {pets.map((pet) => (
+          <div className="grid grid-cols-4 gap-x-[35%] gap-y-[5%] p-6 h-full mx-[200px] my-[80px] w-[1000px]  ">
+            {currentPets.map((pet) => (
               <div
                 key={pet.petCode}
-                className="bg-[#F6F6F6] rounded-lg shadow-md p-4"
+                className="bg-[#F5F5F5]  shadow-md p-4 h-full w-[280px] transition ease-in-out delay-150  hover:-translate-y-1 hover:scale-110  duration-300"
               >
                 <img
                   src={pet.image}
                   alt={pet.name}
                   width={200}
                   height={200}
-                  className="w-full h-[150px] object-cover rounded-md"
+                  className="w-full h-[200px] object-cover "
                 />
-                <div className="mt-4">
-                  <h3 className="text-lg font-bold">{pet.name}</h3>
+
+                <div className="mt-2">
+                  <h3 className="text-[23px] font-bold ">{pet.name}</h3>
+                </div>
+                <hr className="h-[2px] w-[50px] bg-[#adacac] my-3" />
+                <div className="flex my-1 ">
+                  <p className="font-semibold">Gender: </p>
+                  <p className="px-1 ">{pet.name}</p>
+                </div>
+                <hr className="border-t-[1px] border-dashed border-[#adacac] " />
+                <div className="flex my-1 ">
+                  <p className="font-semibold">Age: </p>
+                  <p className="px-1 ">{pet.age}</p>
+                </div>
+                <hr className="border-t-[1px] border-dashed border-[#adacac] " />
+                <div className="flex my-1 ">
+                  <p className="font-semibold">Vaccinate: </p>
+                  <p className="px-1 ">{pet.isVacinted ? "Yes" : "No"}</p>
                 </div>
               </div>
             ))}
           </div>
         </div>
+      </div>
+
+      <div className="flex justify-center items-center space-x-2 my-5">
+        <button
+          onClick={handlePrevClick}
+          disabled={currentPage === 1}
+          className={`px-4 py-3 rounded-md ${
+            currentPage === 1
+              ? "bg-[#3B82F6] text-white cursor-not-allowed"
+              : "bg-[#3B82F6] hover:bg-[#D51C63] text-white"
+          }`}
+        >
+          <Image
+            src="/images/arrowleft.png"
+            alt="Logo"
+            width={1000}
+            height={1000}
+            className="w-[20px]"
+          />
+        </button>
+
+        {Array.from({ length: totalPages }, (_, index) => (
+          <button
+            key={index}
+            onClick={() => goToPage(index + 1)}
+            className={`px-4 py-2 rounded-md ${
+              currentPage === index + 1
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200"
+            }`}
+          >
+            {index + 1}
+          </button>
+        ))}
+
+        <button
+          onClick={handleNextClick}
+          disabled={currentPage === totalPages}
+          className={`px-4 py-3 rounded-md ${
+            currentPage === totalPages
+              ? "bg-[#3B82F6] text-white cursor-not-allowed"
+              : "bg-[#3B82F6] hover:bg-[#D51C63] text-white"
+          }`}
+        >
+          <Image
+            src="/images/arrowright.png"
+            alt="Logo"
+            width={1000}
+            height={1000}
+            className="w-[20px]"
+          />
+        </button>
       </div>
 
       <div
