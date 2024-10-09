@@ -11,7 +11,7 @@ const Header2 = () => {
   const dispatch = useAppDispatch(); 
   const token = useAppSelector((state) => state.auth.token); 
   const pathname = usePathname(); // Lấy đường dẫn hiện tại
-  
+  const [hasHydrated, setHasHydrated] = useState(false);
   const [showTopBar, setShowTopBar] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
 
@@ -27,6 +27,7 @@ const Header2 = () => {
   };
 
   useEffect(() => {
+    setHasHydrated(true);
     if (typeof window !== "undefined") {
       window.addEventListener("scroll", controlHeader);
 
@@ -48,7 +49,9 @@ const Header2 = () => {
     dispatch(logout());
     router.push("/signin");
   };
-
+  if (!hasHydrated) {
+    return null;
+  }
   return (
     <div className="fixed z-50 w-full">
       <div
@@ -97,15 +100,10 @@ const Header2 = () => {
           <li>
             <Image src="/images/logo.png" alt="" width={106} height={106} />
           </li>
-          <li
-            className={`cursor-pointer ${pathname === "/" ? "text-[#D94E66]" : "text-black hover:text-[#D94E66]"}`}
-            onClick={() => handleClick("/dashboard")}
-          >
-            DASHBOARD
-          </li>
+        
           <li
             className={`cursor-pointer ${pathname === "/adopt" ? "text-[#D94E66]" : "text-black hover:text-[#D94E66]"}`}
-            onClick={() => handleClick("/petmanagement")}
+            onClick={() => handleClick("/shelter-staff")}
           >
             PET MANAGEMENT
           </li>

@@ -2,17 +2,18 @@
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 
-import { Button, Input, Modal, Select } from "antd";
+import { Button, Input, message, Modal, Select } from "antd";
 import { CheckingType, HealthStatus } from "../../enum";
 import { createHealthCheck } from "@/lib/features/pet/HealthCheckSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/hook";
 import AddPet from "../addpet/page";
 import { jwtDecode } from "jwt-decode";
-import { fetchPets } from "@/lib/features/pet/petSlice";
+import { fetchPets, removePet } from "@/lib/features/pet/petSlice";
 import axios from "axios";
-const Volunteer = () => {
-  const { pets, status, error } = useAppSelector((state) => state.pets);
 
+const Volunteer = () => {
+  const { pets, status, error,sentToShelter } = useAppSelector((state) => state.pets);
+  const [healthCheckCreated, setHealthCheckCreated] = useState<{ [key: string]: boolean }>({});
   //Create Pet
   const [openAddPetModal, setOpenAddPetModal] = useState(false);
   const showAddPetModal = () => {
@@ -135,9 +136,6 @@ const Volunteer = () => {
     dispatch(fetchPets());
   }, [dispatch]);
 
-  const [showCreateHealthCheckButton, setShowCreateHealthCheckButton] =
-    useState(false);
-
   if (status === "loading") {
     return <div>Loading...</div>;
   }
@@ -146,9 +144,25 @@ const Volunteer = () => {
     return <div>Error: {error}</div>;
   }
   const handleCreateHealthCheckClick = (pet) => {
-    setPetId(pet._id); // Lưu petCode thực vào petId
-    setDisplayPetId("********"); // Cập nhật biến hiển thị thành dấu sao
+    setPetId(pet._id); 
+    setDisplayPetId("********"); 
     showModal();
+    setHealthCheckCreated((prev) => ({ ...prev, [pet._id]: true }));
+  };
+
+  const handleSendToShelter = async (petId) => {
+    try {
+      // Cập nhật trạng thái deliveryStatus của pet thành "Pending"
+      await axios.put(`http://localhost:8000/pet/update-delivery-status/${petId}`, {
+        deliveryStatus: "PENDING",
+      });
+      message.success('Pet has been sent to shelter !');
+      // Xóa pet khỏi danh sách pets
+      dispatch(removePet(petId));
+    } catch (error) {
+      console.error("Error updating pet status:", error);
+      alert("Failed to send pet to shelter. Please try again.");
+    }
   };
   return (
     <div className="pt-[148px]">
@@ -486,7 +500,7 @@ const Volunteer = () => {
           {role === 'VOLUNTEER' && (
   <div>
     <div className="grid grid-cols-4 gap-6 p-6 w-[1100px] ml-[200px]">
-      {pets.map((pet) => (
+      {pets .filter(pet => pet.deliveryStatus === 'INPROCESS' && !sentToShelter.includes(pet._id)).map((pet) => (
         <div
           key={pet.petCode}
           className="bg-[#F6F6F6] rounded-lg shadow-md p-4"
@@ -498,7 +512,7 @@ const Volunteer = () => {
             height={200}
             className="w-full h-[150px] object-cover rounded-md"
           />
-          <div className="mt-4">
+          <div className="mt-4 flex flex-col items-center justify-center">
             <h3 className="text-lg font-bold">{pet.name}</h3>
             <Button
               onClick={() => handleCreateHealthCheckClick(pet)}
@@ -506,6 +520,15 @@ const Volunteer = () => {
               type="primary"
             >
               Create Health Check
+            </Button>
+            <Button
+             onClick={() => handleSendToShelter(pet._id)}
+              className="mt-2"
+              style={{ backgroundColor: "green", color: "white" }}
+              disabled={!healthCheckCreated[pet._id]}
+            >
+              Send to Shelter
+              
             </Button>
           </div>
         </div>
