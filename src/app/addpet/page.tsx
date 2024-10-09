@@ -144,7 +144,7 @@ const AddPet: React.FC = () => {
           >
             <Select.Option value="PENDING">PENDING</Select.Option>
             <Select.Option value="COMPLETED">COMPLETED</Select.Option>
-            <Select.Option value="CANCELED">CANCELED</Select.Option>
+            <Select.Option value="INPROCESS">INPROCESS</Select.Option>
           </Select>
         </Form.Item>
 
