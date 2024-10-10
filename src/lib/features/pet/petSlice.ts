@@ -49,6 +49,24 @@ export const fetchPets = createAsyncThunk("pet/fetchAll", async () => {
     throw error;
   }
 });
+
+// New async thunk for fetching a single pet by ID
+export const fetchPetById = createAsyncThunk(
+  "pet/fetchById",
+  async (id: string, { rejectWithValue }) => {
+    try {
+      console.log('Fetching pet with ID:', id);
+      // Update the URL to use _id
+      const response = await axios.get(`http://localhost:8000/pet/find-by-id/${id}`);
+      console.log('API Response:', response.data);
+      return response.data;
+    } catch (error: any) {
+      console.error('API Error:', error);
+      return rejectWithValue(error.response?.data?.message || "Failed to fetch pet");
+    }
+  }
+);
+
 const loadSentToShelter = () => {
   try {
     const serializedState = localStorage.getItem("sentToShelter");
@@ -79,6 +97,7 @@ export const updatePetDelivery = createAsyncThunk(
 );
 interface PetState {
   pets: any[]; 
+  currentPet: any | null; // Add this line
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
   sentToShelter: string[];
@@ -86,6 +105,7 @@ interface PetState {
 
 const initialState: PetState = {
   pets: [],
+  currentPet: null, // Add this line
   status: "idle",
   error: null,
   sentToShelter: loadSentToShelter(),
@@ -143,6 +163,17 @@ const petSlice = createSlice({
         if (pet) {
           pet.deliveryStatus = deliveryStatus;
         }
+      })
+      .addCase(fetchPetById.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchPetById.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.currentPet = action.payload;
+      })
+      .addCase(fetchPetById.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload as string || "Failed to fetch pet";
       });
   },
 });
