@@ -7,8 +7,9 @@ import { fetchPets } from "../../lib/features/pet/petSlice"; // Đường dẫn 
 const Adopt = () => {
   const dispatch = useAppDispatch();
   const { pets, status, error } = useAppSelector((state) => state.pets);
+  const [searchTerm, setSearchTerm] = useState(""); // Thêm state cho tên tìm kiếm
   const [currentIndex, setCurrentIndex] = useState(0);
-  const petsPerPage = 4;
+  const petsPerPage = 6;
 
   const totalPages = Math.ceil(pets.length / petsPerPage); // Use pets.length
   const currentPage = Math.floor(currentIndex / petsPerPage) + 1;
@@ -29,7 +30,16 @@ const Adopt = () => {
     }
   };
 
-  const currentPets = pets.slice(currentIndex, currentIndex + petsPerPage);
+  const filteredPets = pets.filter((pet) =>
+    pet.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const currentPets = filteredPets.slice(
+    currentIndex,
+    currentIndex + petsPerPage
+  );
+
+  // const currentPets = pets.slice(currentIndex, currentIndex + petsPerPage);
 
   useEffect(() => {
     dispatch(fetchPets());
@@ -375,11 +385,16 @@ const Adopt = () => {
                 type="text"
                 className="block w-full border border-red-500 text-gray-700 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
                 placeholder="Enter Name..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
 
             <div className="flex items-end ml-[100px]">
-              <button className="bg-pink-500 hover:bg-[#008ADF] text-white text-lg font-bold py-3 px-8 rounded-full w-[200px]">
+              <button
+                onClick={() => setCurrentIndex(0)}
+                className="bg-pink-500 hover:bg-[#008ADF] text-white text-lg font-bold py-3 px-8 rounded-full w-[200px]"
+              >
                 Search Pet
               </button>
             </div>
@@ -387,41 +402,42 @@ const Adopt = () => {
         </div>
 
         <div>
-          <div className="grid grid-cols-4 gap-x-[35%] gap-y-[5%] p-6 h-full mx-[200px] my-[80px] w-[1000px]  ">
-            {currentPets.map((pet) => (
-              <div
-                key={pet.petCode}
-                className="bg-[#F5F5F5]  shadow-md p-4 h-full w-[280px] transition ease-in-out delay-150  hover:-translate-y-1 hover:scale-110  duration-300"
-              >
-                <img
-                  src={pet.image}
-                  alt={pet.name}
-                  width={200}
-                  height={200}
-                  className="w-full h-[200px] object-cover "
-                />
-
-                <div className="mt-2">
-                  <h3 className="text-[23px] font-bold ">{pet.name}</h3>
-                </div>
-                <hr className="h-[2px] w-[50px] bg-[#adacac] my-3" />
-                <div className="flex my-1 ">
-                  <p className="font-semibold">Gender: </p>
-                  <p className="px-1 ">{pet.name}</p>
-                </div>
-                <hr className="border-t-[1px] border-dashed border-[#adacac] " />
-                <div className="flex my-1 ">
-                  <p className="font-semibold">Age: </p>
-                  <p className="px-1 ">{pet.age}</p>
-                </div>
-                <hr className="border-t-[1px] border-dashed border-[#adacac] " />
-                <div className="flex my-1 ">
-                  <p className="font-semibold">Vaccinate: </p>
-                  <p className="px-1 ">{pet.isVacinted ? "Yes" : "No"}</p>
-                </div>
+           <div className="grid grid-cols-3 gap-x-[15%] gap-y-[5%] p-6 h-full ml-[300px] my-[80px] w-[1000px]">
+        {currentPets.length > 0 ? (
+          currentPets.map((pet) => (
+            <div
+              key={pet.petCode}
+              className="bg-[#F5F5F5] shadow-md p-4 h-full w-[280px] transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 duration-300"
+            >
+              <img
+                src={pet.image}
+                alt={pet.name}
+                width={200}
+                height={200}
+                className="w-full h-[200px] object-cover"
+              />
+              <div className="mt-2">
+                <h3 className="text-[23px] font-bold">{pet.name}</h3>
               </div>
-            ))}
-          </div>
+              <hr className="h-[2px] w-[50px] bg-[#adacac] my-3" />
+              <div className="flex my-1">
+                <p className="font-semibold">Gender: </p>
+                <p className="px-1">{pet.gender}</p>
+              </div>
+              <div className="flex my-1">
+                <p className="font-semibold">Age: </p>
+                <p className="px-1">{pet.age}</p>
+              </div>
+              <div className="flex my-1">
+                <p className="font-semibold">Vaccinated: </p>
+                <p className="px-1">{pet.isVaccinated ? "Yes" : "No"}</p>
+              </div>
+            </div>
+          ))
+        ) : (
+          <p>No pets found.</p>
+        )}
+      </div>
         </div>
       </div>
 
