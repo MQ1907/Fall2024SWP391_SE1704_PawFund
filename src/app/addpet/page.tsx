@@ -142,8 +142,8 @@ const AddPet: React.FC = () => {
             }
             value={petData.deliveryStatus}
           >
-            <Select.Option value="PENDING">PENDING</Select.Option>
-            <Select.Option value="COMPLETED">COMPLETED</Select.Option>
+            {/* <Select.Option value="PENDING">PENDING</Select.Option>
+            <Select.Option value="COMPLETED">COMPLETED</Select.Option> */}
             <Select.Option value="INPROCESS">INPROCESS</Select.Option>
           </Select>
         </Form.Item>
