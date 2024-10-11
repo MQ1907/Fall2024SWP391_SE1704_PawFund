@@ -50,6 +50,23 @@ export const fetchPets = createAsyncThunk("pet/fetchAll", async () => {
   }
 });
 
+export const fetchPetsByStatus = createAsyncThunk(
+  "pet/fetchByStatus",
+  async (deliveryStatus: string) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8000/pet/find-all?deliveryStatus=${deliveryStatus}`
+      );
+      return response.data;
+    } catch (error: any) {
+      if (error.response) {
+        throw new Error(error.response.data.message || "Failed to fetch pets");
+      }
+      throw error;
+    }
+  }
+);
+
 // New async thunk for fetching a single pet by ID
 export const fetchPetById = createAsyncThunk(
   "pet/fetchById",
@@ -135,6 +152,7 @@ const petSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+    //Create Pet
       .addCase(createPet.pending, (state) => {
         state.status = "loading";
       })
@@ -146,6 +164,8 @@ const petSlice = createSlice({
         state.status = "failed";
         state.error = action.error.message || "Failed to create pet";
       })
+
+      //Fetch All Pet
       .addCase(fetchPets.pending, (state) => {
         state.status = "loading";
       })
@@ -156,6 +176,19 @@ const petSlice = createSlice({
       .addCase(fetchPets.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message || "Failed to fetch pets";
+      })
+      
+      //Fetch Pet By Status
+        .addCase(fetchPetsByStatus.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchPetsByStatus.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.pets = action.payload;
+      })
+      .addCase(fetchPetsByStatus.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message || "Failed to fetch pets by status";
       })
       .addCase(updatePetDelivery.fulfilled, (state, action) => {
         const { petId, deliveryStatus } = action.payload;
