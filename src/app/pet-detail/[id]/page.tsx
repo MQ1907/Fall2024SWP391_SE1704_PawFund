@@ -1,11 +1,32 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { Button, Modal } from "antd";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "../../../lib/hook";
 import { fetchPetById } from "../../../lib/features/pet/petSlice";
+import AdoptionRequest from "@/app/adoption-request/page";
 
 function PetDetail() {
+  const [OpenAdoptionRequest, setCreateAdoptionRequest] = useState(false);
+  const [loading, setLoading] = useState(false); // Khai báo trạng thái loading
+  
+  const showAdoptPetModal = () => {
+    setCreateAdoptionRequest(true); // Mở modal
+  };
+  
+  const handleCancelCreateAdoptionRequest = () => {
+    setCreateAdoptionRequest(false); // Đóng modal
+  };
+  
+  const handleOkAdoptPet = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      setCreateAdoptionRequest(false); // Đóng modal sau khi xử lý xong
+    }, 3000);
+  };
+  
   const [isAnimating, setIsAnimating] = useState(true);
   const params = useParams();
   const id = params.id as string;
@@ -13,17 +34,12 @@ function PetDetail() {
   const { currentPet, status, error } = useAppSelector((state) => state.pets);
 
   useEffect(() => {
-    console.log('Pet ID:', id);
     if (id) {
       dispatch(fetchPetById(id));
     }
     const timer = setTimeout(() => setIsAnimating(false), 4000);
     return () => clearTimeout(timer);
   }, [id, dispatch]);
-
-  console.log('Current Pet:', currentPet); // Add this line
-  console.log('Status:', status); // Add this line
-  console.log('Error:', error); // Add this line
 
   if (status === 'loading') {
     return <div>Loading...</div>;
@@ -36,7 +52,6 @@ function PetDetail() {
   if (!currentPet) {
     return <div>Pet not found</div>;
   }
-
   return (
     <div className="mt-[148px]">
       <div
@@ -97,9 +112,23 @@ function PetDetail() {
               <p className="px-1 ">{currentPet.color}</p>
             </div>
             <div className="flex gap-4">
-              <button className="relative border-2 border-gray-800 rounded-[5px] bg-transparent py-2.5 px-10 font-medium uppercase text-gray-800 transition-colors before:absolute before:left-0 before:top-0 before:-z-10 before:h-full before:w-full before:origin-top-left before:scale-x-0 before:bg-pink-500 before:transition-transform before:duration-300 before:content-[''] hover:text-white before:hover:scale-x-100">
+              <button onClick={showAdoptPetModal}  className="relative border-2 border-gray-800 rounded-[5px] bg-transparent py-2.5 px-10 font-medium uppercase text-gray-800 transition-colors before:absolute before:left-0 before:top-0 before:-z-10 before:h-full before:w-full before:origin-top-left before:scale-x-0 before:bg-pink-500 before:transition-transform before:duration-300 before:content-[''] hover:text-white before:hover:scale-x-100">
                 Adopt
               </button>
+              <Modal
+                        open={OpenAdoptionRequest}
+                        title="You want to adopt this pet ?"
+                        onOk={handleOkAdoptPet}
+                        onCancel={handleCancelCreateAdoptionRequest}
+                        footer={[
+                          <Button key="cancel" onClick={handleCancelCreateAdoptionRequest}>
+                            Cancel
+                          </Button>,
+                        
+                        ]}
+                      >
+                      <AdoptionRequest petId={currentPet._id} />
+                      </Modal>
             </div>
           </div>
         </div>

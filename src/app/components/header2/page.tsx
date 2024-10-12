@@ -100,6 +100,7 @@ const Header2 = () => {
           <li>
             <Image src="/images/logo.png" alt="" width={106} height={106} />
           </li>
+          
         
           <li
             className={`cursor-pointer ${pathname === "/adopt" ? "text-[#D94E66]" : "text-black hover:text-[#D94E66]"}`}
