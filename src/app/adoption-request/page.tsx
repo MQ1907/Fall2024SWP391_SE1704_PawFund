@@ -1,9 +1,10 @@
-"use client";
-import { createAdoptionRequest } from "@/lib/features/adopt/adoptSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/hook";
-import { Button, Form, Input, message, Select } from "antd";
+import { Button, Form, Input, message } from "antd";
 import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
+
+import { createAdoptionRequest } from "@/lib/features/adopt/adoptSlice"; 
+
 interface DecodedToken {
   id: string;
 }
@@ -43,10 +44,10 @@ const CreateAdoptionRequest: React.FC<{ petId: string }> = ({ petId }) => {
       petId: petId,
       userId: userId,
       requestDate: values.requestDate || new Date(),
-      reviewBy: userId, // Gán userId cho reviewBy , co the thay doi sau nay
+      reviewBy: userId,
       comment: values.comment,
       adoptionDate: values.adoptionDate || new Date(),
-      status: values.status || "PENDING", // Đặt giá trị mặc định
+      status: "PENDING", 
     };
 
     try {
@@ -54,7 +55,6 @@ const CreateAdoptionRequest: React.FC<{ petId: string }> = ({ petId }) => {
 
       if (createAdoptionRequest.fulfilled.match(resultAction)) {
         message.success("Adoption request submitted successfully!");
-
         form.resetFields();
       } else {
         const errorMessage =
@@ -68,12 +68,12 @@ const CreateAdoptionRequest: React.FC<{ petId: string }> = ({ petId }) => {
   };
 
   return (
-    <div className="w-[450px] mt-[10px]">
+    <div className="w-[450px] mt-[10px] ">
       <Form
         form={form}
         onFinish={handleSubmit}
         initialValues={{
-          status: "PENDING",
+          status: "PENDING", 
         }}
       >
         <Form.Item
@@ -90,34 +90,23 @@ const CreateAdoptionRequest: React.FC<{ petId: string }> = ({ petId }) => {
           initialValue={userId}
           hidden
         >
-          <Input.TextArea rows={4} disabled />{" "}
-          {/* Chỉ hiển thị, không cho sửa */}
+          <Input.TextArea rows={4} disabled />
         </Form.Item>
 
-        <Form.Item label="Comment" name="comment">
+        <Form.Item label="Comment" name="comment" className="text-[20px]">
           <Input />
         </Form.Item>
 
         <Form.Item
           label="Adoption Date"
           name="adoptionDate"
-          rules={[
-            { required: true, message: "Please select an adoption date!" },
-          ]}
+          rules={[{ required: true, message: "Please select an adoption date!" }]}
         >
           <Input type="datetime-local" />
         </Form.Item>
 
-        <Form.Item
-          label="Adoption Request Status"
-          name="status"
-          rules={[{ required: true, message: "Please select a status!" }]}
-        >
-          <Select>
-            <Select.Option value="PENDING">PENDING</Select.Option>
-            <Select.Option value="COMPLETED">COMPLETED</Select.Option>
-            <Select.Option value="CANCELLED">CANCELLED</Select.Option>
-          </Select>
+        <Form.Item label="Adoption Request Status" name="status" initialValue="PENDING" hidden>
+          <Input value="PENDING" disabled />
         </Form.Item>
 
         <Button
