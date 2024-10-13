@@ -115,8 +115,8 @@ const Header2 = () => {
             HEALTH-CHECK
           </li>
           <li
-            className={`cursor-pointer ${pathname === "/volunteer" ? "text-[#D94E66]" : "text-black hover:text-[#D94E66]"}`}
-            onClick={() => handleClick("/volunteer")}
+            className={`cursor-pointer ${pathname === "/adoptable-management" ? "text-[#D94E66]" : "text-black hover:text-[#D94E66]"}`}
+            onClick={() => handleClick("/adoptable-management")}
           >
             ADOPTABLE MANAGEMENT
           </li>

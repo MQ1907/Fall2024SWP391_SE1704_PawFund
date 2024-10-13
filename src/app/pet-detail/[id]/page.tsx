@@ -118,6 +118,7 @@ function PetDetail() {
               <Modal
                         open={OpenAdoptionRequest}
                         title="You want to adopt this pet ?"
+                        className="text-[20px]"
                         onOk={handleOkAdoptPet}
                         onCancel={handleCancelCreateAdoptionRequest}
                         footer={[
