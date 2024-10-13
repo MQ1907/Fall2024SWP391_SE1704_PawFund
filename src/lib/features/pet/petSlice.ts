@@ -84,6 +84,24 @@ export const fetchPetById = createAsyncThunk(
   }
 );
 
+// Action để xóa pet
+export const deletePet = createAsyncThunk(
+  "pets/deletePet",
+  async (petId: string, { rejectWithValue }) => {
+    try {
+      const response = await axios.delete(
+        `http://localhost:8000/pet/delete/${petId}`
+      );
+      return response.data; // Trả về kết quả từ server nếu thành công
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          "Something went wrong while deleting pet"
+      );
+    }
+  }
+);
+
 const loadSentToShelter = () => {
   try {
     const serializedState = localStorage.getItem("sentToShelter");
@@ -207,6 +225,18 @@ const petSlice = createSlice({
       .addCase(fetchPetById.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload as string || "Failed to fetch pet";
+      })
+      //delete pet
+      .addCase(deletePet.pending, (state) => {
+        state.status = "loading"; 
+      })
+      .addCase(deletePet.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.pets = state.pets.filter((pet) => pet._id !== action.meta.arg); 
+      })
+      .addCase(deletePet.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = (action.payload as string) || "Failed to delete pet"; 
       });
   },
 });

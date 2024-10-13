@@ -5,11 +5,11 @@ import {
   fetchPets,
   selectPendingPets,
   selectCompletedPets,
-
   updatePetDelivery,
 } from "../../lib/features/pet/petSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/hook";
-
+import { Modal } from "antd";
+import { deletePet } from '../../lib/features/pet/petSlice'; 
 
 function ShelterStaff() {
   const dispatch = useAppDispatch();
@@ -27,7 +27,9 @@ function ShelterStaff() {
 
   const handleUpdateStatus = async (petId: string) => {
     try {
-      await dispatch(updatePetDelivery({ petId, deliveryStatus: "COMPLETED" })).unwrap();
+      await dispatch(
+        updatePetDelivery({ petId, deliveryStatus: "COMPLETED" })
+      ).unwrap();
       message.success("Status updated successfully!");
     } catch (error) {
       console.error("Error updating status:", error);
@@ -35,7 +37,32 @@ function ShelterStaff() {
     }
   };
 
+  const handleDelete = (petId: string) => {
+    dispatch(deletePet(petId));
+  };
+
+  const confirmDelete = (petId: string) => {
+    Modal.confirm({
+      title: "Are you sure you want to delete this pet?",
+      okText: "Yes",
+      okType: "danger",
+      cancelText: "No",
+      onOk() {
+        handleDelete(petId); // Gọi hàm xóa pet
+      },
+    });
+  };
+
   const commonColumns = [
+    {
+      title: "Image",
+      dataIndex: "image",
+      key: "image",
+      render: (
+        text: string,
+        record: { _id: string; image: string; name: string }
+      ) => <img src={record.image} alt={record.name} style={{ width: 100 }} />,
+    },
     {
       title: "Name",
       dataIndex: "name",
@@ -76,14 +103,26 @@ function ShelterStaff() {
       dataIndex: "deliveryStatus",
       key: "deliveryStatus",
     },
+
     {
-      title: "Image",
-      dataIndex: "image",
-      key: "image",
-      render: (
-        text: string,
-        record: { _id: string; image: string; name: string }
-      ) => <img src={record.image} alt={record.name} style={{ width: 100 }} />,
+      title: "Button",
+      key: "button",
+      render: (text: string, record: { _id: string }) => (
+        <>
+          <Button
+            style={{ backgroundColor: "red", color: "white", marginRight: 8 }}
+            onClick={() => confirmDelete(record._id)}
+          >
+            Delete
+          </Button>
+          {/* <Button
+        style={{ backgroundColor: "blue", color: "white" }}
+        onClick={() => handleUpdatePet(record._id)}
+      >
+        Update
+      </Button> */}
+        </>
+      ),
     },
   ];
 
@@ -109,19 +148,6 @@ function ShelterStaff() {
   return (
     <div className="mt-[148px]">
       <div style={{ marginBottom: 16 }}>
-        <Button
-          type={view === "PENDING" ? "primary" : "default"}
-          onClick={() => setView("PENDING")}
-        >
-          View Pending Pets
-        </Button>
-        <Button
-          type={view === "COMPLETED" ? "primary" : "default"}
-          onClick={() => setView("COMPLETED")}
-          style={{ marginLeft: 8 }}
-        >
-          View Completed Pets
-        </Button>
       </div>
       {petsStatus === "loading" && <Spin tip="Loading..." />}
       {petsStatus === "failed" && (
