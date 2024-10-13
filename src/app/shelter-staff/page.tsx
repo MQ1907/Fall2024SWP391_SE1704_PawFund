@@ -148,19 +148,6 @@ function ShelterStaff() {
   return (
     <div className="mt-[148px]">
       <div style={{ marginBottom: 16 }}>
-        <Button
-          type={view === "PENDING" ? "primary" : "default"}
-          onClick={() => setView("PENDING")}
-        >
-          View Pending Pets
-        </Button>
-        <Button
-          type={view === "COMPLETED" ? "primary" : "default"}
-          onClick={() => setView("COMPLETED")}
-          style={{ marginLeft: 8 }}
-        >
-          View Completed Pets
-        </Button>
       </div>
       {petsStatus === "loading" && <Spin tip="Loading..." />}
       {petsStatus === "failed" && (
