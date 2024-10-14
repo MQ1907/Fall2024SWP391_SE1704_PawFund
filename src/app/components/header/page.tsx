@@ -111,7 +111,7 @@ const Header = () => {
           showTopBar ? "animate__fadeInDown" : "animate__fadeOutUp"
         }`}
       >
-        <ul className="flex gap-10 pl-96 items-center">
+        <ul className="flex gap-4 sm:gap-10 pl-4 sm:pl-96 items-center">
           <li className="flex items-center gap-2 group">
             <Image src="/images/location.png" alt="" width={30} height={30} />
             <div className="text-white group-hover:text-black transition duration-300">
@@ -131,7 +131,7 @@ const Header = () => {
             </div>
           </li>
         </ul>
-        <ul className="flex gap-10 pr-60 items-center">
+        <ul className="flex gap-4 sm:gap-10 pr-4 sm:pr-60 items-center">
           <li>
             <Image src="/images/search.png" alt="" width={30} height={30} />
           </li>
@@ -155,7 +155,7 @@ const Header = () => {
           showTopBar ? "animate__fadeInDown mt-[42px]" : ""
         }`}
       >
-        <ul className="flex gap-[60px] items-center">
+        <ul className="flex flex-wrap gap-4 sm:gap-[60px] items-center justify-center">
           <li>
             <Image
               src="/images/logo.png"
