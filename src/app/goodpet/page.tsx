@@ -1,80 +1,23 @@
-import React, { useState } from 'react'
+"use client";
+import React, { useState, useEffect } from 'react';
 import Image from "next/image";
 import { useRouter } from 'next/navigation';
+
+import { fetchPetsByStatus, selectCompletedPets } from '@/lib/features/pet/petSlice';
 import "animate.css";
+import { useAppDispatch, useAppSelector } from '@/lib/hook';
 
 const GoodBaby = () => {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const [isAnimating] = useState(true);
-  const petsData = [
-    {
-      id: 1,
-      name: "Win",
-      gender: "Đực",
-      age: "Trưởng thành",
-      vaccination: "Có",
-      image: "/images/pet1.jpeg",
-    },
-    {
-      id: 2,
-      name: "Elvis",
-      gender: "Đực",
-      age: "Trưởng thành",
-      vaccination: "Chưa rõ",
-      image: "/images/pet2.jpeg",
-    },
-    {
-      id: 3,
-      name: "Mimi",
-      gender: "Cái",
-      age: "Trưởng thành",
-      vaccination: "Có",
-      image: "/images/pet3.jpeg",
-    },
-    {
-      id: 4,
-      name: "Orion",
-      gender: "Cái",
-      age: "Trưởng thành",
-      vaccination: "Có",
-      image: "/images/pet4.jpeg",
-    },
-    {
-      id: 5,
-      name: "Oscar",
-      gender: "Đực",
-      age: "Trưởng thành",
-      vaccination: "Chưa rõ",
-      image: "/images/pet1.jpeg",
-    },
-    {
-      id: 6,
-      name: "Lucy",
-      gender: "Cái",
-      age: "Con",
-      vaccination: "Có",
-      image: "/images/pet1.jpeg",
-    },
-    {
-      id: 7,
-      name: "Daisy",
-      gender: "Cái",
-      age: "Con",
-      vaccination: "Có",
-      image: "/images/pet1.jpeg",
-    },
-    {
-      id: 8,
-      name: "Max",
-      gender: "Đực",
-      age: "Trưởng thành",
-      vaccination: "Có",
-      image: "/images/pet1.jpeg",
-    },
-  ];
-
+  const petsData = useAppSelector(selectCompletedPets);
   const [currentIndex, setCurrentIndex] = useState(0);
   const petsPerPage = 4;
+
+  useEffect(() => {
+    dispatch(fetchPetsByStatus('COMPLETED'));
+  }, [dispatch]);
 
   const handlePrevClick = () => {
     setCurrentIndex((prevIndex) =>
@@ -109,7 +52,7 @@ const GoodBaby = () => {
           <div className="flex justify-center gap-14">
             {currentPets.map((pet, index) => (
               <div key={pet.id} className={`text-center w-[220px] mx-auto animate__animated animate__fadeInUp animate__delay-${index}s`}>
-                <Image
+                <img
                   src={pet.image}
                   alt={pet.name}
                   width={220}
@@ -118,9 +61,9 @@ const GoodBaby = () => {
                 />
                 <h3 className="text-lg font-bold mt-4">{pet.name}</h3>
                 <hr className="border-1 border-gray-300 my-2 w-[60px] mx-auto" />
-                <p className="text-gray-600 font-semibold">Giới tính: {pet.gender}</p>
-                <p className="text-gray-600 font-semibold">Tuổi: {pet.age}</p>
-                <p className="text-gray-600 font-semibold">Tiêm phòng: {pet.vaccination}</p>
+                <p className="text-gray-600 font-semibold">GENDER: {pet.gender}</p>
+                <p className="text-gray-600 font-semibold">AGE: {pet.age}</p>
+                <p className="text-gray-600 font-semibold">VACCINE: {pet.isVacinted ? 'Yes' : 'No'}</p>
               </div>
             ))}
           </div>
@@ -140,7 +83,7 @@ const GoodBaby = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default GoodBaby;
