@@ -7,12 +7,14 @@ import { useAppDispatch, useAppSelector } from "@/lib/hook";
 const { TextArea } = Input;
 
 const AddPet: React.FC = () => {
+  // const [rescueDate, setRescueDate] = useState("");
   const dispatch = useAppDispatch();
   const { status, error } = useAppSelector((state) => state.pets);
   const [petData, setPetData] = useState({
     shelterId: "",
     petCode: "",
     name: "",
+    gender: "",
     description: "",
     image: "",
     color: "",
@@ -24,6 +26,7 @@ const AddPet: React.FC = () => {
     isAdopted: false,
     note: "",
     rescueBy: "",
+    rescueDate: "",
     rescueFee: "",
     locationFound: "",
     petStatus: "",
@@ -31,7 +34,9 @@ const AddPet: React.FC = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    const parsedValue = ["age", "shelterId", "species", "rescueFee"].includes(name)
+    const parsedValue = ["age", "shelterId", "species", "rescueFee"].includes(
+      name
+    )
       ? parseInt(value, 10)
       : value;
 
@@ -53,7 +58,8 @@ const AddPet: React.FC = () => {
 
     if (createPet.fulfilled.match(resultAction)) {
       message.success("Thêm thú cưng thành công!");
-      setPetData({  // Reset the form after successful submission
+      setPetData({
+        // Reset the form after successful submission
         shelterId: "",
         petCode: "",
         name: "",
@@ -71,6 +77,8 @@ const AddPet: React.FC = () => {
         rescueFee: "",
         locationFound: "",
         petStatus: "",
+        gender: "",
+        rescueDate: "",
       });
     } else {
       message.error(`Thêm thú cưng thất bại: ${error}`);
@@ -82,6 +90,25 @@ const AddPet: React.FC = () => {
       <Form>
         <Form.Item label="Name">
           <Input name="name" value={petData.name} onChange={handleChange} />
+        </Form.Item>
+
+        <Form.Item label="Gender">
+          <Select
+            onChange={(value) => setPetData({ ...petData, gender: value })}
+            value={petData.gender}
+          >
+            <Select.Option value="Female">Female</Select.Option>
+            <Select.Option value="Male">Male</Select.Option>
+          </Select>
+        </Form.Item>
+
+        <Form.Item label="Rescue Date">
+          <Input
+            type="datetime-local"
+            name="rescueDate"
+            value={petData.rescueDate}
+            onChange={handleChange}
+          />
         </Form.Item>
 
         <Form.Item label="Shelter ID">

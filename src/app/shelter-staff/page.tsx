@@ -69,6 +69,16 @@ function ShelterStaff() {
       key: "name",
     },
     {
+      title: "Gender",
+      dataIndex: "gender",
+      key: "gender",
+    },
+    {
+      title: "Rescue Day",
+      dataIndex: "rescueDate",
+      key: "rescueDate",
+    },
+    {
       title: "Pet Code",
       dataIndex: "petCode",
       key: "petCode",

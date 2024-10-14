@@ -50,6 +50,16 @@ function PetManagement() {
       dataIndex: "name",
       key: "name",
     },
+     {
+      title: "Gender",
+      dataIndex: "gender",
+      key: "gender",
+    },
+    {
+      title: "Rescue Day",
+      dataIndex: "rescueDate",
+      key: "rescueDate",
+    },
     {
       title: "Pet Code",
       dataIndex: "petCode",
