@@ -1,6 +1,8 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
+
+
 // Async Thunk for creating an adoption request
 export const createAdoptionRequest = createAsyncThunk(
   "adoption/create",
@@ -69,9 +71,15 @@ export const fetchAdoptionRequestsByPetId = createAsyncThunk(
 // Async Thunk for updating adoption request status
 export const updateAdoptionRequestStatus = createAsyncThunk(
   "adoption/updateStatus",
-  async ({ requestId, status }: { requestId: string; status: string }, { rejectWithValue }) => {
+  async (
+    { requestId, status, comment }: { requestId: string; status: string; comment: string }, // Thêm comment vào tham số
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await axios.put(`http://localhost:8000/adoption-requests/update-status/${requestId}`, { status });
+      const response = await axios.put(
+        `http://localhost:8000/adoption-requests/update-status/${requestId}`,
+        { status, comment } // Gửi cả status và comment
+      );
       return response.data; // Trả về dữ liệu sau khi cập nhật thành công
     } catch (error: any) {
       if (error.response) {
