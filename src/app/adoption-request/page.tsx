@@ -2,8 +2,7 @@ import { useAppDispatch, useAppSelector } from "@/lib/hook";
 import { Button, Form, Input, message } from "antd";
 import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
-
-import { createAdoptionRequest } from "@/lib/features/adopt/adoptSlice"; 
+import { createAdoptionRequest } from "@/lib/features/adopt/adoptSlice";
 
 interface DecodedToken {
   id: string;
@@ -43,11 +42,11 @@ const CreateAdoptionRequest: React.FC<{ petId: string }> = ({ petId }) => {
     const requestData = {
       petId: petId,
       userId: userId,
-      requestDate: values.requestDate || new Date(),
+      requestDate: new Date().toISOString(), // Set to current date
       reviewBy: userId,
       comment: values.comment,
-      adoptionDate: values.adoptionDate || new Date(),
-      status: "PENDING", 
+      adoptionDate: values.adoptionDate, // Set to the selected adoption date
+      status: "PENDING",
     };
 
     try {
@@ -73,15 +72,17 @@ const CreateAdoptionRequest: React.FC<{ petId: string }> = ({ petId }) => {
         form={form}
         onFinish={handleSubmit}
         initialValues={{
-          status: "PENDING", 
+          requestDate: new Date().toISOString(),
+          status: "PENDING",
         }}
       >
         <Form.Item
           label="Request Date"
           name="requestDate"
-          rules={[{ required: true, message: "Please select a request date!" }]}
+          initialValue={new Date().toISOString()}
+          hidden
         >
-          <Input type="datetime-local" />
+          <Input type="hidden" />
         </Form.Item>
 
         <Form.Item
@@ -102,7 +103,7 @@ const CreateAdoptionRequest: React.FC<{ petId: string }> = ({ petId }) => {
           name="adoptionDate"
           rules={[{ required: true, message: "Please select an adoption date!" }]}
         >
-          <Input type="datetime-local" />
+          <Input type="date" min={new Date().toISOString().split("T")[0]} />
         </Form.Item>
 
         <Form.Item label="Adoption Request Status" name="status" initialValue="PENDING" hidden>
