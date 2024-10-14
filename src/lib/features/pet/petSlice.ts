@@ -22,6 +22,8 @@ export const createPet = createAsyncThunk(
     rescueFee: number;
     locationFound: string;
     petStatus: string;
+    gender:string;
+    rescueDate:Date;
   }) => {
     try {
       const response = await axios.post(
