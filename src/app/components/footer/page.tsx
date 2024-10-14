@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import "animate.css";
 
 const Footer = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const [animationClass, setAnimationClass] = useState("animate__fadeIn");
 
   const scrollToTop = () => {
     if (typeof window !== "undefined") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      setAnimationClass("animate__fadeOut");
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        setAnimationClass("animate__fadeIn");
+      }, 500); // Match the duration of the animation
     }
   };
 
@@ -32,16 +38,16 @@ const Footer = () => {
 
   return (
     <div className="h-[490px] relative">
-      <div className="h-[373px] bg-[#FFFFFF] flex justify-center items-center gap-40">
-        <div className="flex flex-col items-center pb-28 ">
-          <Image src="/images/logo1.png" alt="" width={150} height={150} />
-          <ul className="flex gap-5">
+      <div className="h-[373px] bg-[#FFFFFF] flex justify-center items-center gap-40 animate__animated animate__fadeIn">
+        <div className="flex flex-col items-center pb-28">
+          <Image src="/images/logo1.png" alt="" width={150} height={150} className="animate__animated animate__zoomIn" />
+          <ul className="flex gap-5 mt-4 animate__animated animate__fadeInUp">
             <li><Image src="/images/facebook.png" alt="" width={18} height={18} /></li>
             <li><Image src="/images/youtube.png" alt="" width={18} height={18} /></li>
             <li><Image src="/images/instagram.png" alt="" width={18} height={18} /></li>
           </ul>
         </div>
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 animate__animated animate__fadeInRight">
           <div className="font-semibold">About us</div>
           <hr className="w-[56px] border border-black border-1"/>
           <div className="font-thin">Young group of Vietnamese and international <br/>volunteers working for the love of dogs and cats.</div>
@@ -62,9 +68,9 @@ const Footer = () => {
         </div>
       </div>
 
-      <div className="h-[117px] relative">
+      <div className="h-[117px] relative animate__animated animate__fadeInUp">
         <Image src="/images/bgfooter.png" alt="" width={1440} height={117} className="w-full h-full object-cover"/>
-        <div className="absolute inset-0 flex items-center justify-center gap-3 ">
+        <div className="absolute inset-0 flex items-center justify-center gap-3">
           <div className="font-semibold">Copyright 2019 / Designed by</div>
           <div className="font-semibold text-[#018AE0]">PawFund Team</div>
         </div>
@@ -73,9 +79,9 @@ const Footer = () => {
       {isVisible && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-6 right-10 bg-[#FFCC00] font-bold text-white w-12 h-12 rounded-full flex items-center justify-center hover:bg-[#016bb5] transition duration-300"
+          className={`fixed bottom-6 right-10 bg-[#FFCC00] font-bold text-white w-12 h-12 rounded-full flex items-center justify-center hover:bg-[#016bb5] transition duration-300 animate__animated ${animationClass}`}
         >
-         <Image src="/images/up.png" alt="" width={50} height={50}/>
+          <Image src="/images/up.png" alt="" width={50} height={50} />
         </button>
       )}
     </div>

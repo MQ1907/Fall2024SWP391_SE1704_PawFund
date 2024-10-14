@@ -7,6 +7,7 @@ import { useAppDispatch } from "@/lib/hook";
 import { usePathname } from "next/navigation";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
+import "animate.css";
 
 interface DecodedToken {
   id: string;
@@ -106,22 +107,28 @@ const Header = () => {
   return (
     <div className="fixed z-50 w-full">
       <div
-        className={`h-[42px] bg-[#FFCC00] flex items-center justify-between fixed top-0 left-0 right-0 z-40 transition-transform duration-300 ease-in-out ${
-          showTopBar ? "translate-y-0" : "-translate-y-full"
+        className={`h-[42px] bg-[#FFCC00] flex items-center justify-between fixed top-0 left-0 right-0 z-40 transition-transform duration-300 ease-in-out animate__animated ${
+          showTopBar ? "animate__fadeInDown" : "animate__fadeOutUp"
         }`}
       >
         <ul className="flex gap-10 pl-96 items-center">
-          <li className="flex items-center gap-2">
+          <li className="flex items-center gap-2 group">
             <Image src="/images/location.png" alt="" width={30} height={30} />
-            <div className="text-white">SaiGon-VietNam</div>
+            <div className="text-white group-hover:text-black transition duration-300">
+              SaiGon-VietNam
+            </div>
           </li>
-          <li className="flex items-center gap-2">
+          <li className="flex items-center gap-2 group">
             <Image src="/images/mail.png" alt="" width={30} height={30} />
-            <div className="text-white">trilhmse173578@fpt.edu.vn</div>
+            <div className="text-white group-hover:text-black transition duration-300">
+              trilhmse173578@fpt.edu.vn
+            </div>
           </li>
-          <li className="flex items-center gap-2">
+          <li className="flex items-center gap-2 group">
             <Image src="/images/telephone.png" alt="" width={30} height={30} />
-            <div className="text-white">(84+)5835484</div>
+            <div className="text-white group-hover:text-black transition duration-300">
+              (84+)5835484
+            </div>
           </li>
         </ul>
         <ul className="flex gap-10 pr-60 items-center">
@@ -131,11 +138,11 @@ const Header = () => {
           <li>
             <Image src="/images/vietnam.png" alt="" width={30} height={30} />
           </li>
-          <li>Hi {name ? name : "Guest"} ❤️</li>
+          <li className="animate__animated animate__fadeInRight">Hi {name ? name : "Guest"} ❤️</li>
           <li>
             <button
               onClick={token ? handleLogoutClick : handleLoginClick}
-              className="rounded-md border border-black px-4 text-white hover:text-[#D94E66] hover:bg-white"
+              className="rounded-md border border-black px-4 text-white bg-[#D94E66] hover:bg-white hover:text-[#D94E66] transition duration-300 animate__animated animate__fadeInRight"
             >
               {token ? "Logout" : "Login"}
             </button>
@@ -144,16 +151,22 @@ const Header = () => {
       </div>
 
       <div
-        className={`h-[106px] bg-[#F4F4F4] flex items-center justify-center fixed top-0 left-0 right-0 z-30 transition-transform duration-300 ease-in-out ${
-          showTopBar ? "mt-[42px]" : "mt-0"
+        className={`h-[106px] bg-[#F4F4F4] flex items-center justify-center fixed top-0 left-0 right-0 z-30 transition-transform duration-300 ease-in-out animate__animated ${
+          showTopBar ? "animate__fadeInDown mt-[42px]" : ""
         }`}
       >
         <ul className="flex gap-[60px] items-center">
           <li>
-            <Image src="/images/logo.png" alt="" width={106} height={106} />
+            <Image
+              src="/images/logo.png"
+              alt="Logo"
+              width={106}
+              height={106}
+              className="animate__animated animate__bounceIn"
+            />
           </li>
           <li
-            className={`cursor-pointer ${
+            className={`cursor-pointer animate__animated animate__fadeInLeft ${
               pathname === "/"
                 ? "text-[#D94E66]"
                 : "text-black hover:text-[#D94E66]"
@@ -163,7 +176,7 @@ const Header = () => {
             HOMEPAGE
           </li>
           <li
-            className={`cursor-pointer ${
+            className={`cursor-pointer animate__animated animate__fadeInLeft ${
               pathname === "/adopt"
                 ? "text-[#D94E66]"
                 : "text-black hover:text-[#D94E66]"
@@ -173,7 +186,7 @@ const Header = () => {
             ADOPT
           </li>
           <li
-            className={`cursor-pointer ${
+            className={`cursor-pointer animate__animated animate__fadeInLeft ${
               pathname === "/donate"
                 ? "text-[#D94E66]"
                 : "text-black hover:text-[#D94E66]"
@@ -183,7 +196,7 @@ const Header = () => {
             DONATE
           </li>
           <li
-            className={`cursor-pointer ${
+            className={`cursor-pointer animate__animated animate__fadeInLeft ${
               pathname === "/volunteer"
                 ? "text-[#D94E66]"
                 : "text-black hover:text-[#D94E66]"
@@ -193,7 +206,7 @@ const Header = () => {
             VOLUNTEER
           </li>
           <li
-            className={`cursor-pointer ${
+            className={`cursor-pointer animate__animated animate__fadeInLeft ${
               pathname === "/news"
                 ? "text-[#D94E66]"
                 : "text-black hover:text-[#D94E66]"
@@ -203,7 +216,7 @@ const Header = () => {
             NEWS
           </li>
           <li
-            className={`cursor-pointer ${
+            className={`cursor-pointer animate__animated animate__fadeInLeft ${
               pathname === "/contact"
                 ? "text-[#D94E66]"
                 : "text-black hover:text-[#D94E66]"
@@ -213,7 +226,7 @@ const Header = () => {
             CONTACT
           </li>
           <li
-            className={`cursor-pointer ${
+            className={`cursor-pointer animate__animated animate__fadeInLeft ${
               pathname === "/admin"
                 ? "text-[#D94E66]"
                 : "text-black hover:text-[#D94E66]"
