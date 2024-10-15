@@ -3,13 +3,16 @@ import authReducer from '../lib/features/auth/authSlice';
 import petReducer from "../lib/features/pet/petSlice"
 import healthCheckReducer  from "../lib/features/pet/HealthCheckSlice"
 import adoptionReducer  from "./features/adopt/adoptSlice"
+import userReducer from './features/user/userSlice';
+
 export const makeStore = () => {
   return configureStore({
     reducer: {
         auth: authReducer,
          pets: petReducer,
          healthChecks: healthCheckReducer,
-         adoption: adoptionReducer, 
+         adoption: adoptionReducer,
+         user: userReducer, 
     }
   })
 }
