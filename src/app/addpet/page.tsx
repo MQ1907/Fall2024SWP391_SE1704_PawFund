@@ -52,7 +52,11 @@ const AddPet: React.FC = () => {
     }));
   };
 
-  const handleSubmit = async () => {
+const handleSubmit = async () => {
+  try {
+    // Kiểm tra tính hợp lệ của tất cả các trường
+    await form.validateFields(); // 'form' là biến bạn sẽ tạo bên ngoài component
+
     console.log("Submitting petData:", petData);
     const resultAction = await dispatch(createPet(petData));
 
@@ -83,26 +87,59 @@ const AddPet: React.FC = () => {
     } else {
       message.error(`Thêm thú cưng thất bại: ${error}`);
     }
-  };
+  } catch (error) {
+    // Xử lý lỗi nếu có trường không hợp lệ
+    console.error("Validation failed:", error);
+    message.error("Vui lòng kiểm tra các trường và thử lại.");
+  }
+};
+  const [form] = Form.useForm();
 
   return (
     <div className="w-[100%] mt-[10px]">
-      <Form>
-        <Form.Item label="Name">
+      <Form form={form}>
+        <Form.Item
+          label="Name"
+          name="name"
+          rules={[
+            { required: true, message: "Tên không được để trống" },
+            { min: 3, message: "Tên phải có ít nhất 3 ký tự" },
+            { max: 50, message: "Tên không được vượt quá 50 ký tự" },
+            {
+              pattern: /^[A-Z][a-zA-Z\s]*$/,
+              message: "Chữ cái đầu phải viết hoa",
+            },
+          ]}
+        >
           <Input name="name" value={petData.name} onChange={handleChange} />
         </Form.Item>
 
-        <Form.Item label="Gender">
+        <Form.Item
+          label="Gender"
+          name="gender"
+          rules={[{ required: true, message: "Vui lòng chọn giới tính" }]}
+        >
           <Select
             onChange={(value) => setPetData({ ...petData, gender: value })}
             value={petData.gender}
+            placeholder="Chọn giới tính"
           >
             <Select.Option value="Female">Female</Select.Option>
             <Select.Option value="Male">Male</Select.Option>
           </Select>
         </Form.Item>
 
-        <Form.Item label="Rescue Date">
+        <Form.Item
+          label="Rescue Date"
+          name="rescueDate"
+          rules={[
+            { required: true, message: "Vui lòng nhập ngày cứu hộ" },
+            {
+              type: "date",
+              message: "Định dạng ngày không hợp lệ",
+            },
+          ]}
+        >
           <Input
             type="datetime-local"
             name="rescueDate"
@@ -111,7 +148,14 @@ const AddPet: React.FC = () => {
           />
         </Form.Item>
 
-        <Form.Item label="Shelter ID">
+        <Form.Item
+          label="Shelter ID"
+          name="shelterId"
+          rules={[
+            { required: true, message: "Vui lòng nhập Shelter ID" },
+            { pattern: /^[0-9]+$/, message: "Shelter ID chỉ được chứa số" },
+          ]}
+        >
           <Input
             name="shelterId"
             value={petData.shelterId}
@@ -119,7 +163,11 @@ const AddPet: React.FC = () => {
           />
         </Form.Item>
 
-        <Form.Item label="Pet Code">
+        <Form.Item
+          label="Pet Code"
+          name="petCode"
+          rules={[{ required: true, message: "Vui lòng nhập Pet Code" }]}
+        >
           <Input
             name="petCode"
             value={petData.petCode}
@@ -127,19 +175,55 @@ const AddPet: React.FC = () => {
           />
         </Form.Item>
 
-        <Form.Item label="Color">
-          <Input name="color" value={petData.color} onChange={handleChange} />
+        <Form.Item
+          label="Color"
+          name="color"
+          rules={[{ required: true, message: "Vui lòng chọn màu sắc" }]}
+        >
+          <Select
+            onChange={(value) => setPetData({ ...petData, color: value })}
+            value={petData.color}
+            placeholder="Chọn màu sắc"
+          >
+            <Select.Option value="Black">Black</Select.Option>
+            <Select.Option value="White">White</Select.Option>
+            <Select.Option value="Brown">Brown</Select.Option>
+          </Select>
         </Form.Item>
 
-        <Form.Item label="Breed">
+        <Form.Item
+          label="Breed"
+          name="breed"
+          rules={[
+            { required: true, message: "Vui lòng nhập giống loài (Breed)" },
+            {
+              pattern: /^[A-Za-z\s]+$/,
+              message: "Giống loài (Breed) chỉ được chứa chữ cái",
+            },
+          ]}
+        >
           <Input name="breed" value={petData.breed} onChange={handleChange} />
         </Form.Item>
 
-        <Form.Item label="Age">
+        <Form.Item
+          label="Age"
+          name="age"
+          rules={[
+            { required: true, message: "Vui lòng nhập tuổi (Age)" },
+            { pattern: /^[0-9]+$/, message: "Tuổi (Age) chỉ được chứa số" },
+          ]}
+        >
           <Input name="age" value={petData.age} onChange={handleChange} />
         </Form.Item>
 
-        <Form.Item label="Description">
+        <Form.Item
+          label="Description"
+          name="description"
+          rules={[
+            { required: true, message: "Vui lòng nhập mô tả" },
+            { max: 150, message: "Mô tả không được quá 150 ký tự" },
+          ]}
+        >
           <TextArea
             name="description"
             value={petData.description}
