@@ -42,10 +42,10 @@ const CreateAdoptionRequest: React.FC<{ petId: string }> = ({ petId }) => {
     const requestData = {
       petId: petId,
       userId: userId,
-      requestDate: new Date().toISOString(), // Set to current date
+      requestDate: new Date(), // Set to current date
       reviewBy: userId,
       comment: values.comment,
-      adoptionDate: values.adoptionDate, // Set to the selected adoption date
+      adoptionDate: new Date(), // Set to the selected adoption date
       status: "PENDING",
     };
 
@@ -98,13 +98,13 @@ const CreateAdoptionRequest: React.FC<{ petId: string }> = ({ petId }) => {
           <Input />
         </Form.Item>
 
-        <Form.Item
+        {/* <Form.Item
           label="Adoption Date"
           name="adoptionDate"
           rules={[{ required: true, message: "Please select an adoption date!" }]}
         >
           <Input type="date" min={new Date().toISOString().split("T")[0]} />
-        </Form.Item>
+        </Form.Item> */}
 
         <Form.Item label="Adoption Request Status" name="status" initialValue="PENDING" hidden>
           <Input value="PENDING" disabled />

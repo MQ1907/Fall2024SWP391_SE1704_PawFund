@@ -34,18 +34,13 @@ export const createAdoptionRequest = createAsyncThunk(
 
 // Async Thunk for fetching all adoption requests
 export const fetchAdoptionRequests = createAsyncThunk(
-  "adoption/fetchAll",
+  'adoption/fetchAdoptionRequests',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get("http://localhost:8000/adoption-requests/find-all"); // Đường dẫn đến API để lấy tất cả yêu cầu
-      return response.data; // Trả về danh sách tất cả các yêu cầu nhận nuôi
-    } catch (error: any) {
-      if (error.response) {
-        return rejectWithValue(
-          error.response.data.message || "Failed to fetch all adoption requests"
-        );
-      }
-      return rejectWithValue("Failed to fetch all adoption requests");
+      const response = await axios.get('http://localhost:8000/adoption-requests/find-all');
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
     }
   }
 );
