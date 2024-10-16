@@ -54,27 +54,33 @@ const Header = () => {
       setToken(storedToken);
 
       if (storedToken) {
-        const decodedToken = jwtDecode<DecodedToken>(storedToken);
-        const userId = decodedToken.id;
+        try {
+          const decodedToken = jwtDecode<DecodedToken>(storedToken);
+          const userId = decodedToken.id;
 
-        console.log("userId", userId);
+          console.log("userId", userId);
 
-        // Gọi API để lấy thông tin người dùng
-        const fetchUser = async () => {
-          try {
-            const response = await axios.get(
-              `http://localhost:8000/users/${userId}`
-            );
-            console.log("User data:", response.data);
+          // Gọi API để lấy thông tin người dùng
+          const fetchUser = async () => {
+            try {
+              const response = await axios.get(
+                `http://localhost:8000/users/${userId}`
+              );
+              console.log("User data:", response.data);
 
-            setName(response.data.name);
-            setRole(response.data.role);
-          } catch (error) {
-            console.error("Error fetching user data:", error);
-          }
-        };
+              setName(response.data.name);
+              setRole(response.data.role);
+            } catch (error) {
+              console.error("Error fetching user data:", error);
+            }
+          };
 
-        fetchUser();
+          fetchUser();
+        } catch (error) {
+          console.error("Invalid token:", error);
+          localStorage.removeItem("token");
+          setToken(null);
+        }
       }
     }
   }, []);
