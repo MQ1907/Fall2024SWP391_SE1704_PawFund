@@ -2,22 +2,22 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 
-export const signin = createAsyncThunk('auth/login', async (credentials: { email: string, password: string }) => {
+export const signin = createAsyncThunk('auth/login', async (credentials: { email: string, password: string }, { rejectWithValue }) => {
   try {
     const response = await axios.post('http://localhost:8000/auth/login', credentials);
     console.log(response.data);
     return response.data; 
   } catch (error: any) {
     if (error.response) {
-      throw new Error(error.response.data.message || "Login failed"); 
+      return rejectWithValue(error.response.data.message || "Login failed");
     }
     throw error;
   }
 });
 
-export const signup = createAsyncThunk('auth/signup', async (userData: { name: string, password: string, email: string, role: string }, { rejectWithValue }) => {
+export const signup = createAsyncThunk('auth/signup', async (userData: { name: string, password: string, email: string, role: string, avatar?: string, address?: string, phone?: string }, { rejectWithValue }) => {
   try {
-    const response = await axios.post('http://localhost:8000/auth/sign-up', userData);
+    const response = await axios.post('http://localhost:8000/auth/signup', userData);
     console.log('Signup response:', response.data); 
     return response.data;
   } catch (error: any) {

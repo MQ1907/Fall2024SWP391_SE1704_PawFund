@@ -1,16 +1,18 @@
 "use client";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import React from "react";
 import { Dropdown, Input, Button, MenuProps } from "antd";
 import { useRouter } from "next/navigation";
 import { DownOutlined } from "@ant-design/icons";
-import { useAppDispatch, useAppSelector } from "../../lib/hook"; // Import hooks
-import { signup } from "../../lib/features/auth/authSlice"; // Import async thunk
+import { useAppDispatch, useAppSelector } from "../../lib/hook";
+import { signup } from "../../lib/features/auth/authSlice";
+import { Role } from "../enums/role.enum";
+
 const buttonChooseRole = (isHovered: boolean): React.CSSProperties => {
   return {
     width: "100%",
     marginTop: "1.25rem",
-    backgroundColor: isHovered ? "#2b74d4" : "#FFEB55", // Thay đổi màu nền khi hover
+    backgroundColor: isHovered ? "#2b74d4" : "#FFEB55",
     borderColor: "#FFEB55",
     color: isHovered ? "#FFFFFF" : "#000000",
     padding: "1.25rem 0",
@@ -20,12 +22,15 @@ const buttonChooseRole = (isHovered: boolean): React.CSSProperties => {
 };
 
 const Page: React.FC = () => {
-  const [isHovered, setIsHovered] = React.useState(false);
-  const [role, setRole] = React.useState("Choose Your Role");
-  const [email, setEmail] = React.useState("");
-  const [name, setName] = React.useState("");
-  const [password, setPassword] = React.useState("");
-  // const [confirmPassword, setConfirmPassword] = React.useState('');
+  const [isHovered, setIsHovered] = useState(false);
+  const [role, setRole] = useState("Choose Your Role");
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
+  const [avatar, setAvatar] = useState("");
+  const [address, setAddress] = useState("");
+  const [phone, setPhone] = useState("");
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -45,13 +50,26 @@ const Page: React.FC = () => {
     },
   ];
 
-  const handleSignup = () => {
-    dispatch(signup({ name, email, password, role }));
+  const validate = () => {
+    const newErrors: { [key: string]: string } = {};
+    if (!name) newErrors.name = "Name is required";
+    if (!email) newErrors.email = "Email is required";
+    else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = "Invalid email format";
+    if (!password) newErrors.password = "Password is required";
+    else if (password.length < 6) newErrors.password = "Password must be at least 6 characters long";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
-  React.useEffect(() => {
+  const handleSignup = () => {
+    if (validate()) {
+      dispatch(signup({ name, email, password, role, avatar, address, phone }));
+    }
+  };
+
+  useEffect(() => {
     if (authStatus === "succeeded") {
-      router.push("/signin"); // Điều hướng sau khi đăng ký thành công
+      router.push("/signin");
     }
   }, [authStatus, router]);
 
@@ -91,6 +109,7 @@ const Page: React.FC = () => {
             onChange={(e) => setName(e.target.value)}
             style={{ backgroundColor: "#e5e4e4", border: "none" }}
           />
+          {errors.name && <p className="text-red-500">{errors.name}</p>}
 
           <Input
             className="h-[40px] "
@@ -99,16 +118,42 @@ const Page: React.FC = () => {
             onChange={(e) => setEmail(e.target.value)}
             style={{ backgroundColor: "#e5e4e4", border: "none" }}
           />
-         
-           <Input.Password 
-            type="password"
-              className="h-[40px]"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              style={{ backgroundColor: "#e5e4e4", border: "none" }}/>
+          {errors.email && <p className="text-red-500">{errors.email}</p>}
 
-         
+          <Input.Password
+            type="password"
+            className="h-[40px]"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            style={{ backgroundColor: "#e5e4e4", border: "none" }}
+          />
+          {errors.password && <p className="text-red-500">{errors.password}</p>}
+
+          <Input
+            className="h-[40px] "
+            placeholder="Avatar URL"
+            value={avatar}
+            onChange={(e) => setAvatar(e.target.value)}
+            style={{ backgroundColor: "#e5e4e4", border: "none" }}
+          />
+
+          <Input
+            className="h-[40px] "
+            placeholder="Address"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            style={{ backgroundColor: "#e5e4e4", border: "none" }}
+          />
+
+          <Input
+            className="h-[40px] "
+            placeholder="Phone"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            style={{ backgroundColor: "#e5e4e4", border: "none" }}
+          />
+
           <Dropdown menu={{ items }} placement="bottomLeft">
             <Button
               style={buttonChooseRole(isHovered)}
@@ -119,12 +164,14 @@ const Page: React.FC = () => {
               <DownOutlined className="text-[50px]" />
             </Button>
           </Dropdown>
-          
-           <button  onClick={handleSignup}  className="font-semibold duration-300 hover:text-white mt-6 rounded-md text-[15px] w-[100%] relative font-medium -top-1 -left-1 hover:top-0 hover:left-0 transition-all bg-[#FFEB55] hover:bg-[#2b74d4] py-2.5 px-5 uppercase text-black before:content-[''] before:absolute before:top-1 before:left-1 before:hover:top-0 before:hover:left-0 before:w-full before:border-2 before:border-[#FFEB55] before:-z-10 before:transition-all">
-              Get Started
-            </button>
-          {authStatus === "failed" && <p className="text-red-500">{error}</p>}{" "}
-          {/* Hiển thị lỗi nếu có */}
+
+          <button
+            onClick={handleSignup}
+            className="font-semibold duration-300 hover:text-white mt-6 rounded-md text-[15px] w-[100%] relative font-medium -top-1 -left-1 hover:top-0 hover:left-0 transition-all bg-[#FFEB55] hover:bg-[#2b74d4] py-2.5 px-5 uppercase text-black before:content-[''] before:absolute before:top-1 before:left-1 before:hover:top-0 before:hover:left-0 before:w-full before:border-2 before:border-[#FFEB55] before:-z-10 before:transition-all"
+          >
+            Get Started
+          </button>
+          {authStatus === "failed" && <p className="text-red-500">{error}</p>}
           <div className="flex pt-5">
             <hr className="bg-black w-48 mt-5 px-2 h-[2px]" />
             <p className="px-5 pt-2">or</p>
