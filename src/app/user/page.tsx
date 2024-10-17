@@ -79,9 +79,9 @@ const UserTable = () => {
           </tr>
         </thead>
         <tbody>
-          {currentUsers.map((user) => (
+          {currentUsers.map((user, index) => (
             <tr key={user._id}>
-              <td className='border px-4 py-2 text-center'>{user._id}</td>
+              <td className='border px-4 py-2 text-center'>{indexOfFirstUser + index + 1}</td>
               <td className='border px-4 py-2 flex items-center justify-center'>
                 <img src={user.avatar} alt='avatar' className='w-16 h-16 rounded-full' />
               </td>
