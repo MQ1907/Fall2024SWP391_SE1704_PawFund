@@ -299,6 +299,8 @@ export const selectPendingPets = (state: RootState) =>
 export const selectCompletedPets = (state: RootState) =>
   state.pets.pets.filter((pet) => pet.deliveryStatus === "COMPLETED");
 
+export const { clearError, setPets, removePet, searchPets } = petSlice.actions;
+
 // Export the reducer
 export default petSlice.reducer;
 
