@@ -1,15 +1,45 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Form, Input, Select, Switch, message } from "antd";
 import { createPet } from "../../lib/features/pet/petSlice"; // Import the createPet action
 import { useAppDispatch, useAppSelector } from "@/lib/hook";
+import { jwtDecode } from "jwt-decode";
 
 const { TextArea } = Input;
 
+interface DecodedToken {
+  id: string;
+}
+
 const AddPet: React.FC = () => {
-  // const [rescueDate, setRescueDate] = useState("");
+  const [rescueBy, setRescueBy] = useState<string | null>(null);
   const dispatch = useAppDispatch();
   const { status, error } = useAppSelector((state) => state.pets);
+
+  useEffect(() => {
+    const fetchRescueByFromToken = () => {
+      const storedToken = localStorage.getItem("token");
+      if (storedToken) {
+        try {
+          const decodedToken = jwtDecode<DecodedToken>(storedToken);
+          setRescueBy(decodedToken.id);
+          // Cập nhật vào petData ngay sau khi lấy được rescueBy
+          setPetData((prevState) => ({
+            ...prevState,
+            rescueBy: decodedToken.id,
+          }));
+        } catch (error) {
+          console.error("Invalid token:", error);
+          message.error("Failed to decode token. Please log in again.");
+        }
+      } else {
+        message.error("No token found. Please log in.");
+      }
+    };
+
+    fetchRescueByFromToken();
+  }, []);
+
   const [petData, setPetData] = useState({
     shelterId: "",
     petCode: "",
@@ -25,7 +55,7 @@ const AddPet: React.FC = () => {
     deliveryStatus: "",
     isAdopted: false,
     note: "",
-    rescueBy: "",
+    rescueBy: rescueBy,
     rescueDate: "",
     rescueFee: "",
     locationFound: "",
@@ -52,47 +82,50 @@ const AddPet: React.FC = () => {
     }));
   };
 
-const handleSubmit = async () => {
-  try {
-    // Kiểm tra tính hợp lệ của tất cả các trường
-    await form.validateFields(); // 'form' là biến bạn sẽ tạo bên ngoài component
+  const handleSubmit = async () => {
+    try {
+      await form.validateFields(); // Kiểm tra tính hợp lệ của form
 
-    console.log("Submitting petData:", petData);
-    const resultAction = await dispatch(createPet(petData));
+      // Kiểm tra rescueBy đã được thiết lập chưa
+      if (!petData.rescueBy) {
+        message.error("Failed to submit. No rescueBy found.");
+        return;
+      }
 
-    if (createPet.fulfilled.match(resultAction)) {
-      message.success("Thêm thú cưng thành công!");
-      setPetData({
-        // Reset the form after successful submission
-        shelterId: "",
-        petCode: "",
-        name: "",
-        description: "",
-        image: "",
-        color: "",
-        breed: "",
-        age: "",
-        isVacinted: false,
-        isVerified: false,
-        deliveryStatus: "",
-        isAdopted: false,
-        note: "",
-        rescueBy: "",
-        rescueFee: "",
-        locationFound: "",
-        petStatus: "",
-        gender: "",
-        rescueDate: "",
-      });
-    } else {
-      message.error(`Thêm thú cưng thất bại: ${error}`);
+      console.log("Submitting petData:", petData);
+      const resultAction = await dispatch(createPet(petData));
+
+      if (createPet.fulfilled.match(resultAction)) {
+        message.success("Thêm thú cưng thành công!");
+        setPetData({
+          shelterId: "",
+          petCode: "",
+          name: "",
+          description: "",
+          image: "",
+          color: "",
+          breed: "",
+          age: "",
+          isVacinted: false,
+          isVerified: false,
+          deliveryStatus: "",
+          isAdopted: false,
+          note: "",
+          rescueBy: "",
+          rescueFee: "",
+          locationFound: "",
+          petStatus: "",
+          gender: "",
+          rescueDate: "",
+        });
+      } else {
+        message.error(`Thêm thú cưng thất bại: ${error}`);
+      }
+    } catch (error) {
+      console.error("Validation failed:", error);
+      message.error("Vui lòng kiểm tra các trường và thử lại.");
     }
-  } catch (error) {
-    // Xử lý lỗi nếu có trường không hợp lệ
-    console.error("Validation failed:", error);
-    message.error("Vui lòng kiểm tra các trường và thử lại.");
-  }
-};
+  };
   const [form] = Form.useForm();
 
   return (
@@ -146,6 +179,15 @@ const handleSubmit = async () => {
             value={petData.rescueDate}
             onChange={handleChange}
           />
+        </Form.Item>
+
+          <Form.Item
+          label="Rescue By"
+          name="rescueBy"
+          initialValue={rescueBy}
+          hidden
+        >
+          <Input.TextArea rows={4} disabled />
         </Form.Item>
 
         <Form.Item
@@ -263,14 +305,6 @@ const handleSubmit = async () => {
           <Switch
             checked={petData.isAdopted}
             onChange={(checked) => handleSwitchChange("isAdopted", checked)}
-          />
-        </Form.Item>
-
-        <Form.Item label="Rescue By">
-          <Input
-            name="rescueBy"
-            value={petData.rescueBy}
-            onChange={handleChange}
           />
         </Form.Item>
 
