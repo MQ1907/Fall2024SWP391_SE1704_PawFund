@@ -106,7 +106,7 @@ const Header2 = () => {
             className={`cursor-pointer ${pathname === "/adopt" ? "text-[#D94E66]" : "text-black hover:text-[#D94E66]"}`}
             onClick={() => handleClick("/shelter-staff")}
           >
-            Request Create Pet
+            REQUEST CREATE PET
           </li>
           <li
             className={`cursor-pointer ${pathname === "/adopt" ? "text-[#D94E66]" : "text-black hover:text-[#D94E66]"}`}
@@ -115,7 +115,7 @@ const Header2 = () => {
             PET MANAGEMENT
           </li>
           <li
-            className={`cursor-pointer ${pathname === "/donate" ? "text-[#D94E66]" : "text-black hover:text-[#D94E66]"}`}
+            className={`cursor-pointer ${pathname === "/healthcheck" ? "text-[#D94E66]" : "text-black hover:text-[#D94E66]"}`}
             onClick={() => handleClick("/healthcheck")}
           >
             HEALTH-CHECK

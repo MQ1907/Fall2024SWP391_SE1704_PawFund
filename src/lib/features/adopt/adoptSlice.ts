@@ -51,14 +51,14 @@ export const fetchAdoptionRequestsByPetId = createAsyncThunk(
   async (petId: string, { rejectWithValue }) => {
     try {
       const response = await axios.get(`http://localhost:8000/adoption-requests/find-by-pet/${petId}`);
-      return response.data; // Trả về danh sách các yêu cầu nhận nuôi
+      return response.data;
     } catch (error: any) {
       if (error.response) {
         return rejectWithValue(
-          error.response.data.message || "Failed to fetch adoption requests"
+          error.response.data.message || "Failed to fetch adoption requests for this pet"
         );
       }
-      return rejectWithValue("Failed to fetch adoption requests");
+      return rejectWithValue("Failed to fetch adoption requests for this pet");
     }
   }
 );

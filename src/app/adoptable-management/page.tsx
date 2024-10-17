@@ -1,17 +1,20 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Table, Spin, Alert, message, Button, Modal, Input, Dropdown, Menu } from "antd";
+import { Table, Spin, Alert, message, Button, Modal, Input, Dropdown, Menu, Tabs } from "antd";
 import { useAppDispatch, useAppSelector } from "@/lib/hook";
 import {
   fetchAdoptionRequests,
-  // fetchAdoptionRequestsByPetId,
+  fetchAdoptionRequestsByPetId,
+  
   updateAdoptionRequestStatus,
 } from "../../lib/features/adopt/adoptSlice";
 
 
 import { fetchPetById } from "@/lib/features/pet/petSlice";
 
-const AdoptableManagement: React.FC<{ petId?: string }> = () => {
+const { TabPane } = Tabs;
+
+const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
   const dispatch = useAppDispatch();
   const requestsStatus = useAppSelector((state) => state.adoption.status);
   const error = useAppSelector((state) => state.adoption.error);
@@ -22,9 +25,17 @@ const AdoptableManagement: React.FC<{ petId?: string }> = () => {
   const [newStatus, setNewStatus] = useState<string | null>(null);
   const [comment, setComment] = useState<string>("");
   const [filter, setFilter] = useState<string>("ALL");
-  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
-  const [deleteRequestId, setDeleteRequestId] = useState<string | null>(null);
   const [filterButtonText, setFilterButtonText] = useState("Manage Requests");
+  const [petAdoptionSummary, setPetAdoptionSummary] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState("1");
+
+  useEffect(() => {
+    if (petId) {
+      dispatch(fetchAdoptionRequestsByPetId(petId));
+    } else {
+      dispatch(fetchAdoptionRequests());
+    }
+  }, [dispatch, petId]);
 
   useEffect(() => {
     const fetchRequests = async () => {
@@ -42,12 +53,28 @@ const AdoptableManagement: React.FC<{ petId?: string }> = () => {
               };
             } catch (error) {
               console.error(`Failed to fetch pet info for request ${request._id}:`, error);
-              // Removed the fallback object
             }
           })
         );
 
-        setAdoptionRequestsWithPetInfo(requestsWithPetInfo.filter(Boolean));
+        const filteredRequests = requestsWithPetInfo.filter(Boolean);
+        setAdoptionRequestsWithPetInfo(filteredRequests);
+
+        // Create summary of adoption requests per pet
+        const summary = filteredRequests.reduce((acc: any, request: any) => {
+          if (!acc[request.petId]) {
+            acc[request.petId] = {
+              petId: request.petId,
+              petName: request.petName,
+              petImage: request.petImage,
+              requestCount: 0,
+            };
+          }
+          acc[request.petId].requestCount++;
+          return acc;
+        }, {});
+
+        setPetAdoptionSummary(Object.values(summary));
       } catch (error) {
         message.error("Failed to fetch adoption requests or pet information.");
       }
@@ -65,34 +92,25 @@ const AdoptableManagement: React.FC<{ petId?: string }> = () => {
 
   const handleOk = async () => {
     try {
-      if (newStatus === "REJECTED") {
+      if (newStatus === "REJECTED" || newStatus === "APPROVED") {
         await dispatch(
           updateAdoptionRequestStatus({
             requestId: currentRequestId!,
-            status: "REJECTED",
+            status: newStatus,
             comment,
           })
         ).unwrap();
         setAdoptionRequestsWithPetInfo((prevRequests) =>
           prevRequests.map((request) =>
-            request._id === currentRequestId ? { ...request, status: "REJECTED", comment } : request
+            request._id === currentRequestId ? { ...request, status: newStatus, comment } : request
           )
         );
-        message.success("Adoption request rejected.");
-      } else if (newStatus === "APPROVED") {
-        await dispatch(
-          updateAdoptionRequestStatus({
-            requestId: currentRequestId!,
-            status: "APPROVED",
-            comment,
-          })
-        ).unwrap();
-        setAdoptionRequestsWithPetInfo((prevRequests) =>
-          prevRequests.map((request) =>
-            request._id === currentRequestId ? { ...request, status: "APPROVED", comment } : request
-          )
-        );
-        message.success("Adoption request approved.");
+        message.success(`Adoption request ${newStatus.toLowerCase()}.`);
+        
+        // Update filter and active tab
+        setFilter(newStatus);
+        setFilterButtonText(getFilterButtonText(newStatus));
+        setActiveTab("2");
       }
     } catch (error) {
       message.error("Failed to update status.");
@@ -139,25 +157,6 @@ const AdoptableManagement: React.FC<{ petId?: string }> = () => {
     return request.status !== "APPROVED" && request.status !== "REJECTED"; // ALL except APPROVED and REJECTED
   });
 
-  const showDeleteModal = (requestId: string) => {
-    setDeleteRequestId(requestId);
-    setIsDeleteModalVisible(true);
-  };
-
-  const handleDeleteOk = () => {
-    if (deleteRequestId) {
-      setAdoptionRequestsWithPetInfo((prevRequests) =>
-        prevRequests.filter((request) => request._id !== deleteRequestId)
-      );
-      message.success("Adoption request removed from the list.");
-    }
-    setIsDeleteModalVisible(false);
-  };
-
-  const handleDeleteCancel = () => {
-    setIsDeleteModalVisible(false);
-  };
-
   const columns = [
     {
       title: "Pet Name",
@@ -198,50 +197,87 @@ const AdoptableManagement: React.FC<{ petId?: string }> = () => {
       key: "action",
       render: (_: any, record: { _id: string; status: string }) => (
         <span>
-          {record.status !== "APPROVED" && record.status !== "COMPLETED" && (
+          {record.status === "PENDING" ? (
+            <>
+              <button
+                onClick={() => showModal(record._id, "APPROVED")}
+                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg mr-2"
+              >
+                Approve
+              </button>
+              <button
+                onClick={() => showModal(record._id, "REJECTED")}
+                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg mr-2"
+              >
+                Reject
+              </button>
+            </>
+          ) : (
             <button
-              onClick={() => showModal(record._id, "APPROVED")}
-              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg mr-2"
+              onClick={() => showViewModal(record)}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
             >
-              Approve
+              View
             </button>
           )}
-          {record.status !== "REJECTED" && record.status !== "CANCELLED" && (
-            <button
-              onClick={() => showModal(record._id, "REJECTED")}
-              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg mr-2"
-            >
-              Reject
-            </button>
-          )}
-          <button
-            onClick={() => showDeleteModal(record._id)}
-            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
-          >
-            Delete
-          </button>
         </span>
       ),
     },
   ];
+
+  const [viewModalVisible, setViewModalVisible] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState<any>(null);
+
+  const showViewModal = (record: any) => {
+    setSelectedRequest(record);
+    setViewModalVisible(true);
+  };
+
+  const petSummaryColumns = [
+    {
+      title: "Pet Name",
+      dataIndex: "petName",
+      key: "petName",
+    },
+    {
+      title: "Image",
+      dataIndex: "petImage",
+      key: "petImage",
+      render: (image: string) => <img src={image} alt="Pet" style={{ width: "100px", height: "100px" }} />,
+    },
+    {
+      title: "Number of Requests",
+      dataIndex: "requestCount",
+      key: "requestCount",
+    },
+  ];
+
+  
 
   return (
     <div className="mt-[148px]">
       {requestsStatus === "loading" && <Spin tip="Loading..." />}
       {requestsStatus === "failed" && <Alert message="Error" description={error} type="error" showIcon />}
       {requestsStatus === "succeeded" && (
-        <>
-          <Dropdown overlay={menu} trigger={['hover']}>
-            <Button>
-              {filterButtonText} <span>▼</span>
-            </Button>
-          </Dropdown>
-          <Table dataSource={filteredRequests} columns={columns} rowKey="_id" />
-        </>
+        <Tabs activeKey={activeTab} onChange={(key) => setActiveTab(key)}>
+          <TabPane tab="Pet Adoption Summary" key="1">
+            <Table dataSource={petAdoptionSummary} columns={petSummaryColumns} rowKey="petId" />
+          </TabPane>
+          <TabPane tab="Adoption Requests" key="2">
+            {!petId && (
+              <Dropdown overlay={menu} trigger={['hover']}>
+                <Button>
+                  {filterButtonText} <span>▼</span>
+                </Button>
+              </Dropdown>
+            )}
+            <Table dataSource={filteredRequests} columns={columns} rowKey="_id" />
+          </TabPane>
+        </Tabs>
       )}
       <Modal
         title="Enter a comment"
-        visible={isModalVisible}
+        open={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
         okText={newStatus === "APPROVED" ? "Approve" : "Reject"}
@@ -252,15 +288,23 @@ const AdoptableManagement: React.FC<{ petId?: string }> = () => {
           placeholder="Enter comment for this action"
         />
       </Modal>
-      <Modal
-        // title="Confirm Delete"
-        visible={isDeleteModalVisible}
-        onOk={handleDeleteOk}
-        onCancel={handleDeleteCancel}
-        okText="Delete"
-        cancelText="Cancel"
+      <Modal className="text-[18px]"
+        title="Request Details"
+        open={viewModalVisible}
+        onCancel={() => setViewModalVisible(false)}
+        footer={null}
       >
-        <p className="text-[20px] font-medium">Are you sure you want to remove this adoption request from the list?</p>
+        {selectedRequest && (
+          <div className="text-[16px] space-y-4">
+            <p><strong className="font-semibold">Pet Name:</strong> {selectedRequest.petName}</p>
+            <p><strong className="font-semibold">Status:</strong> {selectedRequest.status}</p>
+            <p><strong className="font-semibold">Request Date:</strong> {new Date(selectedRequest.requestDate).toLocaleDateString()}</p>
+            <p><strong className="font-semibold">Comment:</strong> {selectedRequest.comment}</p>
+            {selectedRequest.adoptionDate && (
+              <p><strong className="font-semibold">Adoption Date:</strong> {new Date(selectedRequest.adoptionDate).toLocaleDateString()}</p>
+            )}
+          </div>
+        )}
       </Modal>
     </div>
   );
