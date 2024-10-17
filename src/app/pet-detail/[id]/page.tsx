@@ -93,8 +93,8 @@ function PetDetail() {
             </div>
             <hr className="border-t-[1px] border-dashed border-[#adacac] " />
             <div className="flex my-1 ">
-              <p className="font-semibold">PetCode: </p>
-              <p className="px-1 ">{currentPet.petCode}</p>
+              <p className="font-semibold">Location Found: </p>
+              <p className="px-1 ">{currentPet.locationFound}</p>
             </div>
             <hr className="border-t-[1px] border-dashed border-[#adacac] " />
             <div className="flex my-1 ">

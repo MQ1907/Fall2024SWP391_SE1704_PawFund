@@ -4,27 +4,24 @@ import axios from "axios";
 // Async Thunk for creating a pet
 export const createPet = createAsyncThunk(
   "pet/create",
-  async (petData: {
-    shelterId: string;
-    petCode: string;
-    name: string;
-    description: string;
-    image: string;
-    color: string;
-    breed: string;
-    age: number;
-    isVacinted: boolean;
-    isVerified: boolean;
-    deliveryStatus: string;
-    isAdopted: boolean;
-    note: string;
-    rescueBy: string;
-    rescueFee: number;
-    locationFound: string;
-    petStatus: string;
-    gender:string;
-    rescueDate:Date;
-  }) => {
+  async (
+    petData: {
+      shelterLocation: string;
+      name: string;
+      description: string;
+      image: string;
+      color: string;
+      breed: string;
+      age: number;
+      note: string;
+      rescueBy: string;
+      rescueFee: number;
+      locationFound: string;
+      gender: string;
+      rescueDate: Date;
+    },
+    { rejectWithValue }
+  ) => {
     try {
       const response = await axios.post(
         "http://localhost:8000/pet/create",
@@ -32,10 +29,10 @@ export const createPet = createAsyncThunk(
       );
       return response.data;
     } catch (error: any) {
-      if (error.response) {
-        throw new Error(error.response.data.message || "Failed to create pet");
-      }
-      throw error;
+      console.error("Server error:", error.response?.data);
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to create pet"
+      );
     }
   }
 );
@@ -45,13 +42,17 @@ export const fetchPets = createAsyncThunk("pet/fetchAll", async () => {
     const response = await axios.get("http://localhost:8000/pet/find-all");
     return response.data.map((pet: any) => ({
       _id: pet._id,
+      // shelterLocation: pet.shelterId,
       name: pet.name,
       image: pet.image,
       breed: pet.breed,
       age: pet.age,
+      color: pet.color,
+      gender: pet.gender,
+      rescueDate: pet.rescueDate,
       description: pet.description,
       isVacinted: pet.isVacinted,
-      deliveryStatus: pet.deliveryStatus // Changed from petStatus to deliveryStatus
+      deliveryStatus: pet.deliveryStatus, // Changed from petStatus to deliveryStatus
     }));
   } catch (error: any) {
     if (error.response) {
@@ -60,6 +61,7 @@ export const fetchPets = createAsyncThunk("pet/fetchAll", async () => {
     throw error;
   }
 });
+
 
 export const fetchPetsByStatus = createAsyncThunk(
   "pet/fetchByStatus",
@@ -83,11 +85,16 @@ export const fetchPetById = createAsyncThunk(
   "pet/fetchById",
   async (id: string, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`http://localhost:8000/pet/find-by-id/${id}`);
-      const { name, image, breed, age, description, isVacinted } = response.data;
-      return { name, image, breed, age, description, isVacinted };
+      const response = await axios.get(
+        `http://localhost:8000/pet/find-by-id/${id}`
+      );
+      const { name, image, breed, age, description, isVacinted , color,gender,locationFound } =
+        response.data;
+      return { name, image, breed, age, description, isVacinted ,color,gender,locationFound };
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || "Failed to fetch pet");
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch pet"
+      );
     }
   }
 );
@@ -130,11 +137,20 @@ const saveSentToShelter = (state: string[]) => {
   }
 };
 export const updatePetDelivery = createAsyncThunk(
-  'pets/updatePetStatus',
-  async ({ petId, deliveryStatus }: { petId: string; deliveryStatus: string }) => {
-    await axios.put(`http://localhost:8000/pet/update-delivery-status/${petId}`, {
-      deliveryStatus,
-    });
+  "pets/updatePetStatus",
+  async ({
+    petId,
+    deliveryStatus,
+  }: {
+    petId: string;
+    deliveryStatus: string;
+  }) => {
+    await axios.put(
+      `http://localhost:8000/pet/update-delivery-status/${petId}`,
+      {
+        deliveryStatus,
+      }
+    );
     return { petId, deliveryStatus };
   }
 );
@@ -184,10 +200,10 @@ const petSlice = createSlice({
     },
     searchPets: (state, action) => {
       const searchTerm = action.payload.toLowerCase();
-      if (searchTerm === '') {
+      if (searchTerm === "") {
         state.filteredPets = state.pets;
       } else {
-        state.filteredPets = state.pets.filter(pet => 
+        state.filteredPets = state.pets.filter((pet) =>
           pet.name.toLowerCase().includes(searchTerm)
         );
       }
@@ -195,7 +211,7 @@ const petSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-    //Create Pet
+      //Create Pet
       .addCase(createPet.pending, (state) => {
         state.status = "loading";
       })
@@ -221,9 +237,9 @@ const petSlice = createSlice({
         state.status = "failed";
         state.error = action.error.message || "Failed to fetch pets";
       })
-      
+
       //Fetch Pet By Status
-        .addCase(fetchPetsByStatus.pending, (state) => {
+      .addCase(fetchPetsByStatus.pending, (state) => {
         state.status = "loading";
       })
       .addCase(fetchPetsByStatus.fulfilled, (state, action) => {
@@ -250,24 +266,24 @@ const petSlice = createSlice({
       })
       .addCase(fetchPetById.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.payload as string || "Failed to fetch pet";
+        state.error = (action.payload as string) || "Failed to fetch pet";
       })
       //delete pet
       .addCase(deletePet.pending, (state) => {
-        state.status = "loading"; 
+        state.status = "loading";
       })
       .addCase(deletePet.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.pets = state.pets.filter((pet) => pet._id !== action.meta.arg); 
+        state.pets = state.pets.filter((pet) => pet._id !== action.meta.arg);
       })
       .addCase(deletePet.rejected, (state, action) => {
         state.status = "failed";
-        state.error = (action.payload as string) || "Failed to delete pet"; 
+        state.error = (action.payload as string) || "Failed to delete pet";
       })
       // Add this case for updatePetDeliveryStatus
       .addCase(updatePetDeliveryStatus.fulfilled, (state, action) => {
         const updatedPet = action.payload;
-        const index = state.pets.findIndex(pet => pet._id === updatedPet._id);
+        const index = state.pets.findIndex((pet) => pet._id === updatedPet._id);
         if (index !== -1) {
           state.pets[index] = updatedPet;
           state.filteredPets = state.pets; // Update filteredPets as well
@@ -276,41 +292,58 @@ const petSlice = createSlice({
   },
 });
 import { RootState } from "../../store";
+import ShelterStaff from "@/app/shelter-staff/page";
 
 export const selectPendingPets = (state: RootState) =>
   state.pets.pets.filter((pet) => pet.deliveryStatus === "PENDING");
 export const selectCompletedPets = (state: RootState) =>
-  state.pets.pets.filter((pet) => pet.deliveryStatus === 'COMPLETED');
+  state.pets.pets.filter((pet) => pet.deliveryStatus === "COMPLETED");
 
 // Export the reducer
 export default petSlice.reducer;
 
 // New thunk for updating pet status
 export const updatePetStatus = createAsyncThunk(
-  'pets/updatePetStatus',
-  async ({ petId, petStatus }: { petId: string; petStatus: string }, { rejectWithValue }) => {
+  "pets/updatePetStatus",
+  async (
+    { petId, petStatus }: { petId: string; petStatus: string },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await axios.put(`http://localhost:8000/pet/update/${petId}`, {
-        petStatus,
-      });
+      const response = await axios.put(
+        `http://localhost:8000/pet/update/${petId}`,
+        {
+          petStatus,
+        }
+      );
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || "Failed to update pet status");
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to update pet status"
+      );
     }
   }
 );
 
 // Replace updatePetStatus with updatePetDeliveryStatus
 export const updatePetDeliveryStatus = createAsyncThunk(
-  'pets/updatePetDeliveryStatus',
-  async ({ petId, deliveryStatus }: { petId: string; deliveryStatus: string }, { rejectWithValue }) => {
+  "pets/updatePetDeliveryStatus",
+  async (
+    { petId, deliveryStatus }: { petId: string; deliveryStatus: string },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await axios.put(`http://localhost:8000/pet/update/${petId}`, {
-        deliveryStatus,
-      });
+      const response = await axios.put(
+        `http://localhost:8000/pet/update/${petId}`,
+        {
+          deliveryStatus,
+        }
+      );
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || "Failed to update pet delivery status");
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to update pet delivery status"
+      );
     }
   }
 );

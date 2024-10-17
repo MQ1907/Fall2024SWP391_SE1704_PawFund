@@ -41,8 +41,7 @@ const AddPet: React.FC = () => {
   }, []);
 
   const [petData, setPetData] = useState({
-    shelterId: "",
-    petCode: "",
+    shelterLocation: "",
     name: "",
     gender: "",
     description: "",
@@ -50,21 +49,15 @@ const AddPet: React.FC = () => {
     color: "",
     breed: "",
     age: "",
-    isVacinted: false,
-    isVerified: false,
-    deliveryStatus: "",
-    isAdopted: false,
     note: "",
     rescueBy: rescueBy,
-    rescueDate: "",
     rescueFee: "",
     locationFound: "",
-    petStatus: "",
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    const parsedValue = ["age", "shelterId", "species", "rescueFee"].includes(
+    const parsedValue = ["age", "rescueFee"].includes(
       name
     )
       ? parseInt(value, 10)
@@ -74,58 +67,33 @@ const AddPet: React.FC = () => {
     console.log("Updated petData:", { ...petData, [name]: parsedValue });
   };
 
-  const handleSwitchChange = (name: string, checked: boolean) => {
-    console.log(`Switch ${name} changed to:`, checked);
-    setPetData((prevState) => ({
-      ...prevState,
-      [name]: checked,
-    }));
-  };
 
-  const handleSubmit = async () => {
-    try {
-      await form.validateFields(); // Kiểm tra tính hợp lệ của form
+ const handleSubmit = async () => {
+  try {
+    await form.validateFields();
 
-      // Kiểm tra rescueBy đã được thiết lập chưa
-      if (!petData.rescueBy) {
-        message.error("Failed to submit. No rescueBy found.");
-        return;
-      }
-
-      console.log("Submitting petData:", petData);
-      const resultAction = await dispatch(createPet(petData));
-
-      if (createPet.fulfilled.match(resultAction)) {
-        message.success("Thêm thú cưng thành công!");
-        setPetData({
-          shelterId: "",
-          petCode: "",
-          name: "",
-          description: "",
-          image: "",
-          color: "",
-          breed: "",
-          age: "",
-          isVacinted: false,
-          isVerified: false,
-          deliveryStatus: "",
-          isAdopted: false,
-          note: "",
-          rescueBy: "",
-          rescueFee: "",
-          locationFound: "",
-          petStatus: "",
-          gender: "",
-          rescueDate: "",
-        });
-      } else {
-        message.error(`Thêm thú cưng thất bại: ${error}`);
-      }
-    } catch (error) {
-      console.error("Validation failed:", error);
-      message.error("Vui lòng kiểm tra các trường và thử lại.");
+    if (!petData.rescueBy) {
+      message.error("Failed to submit. No rescueBy found.");
+      return;
     }
-  };
+
+    console.log("Submitting petData:", petData);
+    const resultAction = await dispatch(createPet(petData));
+
+    if (createPet.fulfilled.match(resultAction)) {
+      message.success("Thêm thú cưng thành công!");
+      // Reset form fields
+      form.resetFields();
+    } else if (createPet.rejected.match(resultAction)) {
+      const errorMessage = resultAction.error.message || "Unknown error occurred";
+      message.error(`Thêm thú cưng thất bại: ${errorMessage}`);
+      console.error("Error details:", resultAction.error);
+    }
+  } catch (error) {
+    console.error("Submission error:", error);
+    message.error("Có lỗi xảy ra khi gửi form. Vui lòng thử lại.");
+  }
+};
   const [form] = Form.useForm();
 
   return (
@@ -162,25 +130,6 @@ const AddPet: React.FC = () => {
           </Select>
         </Form.Item>
 
-        <Form.Item
-          label="Rescue Date"
-          name="rescueDate"
-          rules={[
-            { required: true, message: "Vui lòng nhập ngày cứu hộ" },
-            {
-              type: "date",
-              message: "Định dạng ngày không hợp lệ",
-            },
-          ]}
-        >
-          <Input
-            type="datetime-local"
-            name="rescueDate"
-            value={petData.rescueDate}
-            onChange={handleChange}
-          />
-        </Form.Item>
-
           <Form.Item
           label="Rescue By"
           name="rescueBy"
@@ -191,30 +140,22 @@ const AddPet: React.FC = () => {
         </Form.Item>
 
         <Form.Item
-          label="Shelter ID"
-          name="shelterId"
+          label="Shelter Location"
+          name="shelterLocation"
           rules={[
-            { required: true, message: "Vui lòng nhập Shelter ID" },
-            { pattern: /^[0-9]+$/, message: "Shelter ID chỉ được chứa số" },
+            { required: true, message: "Vui lòng nhập Shelter Location" },
           ]}
         >
-          <Input
-            name="shelterId"
-            value={petData.shelterId}
-            onChange={handleChange}
-          />
-        </Form.Item>
-
-        <Form.Item
-          label="Pet Code"
-          name="petCode"
-          rules={[{ required: true, message: "Vui lòng nhập Pet Code" }]}
-        >
-          <Input
-            name="petCode"
-            value={petData.petCode}
-            onChange={handleChange}
-          />
+         <Select
+            onChange={(value) => setPetData({ ...petData, shelterLocation: value })}
+            value={petData.shelterLocation}
+            placeholder="Select Shelter Location"
+          >
+            <Select.Option value="Location A">Location A</Select.Option>
+            <Select.Option value="Location B">Location B</Select.Option>
+            <Select.Option value="Location C">Location C</Select.Option>
+          </Select>
+          
         </Form.Item>
 
         <Form.Item
@@ -274,39 +215,6 @@ const AddPet: React.FC = () => {
           />
         </Form.Item>
 
-        <Form.Item label="Vaccinated" valuePropName="checked">
-          <Switch
-            checked={petData.isVacinted}
-            onChange={(checked) => handleSwitchChange("isVacinted", checked)}
-          />
-        </Form.Item>
-
-        <Form.Item label="Verified" valuePropName="checked">
-          <Switch
-            checked={petData.isVerified}
-            onChange={(checked) => handleSwitchChange("isVerified", checked)}
-          />
-        </Form.Item>
-
-        <Form.Item label="Delivery Status">
-          <Select
-            onChange={(value) =>
-              setPetData({ ...petData, deliveryStatus: value })
-            }
-            value={petData.deliveryStatus}
-          >
-            {/* <Select.Option value="PENDING">PENDING</Select.Option>
-            <Select.Option value="COMPLETED">COMPLETED</Select.Option> */}
-            <Select.Option value="INPROCESS">INPROCESS</Select.Option>
-          </Select>
-        </Form.Item>
-
-        <Form.Item label="Adopted" valuePropName="checked">
-          <Switch
-            checked={petData.isAdopted}
-            onChange={(checked) => handleSwitchChange("isAdopted", checked)}
-          />
-        </Form.Item>
 
         <Form.Item label="Rescue Fee">
           <Input
@@ -324,16 +232,6 @@ const AddPet: React.FC = () => {
           />
         </Form.Item>
 
-        <Form.Item label="Pet Status">
-          <Select
-            onChange={(value) => setPetData({ ...petData, petStatus: value })}
-            value={petData.petStatus}
-          >
-            <Select.Option value="AVAILABLE">AVAILABLE</Select.Option>
-            <Select.Option value="ADOPTED">ADOPTED</Select.Option>
-            <Select.Option value="LOST">LOST</Select.Option>
-          </Select>
-        </Form.Item>
 
         <Form.Item label="Note">
           <Input name="note" value={petData.note} onChange={handleChange} />
