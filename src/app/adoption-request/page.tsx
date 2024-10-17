@@ -3,12 +3,15 @@ import { Button, Form, Input, message } from "antd";
 import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
 import { createAdoptionRequest } from "@/lib/features/adopt/adoptSlice";
+import { useParams } from "next/navigation";
 
 interface DecodedToken {
   id: string;
 }
 
-const CreateAdoptionRequest: React.FC<{ petId: string }> = ({ petId }) => {
+const CreateAdoptionRequest: React.FC = () => {
+  const params = useParams();
+  const petId = params.id as string;
   const dispatch = useAppDispatch();
   const { status, error } = useAppSelector((state) => state.adoption);
   const [userId, setUserId] = useState<string | null>(null);

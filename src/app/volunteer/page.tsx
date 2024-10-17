@@ -8,8 +8,9 @@ import { createHealthCheck } from "@/lib/features/pet/HealthCheckSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/hook";
 import AddPet from "../addpet/page";
 import { jwtDecode } from "jwt-decode";
-import { fetchPets, removePet } from "@/lib/features/pet/petSlice";
+
 import axios from "axios";
+import { fetchPets, removePet } from "@/lib/features/pet/petSlice";
 
 const Volunteer = () => {
   const { pets, status, error,sentToShelter } = useAppSelector((state) => state.pets);
@@ -153,12 +154,17 @@ const Volunteer = () => {
   const handleSendToShelter = async (petId) => {
     try {
       // Cập nhật trạng thái deliveryStatus của pet thành "Pending"
-      await axios.put(`http://localhost:8000/pet/update-delivery-status/${petId}`, {
+      const response = await axios.put(`http://localhost:8000/pet/update-delivery-status/${petId}`, {
         deliveryStatus: "PENDING",
       });
-      message.success('Pet has been sent to shelter !');
-      // Xóa pet khỏi danh sách pets
-      dispatch(removePet(petId));
+  
+      if (response.status === 200) {
+        message.success('Pet has been sent to shelter !');
+        // Xóa pet khỏi danh sách pets
+        dispatch(removePet(petId));
+      } else {
+        throw new Error('Failed to update pet status');
+      }
     } catch (error) {
       console.error("Error updating pet status:", error);
       alert("Failed to send pet to shelter. Please try again.");
@@ -502,7 +508,7 @@ const Volunteer = () => {
     <div className="grid grid-cols-4 gap-6 p-6 w-[1100px] ml-[200px]">
       {pets .filter(pet => pet.deliveryStatus === 'INPROCESS' && !sentToShelter.includes(pet._id)).map((pet) => (
         <div
-          key={pet.petCode}
+          key={pet._id}
           className="bg-[#F6F6F6] rounded-lg shadow-md p-4"
         >
           <img
