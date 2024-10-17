@@ -61,11 +61,6 @@ function PetManagement() {
       key: "rescueDate",
     },
     {
-      title: "Pet Code",
-      dataIndex: "petCode",
-      key: "petCode",
-    },
-    {
       title: "Description",
       dataIndex: "description",
       key: "description",
@@ -85,11 +80,11 @@ function PetManagement() {
       dataIndex: "age",
       key: "age",
     },
-    {
-      title: "Shelter Id",
-      dataIndex: "shelterId",
-      key: "shelterId",
-    },
+    // {
+    //   title: "Shelter Location",
+    //   dataIndex: "shelterLocation",
+    //   key: "shelterLocation",
+    // },
     {
       title: "Delivery Status",
       dataIndex: "deliveryStatus",
