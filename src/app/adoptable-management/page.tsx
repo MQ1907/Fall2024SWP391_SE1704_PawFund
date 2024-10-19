@@ -5,17 +5,24 @@ import { useAppDispatch, useAppSelector } from "@/lib/hook";
 import {
   fetchAdoptionRequests,
   fetchAdoptionRequestsByPetId,
-  
   updateAdoptionRequestStatus,
 } from "../../lib/features/adopt/adoptSlice";
-
-
 import { fetchPetById } from "@/lib/features/pet/petSlice";
+import { useRouter } from "next/navigation";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+
+interface DecodedToken {
+  id: string;
+  exp: number;
+  iat: number;
+}
 
 const { TabPane } = Tabs;
 
 const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const requestsStatus = useAppSelector((state) => state.adoption.status);
   const error = useAppSelector((state) => state.adoption.error);
 
@@ -28,6 +35,39 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
   const [filterButtonText, setFilterButtonText] = useState("Manage Requests");
   const [petAdoptionSummary, setPetAdoptionSummary] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState("1");
+  const [role, setRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      try {
+        const decodedToken = jwtDecode<DecodedToken>(storedToken);
+        const userId = decodedToken.id;
+
+        const fetchUser = async () => {
+          try {
+            const response = await axios.get(`http://localhost:8000/users/${userId}`);
+            setRole(response.data.role);
+
+            if (response.data.role !== "SHELTER_STAFF") {
+              router.push("/errorpage");
+            }
+          } catch (error) {
+            console.error("Error fetching user data:", error);
+            router.push("/error");
+          }
+        };
+
+        fetchUser();
+      } catch (error) {
+        console.error("Invalid token:", error);
+        localStorage.removeItem("token");
+        router.push("/error");
+      }
+    } else {
+      router.push("/error");
+    }
+  }, [router]);
 
   useEffect(() => {
     if (petId) {
@@ -60,7 +100,6 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
         const filteredRequests = requestsWithPetInfo.filter(Boolean);
         setAdoptionRequestsWithPetInfo(filteredRequests);
 
-        // Create summary of adoption requests per pet
         const summary = filteredRequests.reduce((acc: any, request: any) => {
           if (!acc[request.petId]) {
             acc[request.petId] = {
@@ -82,7 +121,6 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
 
     fetchRequests();
   }, [dispatch]);
-
 
   const showModal = (requestId: string, status: string) => {
     setCurrentRequestId(requestId);
@@ -106,8 +144,7 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
           )
         );
         message.success(`Adoption request ${newStatus.toLowerCase()}.`);
-        
-        // Update filter and active tab
+
         setFilter(newStatus);
         setFilterButtonText(getFilterButtonText(newStatus));
         setActiveTab("2");
@@ -154,7 +191,7 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
   const filteredRequests = adoptionRequestsWithPetInfo.filter((request) => {
     if (filter === "APPROVED") return request.status === "APPROVED";
     if (filter === "REJECTED") return request.status === "REJECTED";
-    return request.status !== "APPROVED" && request.status !== "REJECTED"; // ALL except APPROVED and REJECTED
+    return request.status !== "APPROVED" && request.status !== "REJECTED";
   });
 
   const columns = [
@@ -251,8 +288,6 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
       key: "requestCount",
     },
   ];
-
-  
 
   return (
     <div className="mt-[148px]">

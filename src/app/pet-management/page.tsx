@@ -1,16 +1,58 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Table, Spin, Alert, Button, message } from "antd";
+import { Table, Spin, Alert, Button, message, Modal } from "antd";
 import { fetchPets, selectCompletedPets, deletePet } from "../../lib/features/pet/petSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/hook";
-import { Modal } from "antd";
+import { useRouter } from "next/navigation";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+
+interface DecodedToken {
+  id: string;
+  exp: number;
+  iat: number;
+}
 
 function PetManagement() {
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const completedPets = useAppSelector(selectCompletedPets);
   const petsStatus = useAppSelector((state) => state.pets.status);
   const error = useAppSelector((state) => state.pets.error);
   const [view, setView] = useState("COMPLETED"); // Đặt mặc định là "COMPLETED"
+  const [role, setRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      try {
+        const decodedToken = jwtDecode<DecodedToken>(storedToken);
+        const userId = decodedToken.id;
+
+        const fetchUser = async () => {
+          try {
+            const response = await axios.get(`http://localhost:8000/users/${userId}`);
+            setRole(response.data.role);
+
+            if (response.data.role !== "SHELTER_STAFF") {
+              router.push("/errorpage");
+            }
+          } catch (error) {
+            console.error("Error fetching user data:", error);
+            router.push("/error");
+          }
+        };
+
+        fetchUser();
+      } catch (error) {
+        console.error("Invalid token:", error);
+        localStorage.removeItem("token");
+        router.push("/error");
+      }
+    } else {
+      router.push("/error");
+    }
+  }, [router]);
 
   useEffect(() => {
     if (petsStatus === "idle") {
@@ -50,7 +92,7 @@ function PetManagement() {
       dataIndex: "name",
       key: "name",
     },
-     {
+    {
       title: "Gender",
       dataIndex: "gender",
       key: "gender",
@@ -80,11 +122,6 @@ function PetManagement() {
       dataIndex: "age",
       key: "age",
     },
-    // {
-    //   title: "Shelter Location",
-    //   dataIndex: "shelterLocation",
-    //   key: "shelterLocation",
-    // },
     {
       title: "Delivery Status",
       dataIndex: "deliveryStatus",
