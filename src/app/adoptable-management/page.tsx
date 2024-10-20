@@ -1,6 +1,28 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Table, Spin, Alert, message, Button, Modal, Input, Dropdown, Menu, Tabs } from "antd";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  CircularProgress,
+  Alert,
+  Snackbar,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  TextField,
+  Tab,
+  Tabs,
+  Box,
+  Typography,
+} from "@mui/material";
 import { useAppDispatch, useAppSelector } from "@/lib/hook";
 import {
   fetchAdoptionRequests,
@@ -8,66 +30,50 @@ import {
   updateAdoptionRequestStatus,
 } from "../../lib/features/adopt/adoptSlice";
 import { fetchPetById } from "@/lib/features/pet/petSlice";
-import { useRouter } from "next/navigation";
-import axios from "axios";
-import { jwtDecode } from "jwt-decode";
 
-interface DecodedToken {
-  id: string;
-  exp: number;
-  iat: number;
+interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
 }
 
-const { TabPane } = Tabs;
+function TabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box sx={{ p: 3 }}>
+          <Typography>{children}</Typography>
+        </Box>
+      )}
+    </div>
+  );
+}
 
 const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
   const dispatch = useAppDispatch();
-  const router = useRouter();
   const requestsStatus = useAppSelector((state) => state.adoption.status);
   const error = useAppSelector((state) => state.adoption.error);
 
-  const [adoptionRequestsWithPetInfo, setAdoptionRequestsWithPetInfo] = useState<any[]>([]);
+  const [adoptionRequestsWithPetInfo, setAdoptionRequestsWithPetInfo] =
+    useState<any[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [currentRequestId, setCurrentRequestId] = useState<string | null>(null);
   const [newStatus, setNewStatus] = useState<string | null>(null);
   const [comment, setComment] = useState<string>("");
   const [filter, setFilter] = useState<string>("ALL");
-  const [filterButtonText, setFilterButtonText] = useState("Manage Requests");
   const [petAdoptionSummary, setPetAdoptionSummary] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState("1");
-  const [role, setRole] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState(0);
 
-  useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    if (storedToken) {
-      try {
-        const decodedToken = jwtDecode<DecodedToken>(storedToken);
-        const userId = decodedToken.id;
-
-        const fetchUser = async () => {
-          try {
-            const response = await axios.get(`http://localhost:8000/users/${userId}`);
-            setRole(response.data.role);
-
-            if (response.data.role !== "SHELTER_STAFF") {
-              router.push("/errorpage");
-            }
-          } catch (error) {
-            console.error("Error fetching user data:", error);
-            router.push("/error");
-          }
-        };
-
-        fetchUser();
-      } catch (error) {
-        console.error("Invalid token:", error);
-        localStorage.removeItem("token");
-        router.push("/error");
-      }
-    } else {
-      router.push("/error");
-    }
-  }, [router]);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
   useEffect(() => {
     if (petId) {
@@ -92,7 +98,10 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
                 petImage: pet.image,
               };
             } catch (error) {
-              console.error(`Failed to fetch pet info for request ${request._id}:`, error);
+              console.error(
+                `Failed to fetch pet info for request ${request._id}:`,
+                error
+              );
             }
           })
         );
@@ -100,6 +109,7 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
         const filteredRequests = requestsWithPetInfo.filter(Boolean);
         setAdoptionRequestsWithPetInfo(filteredRequests);
 
+        // Create summary of adoption requests per pet
         const summary = filteredRequests.reduce((acc: any, request: any) => {
           if (!acc[request.petId]) {
             acc[request.petId] = {
@@ -115,7 +125,10 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
 
         setPetAdoptionSummary(Object.values(summary));
       } catch (error) {
-        message.error("Failed to fetch adoption requests or pet information.");
+        setSnackbarMessage(
+          "Failed to fetch adoption requests or pet information."
+        );
+        setSnackbarOpen(true);
       }
     };
 
@@ -140,17 +153,21 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
         ).unwrap();
         setAdoptionRequestsWithPetInfo((prevRequests) =>
           prevRequests.map((request) =>
-            request._id === currentRequestId ? { ...request, status: newStatus, comment } : request
+            request._id === currentRequestId
+              ? { ...request, status: newStatus, comment }
+              : request
           )
         );
-        message.success(`Adoption request ${newStatus.toLowerCase()}.`);
+        setSnackbarMessage(`Adoption request ${newStatus.toLowerCase()}.`);
+        setSnackbarOpen(true);
 
+        // Update filter and active tab
         setFilter(newStatus);
-        setFilterButtonText(getFilterButtonText(newStatus));
-        setActiveTab("2");
+        setActiveTab(1);
       }
     } catch (error) {
-      message.error("Failed to update status.");
+      setSnackbarMessage("Failed to update status.");
+      setSnackbarOpen(true);
     }
 
     setIsModalVisible(false);
@@ -162,104 +179,80 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
     setComment("");
   };
 
-  const handleMenuClick = (e: any) => {
-    setFilter(e.key);
-    setFilterButtonText(getFilterButtonText(e.key));
-  };
-
-  const getFilterButtonText = (key: string) => {
-    switch (key) {
-      case "ALL":
-        return "ALL ADOPTION REQUESTS";
-      case "APPROVED":
-        return "APPROVED ADOPTIONS";
-      case "REJECTED":
-        return "REJECTED ADOPTIONS";
-      default:
-        return "MANAGE REQUESTS";
-    }
-  };
-
-  const menu = (
-    <Menu onClick={handleMenuClick}>
-      <Menu.Item key="ALL">ALL ADOPTION REQUESTS</Menu.Item>
-      <Menu.Item key="APPROVED"> APPROVED ADOPTIONS</Menu.Item>
-      <Menu.Item key="REJECTED">REJECTED ADOPTIONS</Menu.Item>
-    </Menu>
-  );
-
-  const filteredRequests = adoptionRequestsWithPetInfo.filter((request) => {
-    if (filter === "APPROVED") return request.status === "APPROVED";
-    if (filter === "REJECTED") return request.status === "REJECTED";
-    return request.status !== "APPROVED" && request.status !== "REJECTED";
-  });
-
   const columns = [
+    { field: "petName", headerName: "Pet Name", width: 150 },
     {
-      title: "Pet Name",
-      dataIndex: "petName",
-      key: "petName",
-    },
-    {
-      title: "Image",
-      dataIndex: "petImage",
-      key: "petImage",
-      render: (image: string) => <img src={image} alt="Pet" style={{ width: "100px", height: "100px" }} />,
-    },
-    {
-      title: "Request Date",
-      dataIndex: "requestDate",
-      key: "requestDate",
-      render: (text: string) => new Date(text).toLocaleDateString(),
-    },
-    {
-      title: "Comment",
-      dataIndex: "comment",
-      key: "comment",
-    },
-    {
-      title: "Adoption Date",
-      dataIndex: "adoptionDate",
-      key: "adoptionDate",
-      render: (text: string) => new Date(text).toLocaleDateString(),
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      render: (status: string) => <span>{status}</span>,
-    },
-    {
-      title: "Action",
-      key: "action",
-      render: (_: any, record: { _id: string; status: string }) => (
-        <span>
-          {record.status === "PENDING" ? (
-            <>
-              <button
-                onClick={() => showModal(record._id, "APPROVED")}
-                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg mr-2"
-              >
-                Approve
-              </button>
-              <button
-                onClick={() => showModal(record._id, "REJECTED")}
-                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg mr-2"
-              >
-                Reject
-              </button>
-            </>
-          ) : (
-            <button
-              onClick={() => showViewModal(record)}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
-            >
-              View
-            </button>
-          )}
-        </span>
+      field: "petImage",
+      headerName: "Image",
+      width: 100,
+      renderCell: (params: any) => (
+        <img src={params.value} alt="Pet" style={{ width: 60, height: 60 }} />
       ),
     },
+    {
+      field: "requestDate",
+      headerName: "Request Date",
+      width: 150,
+      renderCell: (params: any) => new Date(params.value).toLocaleDateString(),
+    },
+    { field: "comment", headerName: "Comment", width: 200 },
+    {
+      field: "adoptionDate",
+      headerName: "Adoption Date",
+      width: 150,
+      renderCell: (params: any) =>
+        params.value ? new Date(params.value).toLocaleDateString() : "",
+    },
+    { field: "status", headerName: "Status", width: 120 },
+    {
+      field: "action",
+      headerName: "Action",
+      width: 200,
+      renderCell: (params: any) => (
+        <>
+          {params.row.status === "PENDING" ? (
+            <>
+              <Button
+                variant="contained"
+                color="success"
+                onClick={() => showModal(params.row._id, "APPROVED")}
+                style={{ marginRight: 8 }}
+              >
+                Approve
+              </Button>
+              <Button
+                variant="contained"
+                color="error"
+                onClick={() => showModal(params.row._id, "REJECTED")}
+              >
+                Reject
+              </Button>
+            </>
+          ) : (
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => showViewModal(params.row)}
+            >
+              View
+            </Button>
+          )}
+        </>
+      ),
+    },
+  ];
+
+  const petSummaryColumns = [
+    { field: "petName", headerName: "Pet Name", width: 150 },
+    {
+      field: "petImage",
+      headerName: "Image",
+      width: 100,
+      renderCell: (params: any) => (
+        <img src={params.value} alt="Pet" style={{ width: 60, height: 60 }} />
+      ),
+    },
+    { field: "requestCount", headerName: "Number of Requests", width: 200 },
   ];
 
   const [viewModalVisible, setViewModalVisible] = useState(false);
@@ -270,77 +263,220 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
     setViewModalVisible(true);
   };
 
-  const petSummaryColumns = [
-    {
-      title: "Pet Name",
-      dataIndex: "petName",
-      key: "petName",
-    },
-    {
-      title: "Image",
-      dataIndex: "petImage",
-      key: "petImage",
-      render: (image: string) => <img src={image} alt="Pet" style={{ width: "100px", height: "100px" }} />,
-    },
-    {
-      title: "Number of Requests",
-      dataIndex: "requestCount",
-      key: "requestCount",
-    },
-  ];
+  const getFilteredRequests = (status: string | null) => {
+    if (status === null) {
+      return adoptionRequestsWithPetInfo; // Return all requests
+    }
+    return adoptionRequestsWithPetInfo.filter(
+      (request) => request.status === status
+    );
+  };
 
   return (
-    <div className="mt-[148px]">
-      {requestsStatus === "loading" && <Spin tip="Loading..." />}
-      {requestsStatus === "failed" && <Alert message="Error" description={error} type="error" showIcon />}
-      {requestsStatus === "succeeded" && (
-        <Tabs activeKey={activeTab} onChange={(key) => setActiveTab(key)}>
-          <TabPane tab="Pet Adoption Summary" key="1">
-            <Table dataSource={petAdoptionSummary} columns={petSummaryColumns} rowKey="petId" />
-          </TabPane>
-          <TabPane tab="Adoption Requests" key="2">
-            {!petId && (
-              <Dropdown overlay={menu} trigger={['hover']}>
-                <Button>
-                  {filterButtonText} <span>▼</span>
-                </Button>
-              </Dropdown>
-            )}
-            <Table dataSource={filteredRequests} columns={columns} rowKey="_id" />
-          </TabPane>
-        </Tabs>
+    <div style={{ marginTop: 148 }}>
+      {requestsStatus === "loading" && <CircularProgress />}
+      {requestsStatus === "failed" && (
+        <Alert severity="error">Error: {error}</Alert>
       )}
-      <Modal
-        title="Enter a comment"
-        open={isModalVisible}
-        onOk={handleOk}
-        onCancel={handleCancel}
-        okText={newStatus === "APPROVED" ? "Approve" : "Reject"}
-      >
-        <Input.TextArea
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-          placeholder="Enter comment for this action"
-        />
-      </Modal>
-      <Modal className="text-[18px]"
-        title="Request Details"
+      {requestsStatus === "succeeded" && (
+        <Box sx={{ width: "100%" }}>
+          <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+            <Tabs
+           
+              value={activeTab}
+              onChange={(_, newValue) => setActiveTab(newValue)}
+            >
+              <Tab  className="text-black" label="Pet Adoption Summary" />
+              <Tab className="text-yellow-500" label="Pending Requests" />
+              <Tab className="text-green-500" label="Approved Requests" />
+              <Tab className="text-red-500" label="Rejected Requests" />
+            </Tabs>
+          </Box>
+          <TabPanel value={activeTab} index={0}>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    {petSummaryColumns.map((column) => (
+                      <TableCell key={column.field}>
+                        {column.headerName}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {petAdoptionSummary.map((row) => (
+                    <TableRow key={row.petId}>
+                      {petSummaryColumns.map((column) => (
+                        <TableCell key={column.field}>
+                          {column.renderCell
+                            ? column.renderCell({ value: row[column.field] })
+                            : row[column.field]}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </TabPanel>
+          <TabPanel value={activeTab} index={1}>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    {columns.map((column) => (
+                      <TableCell key={column.field}>
+                        {column.headerName}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {getFilteredRequests("PENDING").map((row) => (
+                    <TableRow key={row._id}>
+                      {columns.map((column) => (
+                        <TableCell key={column.field}>
+                          {column.renderCell
+                            ? column.renderCell({
+                                row,
+                                value: row[column.field],
+                              })
+                            : row[column.field]}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </TabPanel>
+          <TabPanel value={activeTab} index={2}>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    {columns.map((column) => (
+                      <TableCell key={column.field}>
+                        {column.headerName}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {getFilteredRequests("APPROVED").map((row) => (
+                    <TableRow key={row._id}>
+                      {columns.map((column) => (
+                        <TableCell key={column.field}>
+                          {column.renderCell
+                            ? column.renderCell({
+                                row,
+                                value: row[column.field],
+                              })
+                            : row[column.field]}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </TabPanel>
+          <TabPanel value={activeTab} index={3}>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    {columns.map((column) => (
+                      <TableCell key={column.field}>
+                        {column.headerName}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {getFilteredRequests("REJECTED").map((row) => (
+                    <TableRow key={row._id}>
+                      {columns.map((column) => (
+                        <TableCell key={column.field}>
+                          {column.renderCell
+                            ? column.renderCell({
+                                row,
+                                value: row[column.field],
+                              })
+                            : row[column.field]}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </TabPanel>
+        </Box>
+      )}
+      <Dialog open={isModalVisible} onClose={handleCancel}>
+        <DialogTitle>Enter a comment</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="comment"
+            label="Comment"
+            type="text"
+            fullWidth
+            variant="standard"
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancel}>Cancel</Button>
+          <Button onClick={handleOk}>
+            {newStatus === "APPROVED" ? "Approve" : "Reject"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
         open={viewModalVisible}
-        onCancel={() => setViewModalVisible(false)}
-        footer={null}
+        onClose={() => setViewModalVisible(false)}
       >
-        {selectedRequest && (
-          <div className="text-[16px] space-y-4">
-            <p><strong className="font-semibold">Pet Name:</strong> {selectedRequest.petName}</p>
-            <p><strong className="font-semibold">Status:</strong> {selectedRequest.status}</p>
-            <p><strong className="font-semibold">Request Date:</strong> {new Date(selectedRequest.requestDate).toLocaleDateString()}</p>
-            <p><strong className="font-semibold">Comment:</strong> {selectedRequest.comment}</p>
-            {selectedRequest.adoptionDate && (
-              <p><strong className="font-semibold">Adoption Date:</strong> {new Date(selectedRequest.adoptionDate).toLocaleDateString()}</p>
-            )}
-          </div>
-        )}
-      </Modal>
+        <DialogTitle>Request Details</DialogTitle>
+        <DialogContent>
+          {selectedRequest && (
+            <DialogContentText>
+              <Typography>
+                <strong>Pet Name:</strong> {selectedRequest.petName}
+              </Typography>
+              <Typography>
+                <strong>Status:</strong> {selectedRequest.status}
+              </Typography>
+              <Typography>
+                <strong>Request Date:</strong>{" "}
+                {new Date(selectedRequest.requestDate).toLocaleDateString()}
+              </Typography>
+              <Typography>
+                <strong>Comment:</strong> {selectedRequest.comment}
+              </Typography>
+              {selectedRequest.adoptionDate && (
+                <Typography>
+                  <strong>Adoption Date:</strong>{" "}
+                  {new Date(selectedRequest.adoptionDate).toLocaleDateString()}
+                </Typography>
+              )}
+            </DialogContentText>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setViewModalVisible(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpen(false)}
+        message={snackbarMessage}
+      />
     </div>
   );
 };
