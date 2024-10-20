@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, createSelector } from "@reduxjs/toolkit";
 import axios from "axios";
 
 // Async Thunk for creating a pet
@@ -296,8 +296,10 @@ import ShelterStaff from "@/app/shelter-staff/page";
 
 export const selectPendingPets = (state: RootState) =>
   state.pets.pets.filter((pet) => pet.deliveryStatus === "PENDING");
-export const selectCompletedPets = (state: RootState) =>
-  state.pets.pets.filter((pet) => pet.deliveryStatus === "COMPLETED");
+export const selectCompletedPets = createSelector(
+  (state: RootState) => state.pets.pets,
+  (pets) => pets.filter((pet) => pet.deliveryStatus === "COMPLETED")
+);
 
 export const { clearError, setPets, removePet, searchPets } = petSlice.actions;
 
