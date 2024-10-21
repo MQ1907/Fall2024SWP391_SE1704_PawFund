@@ -278,18 +278,6 @@ const Header = () => {
               {role === "ADMIN" && "ADMIN DASHBOARD"}
               {role === "SHELTER_STAFF" && "SHELTERSTAFF DASHBOARD"}
             </li>
-            {role === "ADMIN" && (
-              <li
-                className={`cursor-pointer animate__animated animate__fadeInLeft ${
-                  pathname === "/user"
-                    ? "text-[#D94E66]"
-                    : "text-black hover:text-[#D94E66]"
-                }`}
-                onClick={() => handleClick("/user")}
-              >
-                USER
-              </li>
-            )}
           </ul>
         </div>
       </div>
