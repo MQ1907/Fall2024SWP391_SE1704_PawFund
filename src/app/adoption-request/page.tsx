@@ -41,12 +41,12 @@ const CreateAdoptionRequest: React.FC = () => {
 
   const handleSubmit = async (values: any) => {
     if (!userId) {
-      message.error("ID người dùng không khả dụng. Vui lòng đăng nhập.");
+      message.error("User ID is not available. Please log in.");
       return;
     }
 
     if (hasExistingRequest(petId, userId)) {
-      message.error("Bạn đã gửi yêu cầu nhận nuôi cho con vật cưng này rồi.");
+      message.error("You have already submitted an adoption request for this pet.");
       return;
     }
 
