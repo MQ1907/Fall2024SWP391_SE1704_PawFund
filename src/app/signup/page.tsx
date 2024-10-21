@@ -7,7 +7,6 @@ import { DownOutlined } from "@ant-design/icons";
 import { useAppDispatch, useAppSelector } from "../../lib/hook";
 import { signup } from "../../lib/features/auth/authSlice";
 
-
 const buttonChooseRole = (isHovered: boolean): React.CSSProperties => {
   return {
     width: "100%",
@@ -27,7 +26,6 @@ const Page: React.FC = () => {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
-  const [avatar, setAvatar] = useState("");
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -65,7 +63,7 @@ const Page: React.FC = () => {
   const handleSignup = () => {
     if (validate()) {
       setLoading(true);
-      dispatch(signup({ name, email, password, role, avatar, address, phone }));
+      dispatch(signup({ name, email, password, role, address, phone }));
     }
   };
 
@@ -133,14 +131,6 @@ const Page: React.FC = () => {
               style={{ backgroundColor: "#e5e4e4", border: "none" }}
             />
             {errors.password && <p className="text-red-500">{errors.password}</p>}
-
-            <Input
-              className="h-[40px] "
-              placeholder="Avatar URL"
-              value={avatar}
-              onChange={(e) => setAvatar(e.target.value)}
-              style={{ backgroundColor: "#e5e4e4", border: "none" }}
-            />
 
             <Input
               className="h-[40px] "

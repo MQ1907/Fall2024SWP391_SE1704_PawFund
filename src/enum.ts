@@ -9,8 +9,14 @@ export enum HealthStatus {
     DECEASED = 'DECEASED',
 }
 
-export enum CheckingType {
+export enum CheckingTypeVolunteer {
     INITIAL = "INITIAL",
-    ROUTINE = 'ROUTINE',
-    ADOPTED = 'ADOPTED',
+    // ROUTINE = 'ROUTINE',
+    // ADOPTED = 'ADOPTED',
 }
+export enum CheckingTypeShelterStaff {
+    // INITIAL = "INITIAL",
+    ROUTINE = 'ROUTINE',
+    // ADOPTED = 'ADOPTED',
+}
+
