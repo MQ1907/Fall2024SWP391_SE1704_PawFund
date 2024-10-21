@@ -1,9 +1,10 @@
-import { useAppDispatch, useAppSelector } from "@/lib/hook";
+import { useAdoptionRequests, useAppDispatch, useAppSelector } from "@/lib/hook";
 import { Button, Form, Input, message } from "antd";
 import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
 import { createAdoptionRequest } from "@/lib/features/adopt/adoptSlice";
 import { useParams } from "next/navigation";
+
 
 interface DecodedToken {
   id: string;
@@ -16,6 +17,8 @@ const CreateAdoptionRequest: React.FC = () => {
   const { status, error } = useAppSelector((state) => state.adoption);
   const [userId, setUserId] = useState<string | null>(null);
   const [form] = Form.useForm();
+  const [showForm, setShowForm] = useState(true);
+  const { hasExistingRequest, addRequest } = useAdoptionRequests();
 
   useEffect(() => {
     const fetchUserIdFromToken = () => {
@@ -42,13 +45,18 @@ const CreateAdoptionRequest: React.FC = () => {
       return;
     }
 
+    if (hasExistingRequest(petId, userId)) {
+      message.error("You have already submitted an adoption request for this pet.");
+      return;
+    }
+
     const requestData = {
       petId: petId,
       userId: userId,
-      requestDate: new Date(), // Set to current date
+      requestDate: new Date(),
       reviewBy: userId,
       comment: values.comment,
-      adoptionDate: new Date(), // Set to the selected adoption date
+      adoptionDate: new Date(),
       status: "PENDING",
     };
 
@@ -56,18 +64,24 @@ const CreateAdoptionRequest: React.FC = () => {
       const resultAction = await dispatch(createAdoptionRequest(requestData));
 
       if (createAdoptionRequest.fulfilled.match(resultAction)) {
-        message.success("Adoption request submitted successfully!");
+        addRequest({ petId, userId });
+        message.success("Yêu cầu nhận nuôi đã được gửi thành công!");
         form.resetFields();
+        setShowForm(false);
       } else {
         const errorMessage =
-          resultAction.error.message || "An unknown error occurred";
-        message.error(`Failed to submit adoption request: ${errorMessage}`);
+          resultAction.error.message || "Đã xảy ra lỗi không xác định";
+        message.error(`Không thể gửi yêu cầu nhận nuôi: ${errorMessage}`);
       }
     } catch (error) {
-      console.error("Error submitting adoption request:", error);
-      message.error("An unexpected error occurred. Please try again later.");
+      console.error("Lỗi khi gửi yêu cầu nhận nuôi:", error);
+      message.error("Đã xảy ra lỗi không mong muốn. Vui lòng thử lại sau.");
     }
   };
+
+  if (!showForm) {
+    return <div>Thank you for your adoption request!</div>;
+  }
 
   return (
     <div className="w-[450px] mt-[10px] ">
@@ -109,7 +123,12 @@ const CreateAdoptionRequest: React.FC = () => {
           <Input type="date" min={new Date().toISOString().split("T")[0]} />
         </Form.Item> */}
 
-        <Form.Item label="Adoption Request Status" name="status" initialValue="PENDING" hidden>
+        <Form.Item
+          label="Adoption Request Status"
+          name="status"
+          initialValue="PENDING"
+          hidden
+        >
           <Input value="PENDING" disabled />
         </Form.Item>
 
