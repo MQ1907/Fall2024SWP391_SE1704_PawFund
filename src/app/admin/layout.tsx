@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import React from "react";
@@ -7,6 +5,7 @@ import Link from "next/link";
 import ClientLayout from "../ClientLayout";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
+
   return (
     <ClientLayout>
       <div className="flex bg-gray-100 min-h-screen">
@@ -32,13 +31,23 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </Link>
               </li>
               <li className="px-6 py-3">
-                <button className="flex items-center text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg w-full">
+                <Link href="/" className="flex items-center text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l1-1m0 0l7-7 7 7m-10 9v-6h6v6m-4 0h4"></path>
+                  </svg>
+                  <span className="ml-3">Home</span>
+                </Link>
+              </li>
+              {/* <li className="px-6 py-3">
+                <button
+                  className="flex items-center text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg w-full"
+                >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                   </svg>
                   <span className="ml-3">Logout</span>
                 </button>
-              </li>
+              </li> */}
             </ul>
           </nav>
         </aside>
