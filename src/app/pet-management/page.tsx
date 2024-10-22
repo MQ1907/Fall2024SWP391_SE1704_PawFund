@@ -142,7 +142,7 @@ function PetManagement() {
   ];
 
   return (
-    <div className="mt-[148px]">
+    <div className="mt-[50px]">
       <div style={{ marginBottom: 16 }}>
       </div>
 
