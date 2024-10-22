@@ -83,7 +83,8 @@ const Volunteer = () => {
   setLoading(true);
   try {
     await dispatch(createHealthCheck(healthCheckData)).unwrap();
-    setTimeout(() => {
+    setHealthCheckCreated((prev) => ({ ...prev, [petId]: true }));
+    setTimeout(() => { 
       setLoading(false);
       handleOk(); // Đóng modal sau khi tạo thành công
     }, 3000);
@@ -141,7 +142,11 @@ const Volunteer = () => {
   useEffect(() => {
     dispatch(fetchPets());
   }, [dispatch]);
-
+  useEffect(() => {
+    if (hasHydrated) {
+      localStorage.setItem('healthCheckCreated', JSON.stringify(healthCheckCreated));
+    }
+  }, [healthCheckCreated, hasHydrated]);
   if (status === "loading") {
     return <div>Loading...</div>;
   }
