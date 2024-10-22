@@ -215,7 +215,7 @@ const Header = () => {
       <ul
        ref={dropdownRef}
         className={`  absolute right-0 mt-2 w-80 bg-white border border-gray-200 rounded-md shadow-lg transition-all duration-300 ease-in-out transform ${
-          dropdownVisible ? "opacity-100 scale-100" : "opacity-0 scale-95"
+          dropdownVisible ? "opacity-100 scale-100 pointer-events-auto" : "opacity-0 scale-95 pointer-events-none"
         }`}
       >
         <li className="flex gap-5  items-center p-3">

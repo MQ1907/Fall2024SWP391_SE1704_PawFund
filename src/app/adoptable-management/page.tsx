@@ -273,7 +273,7 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
   };
 
   return (
-    <div style={{ marginTop: 148 }}>
+    <div style={{ marginTop: 50}}>
       {requestsStatus === "loading" && <CircularProgress />}
       {requestsStatus === "failed" && (
         <Alert severity="error">Error: {error}</Alert>
