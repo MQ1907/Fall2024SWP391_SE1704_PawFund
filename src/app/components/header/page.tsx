@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { logout } from "../../../lib/features/auth/authSlice";
@@ -27,7 +27,10 @@ const Header = () => {
   const [name, setName] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
   const [spinning, setSpinning] = useState(false);
-
+  const [avatar, setAvatar] = useState(false);
+  const [dropdownVisible, setDropdownVisible] = useState(false);
+  const dropdownRef = useRef<HTMLUListElement>(null);
+  const avatarRef = useRef<HTMLDivElement>(null);
   const controlHeader = () => {
     if (typeof window !== "undefined") {
       if (window.scrollY > lastScrollY) {
@@ -72,6 +75,7 @@ const Header = () => {
 
               setName(response.data.name);
               setRole(response.data.role);
+              setAvatar(response.data.avatar);
             } catch (error) {
               console.error("Error fetching user data:", error);
             }
@@ -86,6 +90,23 @@ const Header = () => {
       }
     }
   }, []);
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node) &&
+        avatarRef.current &&
+        !avatarRef.current.contains(event.target as Node)
+      ) {
+        setDropdownVisible(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownRef, avatarRef]);
 
   const handleClick = (path: string) => {
     setSpinning(true);
@@ -127,7 +148,9 @@ const Header = () => {
       setSpinning(false);
     }, 1000); // Simulate a delay for loading
   };
-
+  const toggleDropdown = () => {
+    setDropdownVisible((prev) => !prev);
+  };
   if (!hasHydrated) {
     return null;
   }
@@ -176,13 +199,73 @@ const Header = () => {
               Hi {name ? name : "Guest"} ❤️
             </li>
             <li>
-              <button
-                onClick={token ? handleLogoutClick : handleLoginClick}
-                className="rounded-md border border-black px-4 text-white bg-[#D94E66] hover:bg-white hover:text-[#D94E66] transition duration-300 animate__animated animate__fadeInRight"
-              >
-                {token ? "Logout" : "Login"}
-              </button>
-            </li>
+  {token ? (
+    <div className="relative" ref={avatarRef}>
+      <div className="relative inline-block">
+        <img
+          src={avatar || "/images/unknownUser.jpg"}
+          alt="userAvatar"
+          width={35}
+          height={35}
+          className="rounded-full cursor-pointer mt-1"
+          onClick={toggleDropdown}
+        />
+        <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></span>
+      </div>
+      <ul
+       ref={dropdownRef}
+        className={`  absolute right-0 mt-2 w-80 bg-white border border-gray-200 rounded-md shadow-lg transition-all duration-300 ease-in-out transform ${
+          dropdownVisible ? "opacity-100 scale-100" : "opacity-0 scale-95"
+        }`}
+      >
+        <li className="flex gap-5  items-center p-3">
+          <img src={avatar || "/images/unknownUser.jpg"} alt="userAvatar" width={45}
+          height={45} className="rounded-full" />
+          <div className="font-semibold uppercase">{name}</div>
+        </li>
+        <hr className=" w-[80%]  mx-auto  border border-black " />
+        <li
+          className="px-4 py-3 hover:bg-orange-300 cursor-pointer flex justify-between items-center"
+          onClick={() => handleClick("/profile")}
+        >
+        <div className="flex items-center gap-8">
+        <img src="/images/profileUser.png" alt="" width={30} height={30} />
+        <div className="font-semibold">Edit Profile</div>
+        </div>
+          <img src="/images/right-arrow.png" alt="" width={15} height={15} />
+        </li>
+        <li
+          className="px-4 py-3 hover:bg-orange-300 cursor-pointer flex justify-between items-center"
+          onClick={() => handleClick("/history")}
+        >
+        <div className="flex items-center gap-8">
+        <img src="/images/restore.png" alt="" width={30} height={30} />
+        <div className="font-semibold">History</div>
+        </div>
+          <img src="/images/right-arrow.png" alt="" width={15} height={15} />
+        </li>
+        <li
+          className="px-4 py-3 hover:bg-red-500 cursor-pointer flex justify-between items-center"
+          onClick={handleLogoutClick}
+        >
+        
+        <div className="flex items-center gap-8">
+        <img src="/images/power-off.png" alt="" width={30} height={30} />
+        <div className="font-semibold">  Logout</div>
+        </div>
+          <img src="/images/right-arrow.png" alt="" width={15} height={15} />
+        </li>
+      </ul>
+    </div>
+  ) : (
+    <button
+      onClick={handleLoginClick}
+      className="rounded-md border border-black px-4 text-white bg-[#D94E66] hover:bg-white hover:text-[#D94E66] transition duration-300 animate__animated animate__fadeInRight"
+    >
+      Login
+    </button>
+  )}
+</li>
           </ul>
         </div>
 
