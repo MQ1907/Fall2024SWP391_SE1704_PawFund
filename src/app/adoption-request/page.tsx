@@ -1,3 +1,4 @@
+"use client"
 import { useAdoptionRequests, useAppDispatch, useAppSelector } from "@/lib/hook";
 import { Button, Form, Input, message } from "antd";
 import { jwtDecode } from "jwt-decode";
@@ -10,7 +11,7 @@ interface DecodedToken {
   id: string;
 }
 
-const CreateAdoptionRequest: React.FC = () => {
+const CreateAdoptionRequest = () => {
   const params = useParams();
   const petId = params.id as string;
   const dispatch = useAppDispatch();

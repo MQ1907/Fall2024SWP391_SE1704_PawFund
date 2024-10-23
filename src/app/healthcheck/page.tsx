@@ -10,7 +10,7 @@ interface DecodedToken {
   iat: number;
 }
 
-function HealthCheck() {
+const HealthCheck = () => {
   const router = useRouter();
   const [role, setRole] = useState<string | null>(null);
 

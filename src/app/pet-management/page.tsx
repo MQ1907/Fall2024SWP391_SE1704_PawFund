@@ -1,7 +1,9 @@
 "use client";
 import React, { useEffect, useState } from "react";
+
 import { Table, Spin, Alert, Button, message, Modal, Form, Input } from "antd";
 import { fetchPets, selectCompletedPets, deletePet, updatePet } from "../../lib/features/pet/petSlice";
+
 import { useAppDispatch, useAppSelector } from "@/lib/hook";
 import { useRouter } from "next/navigation";
 import axios from "axios";
@@ -13,7 +15,7 @@ interface DecodedToken {
   iat: number;
 }
 
-function PetManagement() {
+const PetManagement = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const completedPets = useAppSelector(selectCompletedPets);
@@ -34,7 +36,9 @@ function PetManagement() {
 
         const fetchUser = async () => {
           try {
-            const response = await axios.get(`http://localhost:8000/users/${userId}`);
+            const response = await axios.get(
+              `http://localhost:8000/users/${userId}`
+            );
             setRole(response.data.role);
 
             if (response.data.role !== "SHELTER_STAFF") {
@@ -176,7 +180,9 @@ function PetManagement() {
   ];
 
   return (
+
     <div className="mt-[148px]">
+
       <div style={{ marginBottom: 16 }}></div>
 
       {petsStatus === "loading" && <Spin tip="Loading..." />}
@@ -220,6 +226,6 @@ function PetManagement() {
       </Modal>
     </div>
   );
-}
+};
 
 export default PetManagement;

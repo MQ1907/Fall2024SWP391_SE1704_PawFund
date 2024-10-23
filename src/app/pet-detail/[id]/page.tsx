@@ -7,18 +7,18 @@ import { useAppDispatch, useAppSelector } from "../../../lib/hook";
 import { fetchPetById } from "../../../lib/features/pet/petSlice";
 import AdoptionRequest from "@/app/adoption-request/page";
 
-function PetDetail() {
+const PetDetail = () => {
   const [OpenAdoptionRequest, setCreateAdoptionRequest] = useState(false);
   const [loading, setLoading] = useState(false); // Khai báo trạng thái loading
-  
+
   const showAdoptPetModal = () => {
     setCreateAdoptionRequest(true); // Mở modal
   };
-  
+
   const handleCancelCreateAdoptionRequest = () => {
     setCreateAdoptionRequest(false); // Đóng modal
   };
-  
+
   const handleOkAdoptPet = () => {
     setLoading(true);
     setTimeout(() => {
@@ -26,7 +26,7 @@ function PetDetail() {
       setCreateAdoptionRequest(false); // Đóng modal sau khi xử lý xong
     }, 3000);
   };
-  
+
   const [isAnimating, setIsAnimating] = useState(true);
   const params = useParams();
   const id = params.id as string;
@@ -41,11 +41,11 @@ function PetDetail() {
     return () => clearTimeout(timer);
   }, [id, dispatch]);
 
-  if (status === 'loading') {
+  if (status === "loading") {
     return <div>Loading...</div>;
   }
 
-  if (status === 'failed') {
+  if (status === "failed") {
     return <div>Error: {error}</div>;
   }
 
@@ -104,7 +104,7 @@ function PetDetail() {
             <hr className="border-t-[1px] border-dashed border-[#adacac] " />
             <div className="flex my-1 ">
               <p className="font-semibold">Vaccinated: </p>
-              <p className="px-1 ">{currentPet.isVacinted ? 'Yes' : 'No'}</p>
+              <p className="px-1 ">{currentPet.isVacinted ? "Yes" : "No"}</p>
             </div>
             <hr className="border-t-[1px] border-dashed border-[#adacac] " />
             <div className="flex my-1 ">
@@ -112,24 +112,29 @@ function PetDetail() {
               <p className="px-1 ">{currentPet.color}</p>
             </div>
             <div className="flex gap-4">
-              <button onClick={showAdoptPetModal}  className="relative border-2 border-gray-800 rounded-[5px] bg-transparent py-2.5 px-10 font-medium uppercase text-gray-800 transition-colors before:absolute before:left-0 before:top-0 before:-z-10 before:h-full before:w-full before:origin-top-left before:scale-x-0 before:bg-pink-500 before:transition-transform before:duration-300 before:content-[''] hover:text-white before:hover:scale-x-100">
+              <button
+                onClick={showAdoptPetModal}
+                className="relative border-2 border-gray-800 rounded-[5px] bg-transparent py-2.5 px-10 font-medium uppercase text-gray-800 transition-colors before:absolute before:left-0 before:top-0 before:-z-10 before:h-full before:w-full before:origin-top-left before:scale-x-0 before:bg-pink-500 before:transition-transform before:duration-300 before:content-[''] hover:text-white before:hover:scale-x-100"
+              >
                 Adopt
               </button>
               <Modal
-                        open={OpenAdoptionRequest}
-                        title="You want to adopt this pet ?"
-                        className="text-[20px]"
-                        onOk={handleOkAdoptPet}
-                        onCancel={handleCancelCreateAdoptionRequest}
-                        footer={[
-                          <Button key="cancel" onClick={handleCancelCreateAdoptionRequest}>
-                            Cancel
-                          </Button>,
-                        
-                        ]}
-                      >
-                      <AdoptionRequest petId={currentPet._id} />
-                      </Modal>
+                open={OpenAdoptionRequest}
+                title="You want to adopt this pet ?"
+                className="text-[20px]"
+                onOk={handleOkAdoptPet}
+                onCancel={handleCancelCreateAdoptionRequest}
+                footer={[
+                  <Button
+                    key="cancel"
+                    onClick={handleCancelCreateAdoptionRequest}
+                  >
+                    Cancel
+                  </Button>,
+                ]}
+              >
+                <AdoptionRequest petId={currentPet._id} />
+              </Modal>
             </div>
           </div>
         </div>
@@ -370,59 +375,9 @@ function PetDetail() {
             className="transform rotate-12"
           />
         </div>
-
-        {/* <div className="w-[1111px] h-[581px] bg-white mx-auto shadow-lg rounded-lg p-8 relative mt-5">
-          <div className="flex justify-between items-center">
-            <button
-              onClick={handlePrevClick}
-              className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-300 p-3 rounded-full hover:bg-gray-400"
-            >
-              &#9664;
-            </button>
-
-            <div className="flex justify-center gap-14">
-              {morePets.map((pet) => (
-                <div key={pet.id} className="text-center w-[220px] mx-auto">
-                  <Image
-                    src={pet.image}
-                    alt={pet.name}
-                    width={220}
-                    height={220}
-                    className="rounded-md"
-                  />
-                  <h3 className="text-lg font-bold mt-4">{pet.name}</h3>
-                  <hr className="border-1 border-gray-300 my-2 w-[60px] mx-auto" />
-                  <p className="text-gray-600 font-semibold">
-                    Giới tính: {pet.gender}
-                  </p>                  <p                  <p className="text-gray-600 font-semibold">
-                    Tiêm phòng: {pet.vaccination}
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            <button
-              onClick={handleNextClick}
-              className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-300 p-3 rounded-full hover:bg-gray-400 "
-            >
-              &#9654;
-            </button>
-          </div>
-
-          <div className="flex justify-center mt-8">
-            <button
-              onClick={() => {
-                router.push("/adopt");
-              }}
-              className="bg-pink-600 text-white py-3 px-20 rounded-full font-semibold hover:bg-[#018AE0] mt-10"
-            >
-              ADOPT
-            </button>
-          </div>
-        </div> */}
       </div>
     </div>
   );
-}
+};
 
 export default PetDetail;

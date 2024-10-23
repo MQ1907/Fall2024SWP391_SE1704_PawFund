@@ -1,9 +1,7 @@
-import React from 'react'
+import React from "react";
 
-function Transport() {
-  return (
-    <div>Transport</div>
-  )
-}
+const Transport = () => {
+  return <div>Transport</div>;
+};
 
-export default Transport
+export default Transport;
