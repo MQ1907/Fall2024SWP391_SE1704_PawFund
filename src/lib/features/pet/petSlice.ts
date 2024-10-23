@@ -1,4 +1,8 @@
-import { createSlice, createAsyncThunk, createSelector } from "@reduxjs/toolkit";
+import {
+  createSlice,
+  createAsyncThunk,
+  createSelector,
+} from "@reduxjs/toolkit";
 import axios from "axios";
 
 // Async Thunk for creating a pet
@@ -62,6 +66,43 @@ export const fetchPets = createAsyncThunk("pet/fetchAll", async () => {
   }
 });
 
+export const updatePet = createAsyncThunk(
+  "pet/update",
+  async (
+    {
+      petId,
+      petData,
+    }: {
+      petId: string;
+      petData: {
+        image: string;
+        name: string;
+        description?: string;
+        color?: string;
+        breed: string;
+        age: number;
+        gender: string;
+        note?: string;
+        isVaccinated?: boolean;
+        isVerified?: boolean;
+        isAdopted?: boolean;
+      };
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:8000/pet/update/${petId}`,
+        petData
+      );
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to update pet"
+      );
+    }
+  }
+);
 
 export const fetchPetsByStatus = createAsyncThunk(
   "pet/fetchByStatus",
@@ -88,9 +129,28 @@ export const fetchPetById = createAsyncThunk(
       const response = await axios.get(
         `http://localhost:8000/pet/find-by-id/${id}`
       );
-      const { name, image, breed, age, description, isVacinted , color,gender,locationFound } =
-        response.data;
-      return { name, image, breed, age, description, isVacinted ,color,gender,locationFound };
+      const {
+        name,
+        image,
+        breed,
+        age,
+        description,
+        isVacinted,
+        color,
+        gender,
+        locationFound,
+      } = response.data;
+      return {
+        name,
+        image,
+        breed,
+        age,
+        description,
+        isVacinted,
+        color,
+        gender,
+        locationFound,
+      };
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch pet"
@@ -288,6 +348,23 @@ const petSlice = createSlice({
           state.pets[index] = updatedPet;
           state.filteredPets = state.pets; // Update filteredPets as well
         }
+      })
+      //update pet
+      .addCase(updatePet.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(updatePet.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        const index = state.pets.findIndex(
+          (pet) => pet._id === action.payload._id
+        );
+        if (index !== -1) {
+          state.pets[index] = action.payload;
+        }
+      })
+      .addCase(updatePet.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload as string;
       });
   },
 });

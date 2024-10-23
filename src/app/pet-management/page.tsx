@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Table, Spin, Alert, Button, message, Modal } from "antd";
-import { fetchPets, selectCompletedPets, deletePet } from "../../lib/features/pet/petSlice";
+import { Table, Spin, Alert, Button, message, Modal, Form, Input } from "antd";
+import { fetchPets, selectCompletedPets, deletePet, updatePet } from "../../lib/features/pet/petSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/hook";
 import { useRouter } from "next/navigation";
 import axios from "axios";
@@ -19,8 +19,11 @@ function PetManagement() {
   const completedPets = useAppSelector(selectCompletedPets);
   const petsStatus = useAppSelector((state) => state.pets.status);
   const error = useAppSelector((state) => state.pets.error);
-  const [view, setView] = useState("COMPLETED"); // Đặt mặc định là "COMPLETED"
+  const [view, setView] = useState("COMPLETED");
   const [role, setRole] = useState<string | null>(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [currentPet, setCurrentPet] = useState(null);
+  const [form] = Form.useForm();
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
@@ -71,9 +74,33 @@ function PetManagement() {
       okType: "danger",
       cancelText: "Hủy",
       onOk() {
-        handleDelete(petId); // Gọi hàm xóa pet
+        handleDelete(petId);
         message.success("Đã xóa con pet thành công!");
       },
+    });
+  };
+
+  const showUpdateModal = (pet) => {
+    setCurrentPet(pet);
+    form.setFieldsValue(pet); // Đặt giá trị hiện tại cho form
+    setIsModalVisible(true);
+  };
+
+  const handleUpdate = () => {
+    form.validateFields().then((values) => {
+      const updatedPet = {
+        ...currentPet,
+        ...values,
+      };
+      dispatch(updatePet({ petId: currentPet._id, petData: updatedPet }))
+        .unwrap()
+        .then(() => {
+          setIsModalVisible(false);
+          message.success("Cập nhật pet thành công!");
+        })
+        .catch((error) => {
+          message.error("Failed to update pet: " + error);
+        });
     });
   };
 
@@ -82,10 +109,9 @@ function PetManagement() {
       title: "Image",
       dataIndex: "image",
       key: "image",
-      render: (
-        text: string,
-        record: { _id: string; image: string; name: string }
-      ) => <img src={record.image} alt={record.name} style={{ width: 100 }} />,
+      render: (text: string, record: { _id: string; image: string; name: string }) => (
+        <img src={record.image} alt={record.name} style={{ width: 100 }} />
+      ),
     },
     {
       title: "Name",
@@ -131,30 +157,67 @@ function PetManagement() {
       title: "Action",
       key: "action",
       render: (text: string, record: { _id: string }) => (
-        <Button
-          style={{ backgroundColor: "red", color: "white" }}
-          onClick={() => confirmDelete(record._id)}
-        >
-          Xóa
-        </Button>
+        <div>
+          <Button
+            style={{ backgroundColor: "yellow", color: "black", marginRight: "10px" }}
+            onClick={() => showUpdateModal(record)} // Hiển thị modal cho cập nhật
+          >
+            Update
+          </Button>
+          <Button
+            style={{ backgroundColor: "red", color: "white" }}
+            onClick={() => confirmDelete(record._id)}
+          >
+            Delete
+          </Button>
+        </div>
       ),
     },
   ];
 
   return (
-    <div className="mt-[50px]">
-      <div style={{ marginBottom: 16 }}>
-      </div>
+    <div className="mt-[148px]">
+      <div style={{ marginBottom: 16 }}></div>
 
       {petsStatus === "loading" && <Spin tip="Loading..." />}
       {petsStatus === "failed" && (
         <Alert message="Lỗi" description={error} type="error" showIcon />
       )}
       {petsStatus === "succeeded" && completedPets.length > 0 ? (
-        <Table dataSource={completedPets} columns={columns} rowKey="id" />
+        <Table dataSource={completedPets} columns={columns} rowKey="_id" />
       ) : (
-        petsStatus === "succeeded" && <p>Not find any pet</p>
+        petsStatus === "succeeded" && <p>Không tìm thấy pet nào.</p>
       )}
+
+      {/* Modal để cập nhật pet */}
+      <Modal
+        title="Cập nhật Pet"
+        visible={isModalVisible}
+        onOk={handleUpdate}
+        onCancel={() => setIsModalVisible(false)}
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item name="image" label="Hình ảnh" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item name="name" label="Tên" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item name="description" label="Mô tả">
+            <Input />
+          </Form.Item>
+          <Form.Item name="breed" label="Giống" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item name="age" label="Tuổi" rules={[{ required: true }]}>
+            <Input type="number" />
+          </Form.Item>
+          <Form.Item name="gender" label="Giới tính" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+          {/* Thêm các trường khác nếu cần */}
+        </Form>
+      </Modal>
     </div>
   );
 }
