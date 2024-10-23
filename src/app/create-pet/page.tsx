@@ -1,7 +1,16 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Table, Spin, Alert, Button, message, Modal, Input, Select } from "antd";
+import {
+  Table,
+  Spin,
+  Alert,
+  Button,
+  message,
+  Modal,
+  Input,
+  Select,
+} from "antd";
 import {
   fetchPets,
   selectPendingPets,
@@ -22,7 +31,7 @@ interface DecodedToken {
   iat: number;
 }
 
-function CreatePet() {
+const CreatePet = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const pendingPets = useAppSelector(selectPendingPets);
@@ -36,12 +45,16 @@ function CreatePet() {
   const [open, setOpen] = useState(false);
   const [petId, setPetId] = useState("");
   const [displayPetId, setDisplayPetId] = useState("********");
-  const [healthStatus, setHealthStatus] = useState<HealthStatus | undefined>(undefined);
+  const [healthStatus, setHealthStatus] = useState<HealthStatus | undefined>(
+    undefined
+  );
   const [healthStatusDescription, setHealthStatusDescription] = useState("");
   const [note, setNote] = useState("");
   const [checkingDate, setCheckingDate] = useState("");
   const [checkingBy, setCheckingBy] = useState("");
-  const [checkingType, setCheckingType] = useState<CheckingTypeShelterStaff | undefined>(undefined);
+  const [checkingType, setCheckingType] = useState<
+    CheckingTypeShelterStaff | undefined
+  >(undefined);
   const [hiddenCheckingBy, setHiddenCheckingBy] = useState("");
   const [loading, setLoading] = useState(false);
   const showModal = (pet) => {
@@ -108,14 +121,14 @@ function CreatePet() {
         const userId = decodedToken.id;
         setCheckingBy(userId); // Đặt ID người dùng vào state checkingBy
         setHiddenCheckingBy("*".repeat(userId.length)); // Đặt giá trị ẩn của checkingBy
-  
+
         const fetchUser = async () => {
           try {
             const response = await axios.get(
               `http://localhost:8000/users/${userId}`
             );
             setRole(response.data.role);
-  
+
             if (response.data.role !== "SHELTER_STAFF") {
               router.push("/errorpage");
             }
@@ -124,7 +137,7 @@ function CreatePet() {
             router.push("/error");
           }
         };
-  
+
         fetchUser();
       } catch (error) {
         console.error("Invalid token:", error);
@@ -281,11 +294,7 @@ function CreatePet() {
           <Button key="back" onClick={handleCancel}>
             Return
           </Button>,
-          <Button
-            key="submit"
-            type="primary"
-            onClick={handleSubmit}
-          >
+          <Button key="submit" type="primary" onClick={handleSubmit}>
             Submit
           </Button>,
         ]}
@@ -303,9 +312,7 @@ function CreatePet() {
             <label className="font-semibold">Health Status:</label>
             <Select
               value={healthStatus}
-              onChange={(value) =>
-                setHealthStatus(value as HealthStatus)
-              }
+              onChange={(value) => setHealthStatus(value as HealthStatus)}
               placeholder="Select Health Status"
             >
               {Object.values(HealthStatus).map((status) => (
@@ -316,13 +323,10 @@ function CreatePet() {
             </Select>
           </div>
           <div className="flex flex-col">
-            <label className="font-semibold">
-              Health Status Description:
-            </label>
+            <label className="font-semibold">Health Status Description:</label>
             <Input.TextArea
               value={healthStatusDescription}
-              onChange={(e) =>
-                setHealthStatusDescription(e.target.value)}
+              onChange={(e) => setHealthStatusDescription(e.target.value)}
             />
           </div>
           <div className="flex flex-col">
@@ -345,9 +349,7 @@ function CreatePet() {
             <Input
               type="number"
               value={temperature}
-              onChange={(e) =>
-                setTemperature(Number(e.target.value))
-              }
+              onChange={(e) => setTemperature(Number(e.target.value))}
             />
           </div>
           <div className="flex flex-col">
@@ -386,6 +388,6 @@ function CreatePet() {
       </Modal>
     </div>
   );
-}
+};
 
 export default CreatePet;

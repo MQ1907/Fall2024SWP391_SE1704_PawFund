@@ -32,9 +32,7 @@ const Donate = () => {
     },
   ];
   const router = useRouter();
-  // const handleDonate = (link: string) => {
-  //   router.push(link);
-  // };
+  
   return (
     <div className="mt-[148px]">
       <div
