@@ -148,6 +148,13 @@ const Header = () => {
       setSpinning(false);
     }, 1000); // Simulate a delay for loading
   };
+  const handleProfileClick = () => {
+    setSpinning(true);
+    setTimeout(() => {
+      router.push("/userprofile");
+      setSpinning(false);
+    }, 1000);
+  };
   const toggleDropdown = () => {
     setDropdownVisible((prev) => !prev);
   };
@@ -226,7 +233,7 @@ const Header = () => {
         <hr className=" w-[80%]  mx-auto  border border-black " />
         <li
           className="px-4 py-3 hover:bg-orange-300 cursor-pointer flex justify-between items-center"
-          onClick={() => handleClick("/profile")}
+          onClick={handleProfileClick}
         >
         <div className="flex items-center gap-8">
         <img src="/images/profileUser.png" alt="" width={30} height={30} />
