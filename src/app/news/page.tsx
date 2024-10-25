@@ -10,7 +10,6 @@ const News = () => {
 
   return (
     <div className='pt-[148px]'>
-      {/* Header section */}
       <div
         className="w-full bg-cover bg-center relative bg-red"
         style={{ backgroundImage: "url('/images/news.png')" }}
@@ -26,62 +25,56 @@ const News = () => {
           </div>
         </div>
       </div>
-
-      {/* Main content */}
       <div className="grid grid-cols-10 p-8 py-10">
-        <div className="col-span-6 ml-[200px]">
+        <div className="col-span-6 ml-[300px]">
           <Newpet />
         </div>
         <div className="col-span-4 ml-[200px]">
-          {/* Sidebar */}
-          <div className='h-auto bg-[#F6F6F6] w-60'>
-            <h1 className='text-center mt-2 text-2xl font-bold'>Category</h1>
-            <hr className='border-t border-[#6F6F6F] h-[20px] mx-auto w-1/3 mt-2' />
-            
-            {/* Button for Category */}
-            <button
-              className='bg-white w-[200px] h-[44px] mt-2 hover:bg-[#D61C62] ml-4 rounded'
-              onClick={() => router.push("/volunteerac")}
-            >
-              <p className='text-center text-black hover:text-white'>
-                Volunteer activities
-              </p>
-            </button>
-
-            {/* Video Section */}
-            <h1 className='text-center mt-5 text-2xl font-bold'>Video about us</h1>
-            <hr className='border-t border-[#6F6F6F] h-[20px] mx-auto w-1/3 mt-2' />
-            <div className='ml-2'>
-              <iframe
-                width={220}
-                height={200}
-                src="https://www.youtube.com/embed/ZTw49Ww18UA"
-                title="Laugh Till You Cry With These Funny Animal Videos! 🤣"
-                frameBorder={0}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                referrerPolicy="strict-origin-when-cross-origin"
-                allowFullScreen
-              />
+          <div className='h-auto bg-[#F6F6F6] w-[350px] rounded-lg shadow-lg relative overflow-hidden'>
+            <div className="p-4 pb-20">
+              <h1 className='text-center mt-2 text-2xl font-bold'>Category</h1>
+              <hr className='border-t border-[#6F6F6F] h-[20px] mx-auto w-2/3 mt-2' />
+              <div className='flex flex-col items-start space-y-2 w-full px-4 ml-8'>
+                {['Volunteer activities', 'Rescue process', 'News and Events', 'Video'].map((item, index) => (
+                  <button
+                    key={index}
+                    className='bg-white w-[220px] h-[44px] hover:bg-[#D61C62] rounded transition duration-300 text-left px-4'
+                    onClick={() => router.push("/volunteerac")}
+                  >
+                    <span className='text-black hover:text-white'>
+                      {item}
+                    </span>
+                  </button>
+                ))}
+              </div>
+              <h1 className='text-center mt-5 text-2xl font-bold'>Video about us</h1>
+              <hr className='border-t border-[#6F6F6F] h-[20px] mx-auto w-2/3 mt-2' />
+              <div className='flex justify-center mt-2 mb-4'>
+                <iframe
+                  width={320}
+                  height={200}
+                  src="https://www.youtube.com/embed/ZTw49Ww18UA"
+                  title="Laugh Till You Cry With These Funny Animal Videos! 🤣"
+                  frameBorder={0}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  allowFullScreen
+                />
+              </div>
             </div>
-            
-            {/* Footer Image */}
-            <div className="h-[40px] relative">
+            <div className="absolute bottom-0 left-0 right-0 h-20 ">
               <Image
                 src="/images/bgfooter.png"
-                alt=""
-                width={1440}
-                height={117}
-                className="w-full h-full object-cover"
+                alt="Footer decoration"
+                layout="fill"
+                objectFit="cover"
+                className="filter grayscale-[80%]"
               />
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Event Component */}
-      <Event />
-
-      {/* Donation Section */}
+      </div>     
+      <Event />    
       <div
         className="h-[150px] w-full relative bg-fixed bg-center bg-cover bg-no-repeat flex items-center justify-center"
         style={{
