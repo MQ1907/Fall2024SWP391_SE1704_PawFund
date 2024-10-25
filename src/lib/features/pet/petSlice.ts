@@ -16,7 +16,6 @@ export const createPet = createAsyncThunk(
       image: string;
       color: string;
       breed: string;
-      age: number;
       note: string;
       rescueBy: string;
       rescueFee: number;
@@ -50,7 +49,6 @@ export const fetchPets = createAsyncThunk("pet/fetchAll", async () => {
       name: pet.name,
       image: pet.image,
       breed: pet.breed,
-      age: pet.age,
       color: pet.color,
       gender: pet.gender,
       rescueDate: pet.rescueDate,
@@ -80,7 +78,6 @@ export const updatePet = createAsyncThunk(
         description?: string;
         color?: string;
         breed: string;
-        age: number;
         gender: string;
         note?: string;
         isVaccinated?: boolean;
@@ -133,7 +130,6 @@ export const fetchPetById = createAsyncThunk(
         name,
         image,
         breed,
-        age,
         description,
         isVacinted,
         color,
@@ -144,7 +140,6 @@ export const fetchPetById = createAsyncThunk(
         name,
         image,
         breed,
-        age,
         description,
         isVacinted,
         color,
@@ -220,7 +215,6 @@ interface Pet {
   name: string;
   image: string;
   breed: string;
-  age: number;
   description: string;
   isVacinted: boolean;
   deliveryStatus: string; // Changed from petStatus to deliveryStatus

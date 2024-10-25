@@ -148,11 +148,6 @@ const PetManagement = () => {
       key: "breed",
     },
     {
-      title: "Age",
-      dataIndex: "age",
-      key: "age",
-    },
-    {
       title: "Delivery Status",
       dataIndex: "deliveryStatus",
       key: "deliveryStatus",
@@ -214,9 +209,6 @@ const PetManagement = () => {
           </Form.Item>
           <Form.Item name="breed" label="Giống" rules={[{ required: true }]}>
             <Input />
-          </Form.Item>
-          <Form.Item name="age" label="Tuổi" rules={[{ required: true }]}>
-            <Input type="number" />
           </Form.Item>
           <Form.Item name="gender" label="Giới tính" rules={[{ required: true }]}>
             <Input />

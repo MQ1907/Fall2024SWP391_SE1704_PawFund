@@ -62,7 +62,6 @@ const GoodBaby = () => {
                 <h3 className="text-lg font-bold mt-4">{pet.name}</h3>
                 <hr className="border-1 border-gray-300 my-2 w-[60px] mx-auto" />
                 <p className="text-gray-600 font-semibold">GENDER: {pet.gender}</p>
-                <p className="text-gray-600 font-semibold">AGE: {pet.age}</p>
                 <p className="text-gray-600 font-semibold">VACCINE: {pet.isVacinted ? 'Yes' : 'No'}</p>
               </div>
             ))}

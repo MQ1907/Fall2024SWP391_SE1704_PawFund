@@ -123,7 +123,6 @@ const Admin = () => {
                 <th className="py-4 px-6">ID</th>
                 <th className="py-4 px-6">Image</th>
                 <th className="py-4 px-6">Name</th>
-                <th className="py-4 px-6">Age</th>
                 <th className="py-4 px-6">Breed</th>
                 <th className="py-4 px-6">Vaccinated</th>
                 <th className="py-4 px-6">Delivery Status</th>
@@ -138,7 +137,6 @@ const Admin = () => {
                     <img src={pet.image} alt={pet.name} className="w-20 h-20 object-cover rounded-full" />
                   </td>
                   <td className="py-4 px-6">{pet.name}</td>
-                  <td className="py-4 px-6">{pet.age}</td>
                   <td className="py-4 px-6">{pet.breed}</td>
                   <td className="py-4 px-6">{pet.isVacinted ? 'Yes' : 'No'}</td>
                   <td className="py-4 px-6">{pet.deliveryStatus}</td>
