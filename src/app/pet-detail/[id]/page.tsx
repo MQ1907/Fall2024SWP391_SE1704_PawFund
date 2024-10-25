@@ -88,11 +88,6 @@ const PetDetail = () => {
             <h1 className="text-[34px] font-medium">{currentPet.name}</h1>
             <hr className="border-t-[1px] border-dashed border-[#adacac] " />
             <div className="flex my-1 ">
-              <p className="font-semibold">Age: </p>
-              <p className="px-1 ">{currentPet.age}</p>
-            </div>
-            <hr className="border-t-[1px] border-dashed border-[#adacac] " />
-            <div className="flex my-1 ">
               <p className="font-semibold">Location Found: </p>
               <p className="px-1 ">{currentPet.locationFound}</p>
             </div>

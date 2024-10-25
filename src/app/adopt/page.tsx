@@ -347,18 +347,6 @@ const Adopt = () => {
 
             <div>
               <label className="block text-gray-700 font-medium mb-2">
-                Age
-              </label>
-              <select className="block w-full border border-red-500 text-gray-700 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
-                <option>All</option>
-                <option>1-2 years</option>
-                <option>3-5 years</option>
-                <option>Over 5 years</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">
                 Sterilization
               </label>
               <select className="block w-full border border-red-500 text-gray-700 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
@@ -395,14 +383,6 @@ const Adopt = () => {
               />
             </div>
 
-            <div className="flex items-end ml-[100px]">
-              <button
-                onClick={() => setCurrentIndex(0)}
-                className="bg-pink-500 hover:bg-[#008ADF] text-white text-lg font-bold py-3 px-8 rounded-full w-[200px]"
-              >
-                Search Pet
-              </button>
-            </div>
           </div>
         </div>
 
@@ -429,11 +409,6 @@ const Adopt = () => {
               <div className="flex my-1">
                 <p className="font-semibold">Gender: </p>
                 <p className="px-1">{pet.gender}</p>
-              </div>
-              <hr className="border-t-[1px] border-dashed border-[#adacac]" />
-              <div className="flex my-1">
-                <p className="font-semibold">Age: </p>
-                <p className="px-1">{pet.age}</p>
               </div>
               <hr className="border-t-[1px] border-dashed border-[#adacac]" />
               <div className="flex my-1">
