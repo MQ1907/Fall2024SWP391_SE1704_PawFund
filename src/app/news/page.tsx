@@ -26,10 +26,10 @@ const News = () => {
         </div>
       </div>
       <div className="grid grid-cols-10 p-8 py-10">
-        <div className="col-span-6 ml-[300px]">
+        <div className="col-span-6 ml-[180px]">
           <Newpet />
         </div>
-        <div className="col-span-4 ml-[200px]">
+        <div className="col-span-4 ml-[150px]">
           <div className='h-auto bg-[#F6F6F6] w-[350px] rounded-lg shadow-lg relative overflow-hidden'>
             <div className="p-4 pb-20">
               <h1 className='text-center mt-2 text-2xl font-bold'>Category</h1>
