@@ -402,16 +402,25 @@ export const updatePetStatus = createAsyncThunk(
 
 // Replace updatePetStatus with updatePetDeliveryStatus
 export const updatePetDeliveryStatus = createAsyncThunk(
-  'pets/updateDeliveryStatus',
-  async ({ petId, deliveryStatus }: { petId: string; deliveryStatus: string }, { rejectWithValue }) => {
+  "pets/updatePetDeliveryStatus",
+  async (
+    { petId, deliveryStatus }: { petId: string; deliveryStatus: string },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await axios.patch(`http://localhost:8000/pets/${petId}`, { deliveryStatus });
+      const response = await axios.put(
+        `http://localhost:8000/pet/update/${petId}`,
+        {
+          deliveryStatus,
+        }
+      );
       return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        return rejectWithValue(error.response?.data || 'An error occurred');
-      }
-      return rejectWithValue('An unknown error occurred');
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to update pet delivery status"
+      );
     }
   }
 );
+
+
