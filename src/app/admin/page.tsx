@@ -7,6 +7,7 @@ import { fetchPets, searchPets, updatePetDeliveryStatus } from '../../lib/featur
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { jwtDecode } from "jwt-decode";
+import { Modal, Select, message } from 'antd';
 
 interface DecodedToken {
   id: string;
@@ -24,6 +25,9 @@ const Admin = () => {
   const [selectedPetId, setSelectedPetId] = useState<string | null>(null);
   const router = useRouter();
   const [role, setRole] = useState<string | null>(null);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [updatingPetId, setUpdatingPetId] = useState<string | null>(null);
+  const [newDeliveryStatus, setNewDeliveryStatus] = useState<string>('');
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
@@ -74,21 +78,32 @@ const Admin = () => {
     }
   };
 
-  const handleUpdate = (petId: string) => {
-    setSelectedPetId(petId);
-    setIsModalOpen(true);
+  const showUpdateModal = (petId: string) => {
+    setUpdatingPetId(petId);
+    setIsUpdateModalOpen(true);
   };
 
-  const handleStatusUpdate = async (status: string) => {
-    if (selectedPetId) {
+  const handleUpdateOk = async () => {
+    if (updatingPetId && newDeliveryStatus) {
       try {
-        await dispatch(updatePetDeliveryStatus({ petId: selectedPetId, deliveryStatus: status })).unwrap();
+        const result = await dispatch(updatePetDeliveryStatus({ petId: updatingPetId, deliveryStatus: newDeliveryStatus })).unwrap();
+        message.success('Delivery status updated successfully!');
         dispatch(fetchPets());
       } catch (error) {
-        console.error('Failed to update pet delivery status:', error);
+        message.error('Failed to update delivery status. Please try again.');
       }
+    } else {
+      message.error('Please select a delivery status.');
     }
-    setIsModalOpen(false);
+    setIsUpdateModalOpen(false);
+    setUpdatingPetId(null);
+    setNewDeliveryStatus('');
+  };
+
+  const handleUpdateCancel = () => {
+    setIsUpdateModalOpen(false);
+    setUpdatingPetId(null);
+    setNewDeliveryStatus('');
   };
 
   return (
@@ -142,7 +157,7 @@ const Admin = () => {
                   <td className="py-4 px-6">{pet.deliveryStatus}</td>
                   <td className="py-4 px-6">
                     <button
-                      onClick={() => handleUpdate(pet._id)}
+                      onClick={() => showUpdateModal(pet._id)}
                       className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition duration-200"
                     >
                       Update Status
@@ -158,30 +173,23 @@ const Admin = () => {
         <p className="text-center text-gray-600">No pets found matching the search term.</p>
       )}
       
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full">
-            <h2 className="text-xl font-bold mb-4">Update Delivery Status</h2>
-            <div className="space-y-3">
-              {['INPROCESS', 'COMPLETED', 'PENDING'].map((status) => (
-                <button
-                  key={status}
-                  onClick={() => handleStatusUpdate(status)}
-                  className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-200"
-                >
-                  {status}
-                </button>
-              ))}
-            </div>
-            <button
-              onClick={() => setIsModalOpen(false)}
-              className="mt-4 w-full bg-gray-300 text-gray-800 py-2 px-4 rounded hover:bg-gray-400 transition duration-200"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
+      <Modal
+        title="Update Delivery Status"
+        open={isUpdateModalOpen}
+        onOk={handleUpdateOk}
+        onCancel={handleUpdateCancel}
+      >
+        <Select
+          style={{ width: '100%' }}
+          placeholder="Select new delivery status"
+          onChange={(value) => setNewDeliveryStatus(value)}
+          value={newDeliveryStatus}
+        >
+          <Select.Option value="PENDING">PENDING</Select.Option>
+          <Select.Option value="INPROCESS">INPROCESS</Select.Option>
+          <Select.Option value="COMPLETED">COMPLETED</Select.Option>
+        </Select>
+      </Modal>
     </div>
   );
 }
