@@ -124,7 +124,7 @@ const UserProfilePage = () => {
     <div className="container mx-auto px-4 py-8 mt-36">
       <div className="bg-white shadow-lg rounded-lg overflow-hidden">
         <div className="relative h-48 bg-gradient-to-r from-blue-500 to-purple-500">
-          <Image
+          <img
             className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 w-32 h-32 rounded-full border-4 border-white"
             src={userData.avatar || "/images/unknownUser.jpg"}
             alt="Profile Picture"
