@@ -140,6 +140,7 @@ const Header = () => {
       setSpinning(false);
     }, 1000); // Simulate a delay for loading
   };
+  
 
   const handleShelterStaffClick = () => {
     setSpinning(true);
@@ -158,6 +159,15 @@ const Header = () => {
   const toggleDropdown = () => {
     setDropdownVisible((prev) => !prev);
   };
+
+  const handleTaskEventClick = () => {
+    setSpinning(true);
+    setTimeout(() => {
+      router.push("/task-event");
+      setSpinning(false);
+    }, 1000);
+  };
+
   if (!hasHydrated) {
     return null;
   }
@@ -343,6 +353,16 @@ const Header = () => {
             </li>
             <li
               className={`cursor-pointer animate__animated animate__fadeInLeft ${
+                pathname === "/news"
+                  ? "text-[#D94E66]"
+                  : "text-black hover:text-[#D94E66]"
+              }`}
+              onClick={() => handleClick("/eventinf")}
+            >
+              EVENTS
+            </li>
+            <li
+              className={`cursor-pointer animate__animated animate__fadeInLeft ${
                 pathname === "/contact"
                   ? "text-[#D94E66]"
                   : "text-black hover:text-[#D94E66]"
@@ -353,7 +373,7 @@ const Header = () => {
             </li>
             <li
               className={`cursor-pointer animate__animated animate__fadeInLeft ${
-                pathname === "/admin"
+                pathname === "/admin" || pathname === "/shelter-staff" || pathname === "/task-event"
                   ? "text-[#D94E66]"
                   : "text-black hover:text-[#D94E66]"
               }`}
@@ -362,11 +382,14 @@ const Header = () => {
                   ? handleAdminClick
                   : role === "SHELTER_STAFF"
                   ? handleShelterStaffClick
+                  : role === "VOLUNTEER"
+                  ? handleTaskEventClick
                   : undefined
               }
             >
               {role === "ADMIN" && "ADMIN DASHBOARD"}
               {role === "SHELTER_STAFF" && "SHELTERSTAFF DASHBOARD"}
+              {role === "VOLUNTEER" && "TASK-EVENT"}
             </li>
           </ul>
         </div>
