@@ -39,8 +39,18 @@ const Volunteer = () => {
   const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
-
+  const resetModalState = () => {
+   
+    setHealthStatus(undefined);
+    setHealthStatusDescription("");
+    setNote("");
+    setCheckingDate("");
+  
+    
+  };
   const showModal = () => {
+    resetModalState();
+    
     setOpen(true);
   };
 
@@ -66,17 +76,16 @@ const Volunteer = () => {
   const [checkingDate, setCheckingDate] = useState("");
   const [checkingBy, setCheckingBy] = useState("");
   const hiddenCheckingBy = checkingBy ? "*".repeat(checkingBy.length) : "";
-  const [checkingType, setCheckingType] = useState<
-    CheckingTypeVolunteer | undefined
-  >(undefined);
+  const [checkingType, setCheckingType] = useState<CheckingTypeVolunteer>(CheckingTypeVolunteer.INITIAL);
   const [role, setRole] = useState<string | null>(null);
   const handleSubmit = async () => {
+    const currentCheckingDate = new Date();
     const healthCheckData = {
       petId,
       healthStatus: healthStatus ? healthStatus.toString() : "",
       healthStatusDescription,
       note,
-      checkingDate: new Date(checkingDate),
+      checkingDate: currentCheckingDate,
       checkingBy,
       checkingType: checkingType ? checkingType.toString() : "",
     };
@@ -164,10 +173,15 @@ const Volunteer = () => {
   const handleCreateHealthCheckClick = (pet) => {
     setPetId(pet._id);
     setDisplayPetId("********");
+    setCheckingType(CheckingTypeVolunteer.INITIAL);
     showModal();
   };
 
   const handleSendToShelter = async (petId) => {
+    if (!healthCheckCreated[petId]) {
+      message.warning("You must create health check first.");
+      return;
+    }
     try {
       const response = await axios.put(
         `http://localhost:8000/pet/update-delivery-status/${petId}`,
@@ -226,7 +240,7 @@ const Volunteer = () => {
             onClick={() => handleSendToShelter(record._id)}
             className="mt-2"
             style={{ backgroundColor: "green", color: "white" }}
-            disabled={!healthCheckCreated[record._id]}
+            
           >
             Send to Shelter
           </Button>
@@ -481,14 +495,14 @@ const Volunteer = () => {
                     ]}
                   >
                     <div className="space-y-4">
-                      <div className="flex flex-col">
+                      {/* <div className="flex flex-col">
                         <label className="font-semibold">Pet ID:</label>
                         <Input
                           value={displayPetId}
                           onChange={(e) => setPetId(e.target.value)}
                           disabled
                         />
-                      </div>
+                      </div> */}
                       <div className="flex flex-col">
                         <label className="font-semibold">Health Status:</label>
                         <Select
@@ -524,23 +538,23 @@ const Volunteer = () => {
                         />
                       </div>
 
-                      <div className="flex flex-col">
+                      {/* <div className="flex flex-col">
                         <label className="font-semibold">Checking Date:</label>
                         <Input
                           type="datetime-local"
                           value={checkingDate}
                           onChange={(e) => setCheckingDate(e.target.value)}
                         />
-                      </div>
-                      <div className="flex flex-col">
+                      </div> */}
+                      {/* <div className="flex flex-col">
                         <label className="font-semibold">Checked By:</label>
                         <Input
                           value={hiddenCheckingBy}
                           onChange={(e) => setCheckingBy(e.target.value)}
                           disabled
                         />
-                      </div>
-                      <div className="flex flex-col">
+                      </div> */}
+                      {/* <div className="flex flex-col">
                         <label className="font-semibold">Checking Type:</label>
                         <Select
                           value={checkingType}
@@ -555,7 +569,7 @@ const Volunteer = () => {
                             </Select.Option>
                           ))}
                         </Select>
-                      </div>
+                      </div> */}
                     </div>
                   </Modal>
                 </div>
