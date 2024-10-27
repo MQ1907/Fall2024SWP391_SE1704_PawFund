@@ -1,11 +1,14 @@
-"use client"
-import { useAdoptionRequests, useAppDispatch, useAppSelector } from "@/lib/hook";
+"use client";
+import {
+  useAdoptionRequests,
+  useAppDispatch,
+  useAppSelector,
+} from "@/lib/hook";
 import { Button, Form, Input, message } from "antd";
 import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
 import { createAdoptionRequest } from "@/lib/features/adopt/adoptSlice";
 import { useParams } from "next/navigation";
-
 
 interface DecodedToken {
   id: string;
@@ -55,9 +58,8 @@ const CreateAdoptionRequest = () => {
       petId: petId,
       userId: userId,
       requestDate: new Date(),
-      reviewBy: userId,
+
       comment: values.comment,
-      adoptionDate: new Date(),
       status: "PENDING",
     };
 
@@ -103,26 +105,9 @@ const CreateAdoptionRequest = () => {
           <Input type="hidden" />
         </Form.Item>
 
-        <Form.Item
-          label="Review By"
-          name="reviewBy"
-          initialValue={userId}
-          hidden
-        >
-          <Input.TextArea rows={4} disabled />
-        </Form.Item>
-
         <Form.Item label="Comment" name="comment" className="text-[20px]">
           <Input />
         </Form.Item>
-
-        {/* <Form.Item
-          label="Adoption Date"
-          name="adoptionDate"
-          rules={[{ required: true, message: "Please select an adoption date!" }]}
-        >
-          <Input type="date" min={new Date().toISOString().split("T")[0]} />
-        </Form.Item> */}
 
         <Form.Item
           label="Adoption Request Status"
