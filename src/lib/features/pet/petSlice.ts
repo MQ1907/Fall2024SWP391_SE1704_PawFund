@@ -54,6 +54,7 @@ export const fetchPets = createAsyncThunk("pet/fetchAll", async () => {
       rescueDate: pet.rescueDate,
       description: pet.description,
       isVacinted: pet.isVacinted,
+      isAdopted: pet.isAdopted,
       deliveryStatus: pet.deliveryStatus, // Changed from petStatus to deliveryStatus
     }));
   } catch (error: any) {
@@ -209,6 +210,33 @@ export const updatePetDelivery = createAsyncThunk(
     return { petId, deliveryStatus };
   }
 );
+export const updateAdoptedStatus = createAsyncThunk(
+  "pets/updateAdoptedStatus",
+  async (
+    {
+      petId,
+      isAdopted,
+    }: {
+      petId: string;
+      isAdopted: boolean;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:8000/pet/upate-pet-adopted/${petId}`,
+        {
+          isAdopted,
+        }
+      );
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to update pet adopted status"
+      );
+    }
+  }
+);
 
 interface Pet {
   _id: string;
@@ -218,6 +246,7 @@ interface Pet {
   description: string;
   isVacinted: boolean;
   deliveryStatus: string; // Changed from petStatus to deliveryStatus
+  isAdopted: boolean;
 }
 
 interface PetState {
@@ -359,6 +388,22 @@ const petSlice = createSlice({
       .addCase(updatePet.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload as string;
+      })
+      .addCase(updateAdoptedStatus.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(updateAdoptedStatus.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        const updatedPet = action.payload;
+        const index = state.pets.findIndex((pet) => pet._id === updatedPet._id);
+        if (index !== -1) {
+          state.pets[index] = updatedPet;
+          state.filteredPets = state.pets; // Update filteredPets as well
+        }
+      })
+      .addCase(updateAdoptedStatus.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload as string;
       });
   },
 });
@@ -422,3 +467,6 @@ export const updatePetDeliveryStatus = createAsyncThunk(
     }
   }
 );
+
+
+
