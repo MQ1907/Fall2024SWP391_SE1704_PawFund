@@ -1,12 +1,11 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { Input } from "antd";
+import { Input, notification, Spin } from "antd";
 import { useAppDispatch, useAppSelector } from "../../lib/hook";
 import { signin } from "../../lib/features/auth/authSlice";
 import { useRouter } from "next/navigation";
 import "animate.css";
-import { Spin } from "antd";
 
 const SignIn = () => {
   const dispatch = useAppDispatch();
@@ -59,10 +58,29 @@ const SignIn = () => {
 
   useEffect(() => {
     if (authStatus === "succeeded") {
+      notification.success({
+        message: "Login Successful",
+        description: "You have successfully logged in",
+      });
       router.push("/home");
+    } else if (authStatus === "failed" && error === "Please verify in the mail was sent to your device") {
+      notification.warning({
+        message: "Verification Required",
+        description: "Please verify in the mail was sent to your device",
+      });
+    } else if (authStatus === "failed" && error === "Wrong Username or password") {
+      notification.error({
+        message: "Login Failed",
+        description: "Wrong Username or password",
+      });
+    } else if (authStatus === "failed") {
+      notification.error({
+        message: "Login Failed",
+        description: error,
+      });
     }
     setLoading(false);
-  }, [authStatus, router]);
+  }, [authStatus, error, router]);
 
   return (
     <Spin spinning={loading} size="large">
@@ -95,11 +113,7 @@ const SignIn = () => {
             <h2 className="text-[35px] font-bold pt-5 animate__animated animate__fadeInDown animate__delay-1s">
               Welcome to PawFund
             </h2>
-            {authStatus === "failed" && (
-              <p className="text-red-500 animate__animated animate__shakeX">
-                {error}
-              </p>
-            )}
+           
             <div className="w-[50%] pt-[50px]">
               <Input
                 className="h-[40px] animate__animated animate__fadeInUp"
@@ -128,38 +142,13 @@ const SignIn = () => {
               >
                 Get Started
               </button>
-              <div className="flex pt-5 items-center justify-center">
-                <hr className="bg-black w-48 h-[2px]" />
-                <p className="px-5">or</p>
-                <hr className="bg-black w-44 h-[2px]" />
-              </div>
-              <div className="flex justify-center gap-10">
-                <button className="flex items-center gap-4 font-semibold duration-300 mt-6 rounded-md text-[15px] relative border-2 border-gray-800 bg-transparent py-2.5 px-10 font-medium uppercase text-gray-800 transition-colors before:absolute before:left-0 before:top-0 before:-z-10 before:h-full before:w-full before:origin-top-left before:scale-x-0 before:bg-[#4b6cff] before:transition-transform before:duration-300 before:content-[''] hover:text-white before:hover:scale-x-100 animate__animated animate__fadeInUp animate__delay-3s">
-                  <Image
-                    src="/images/facebook.png"
-                    alt="Facebook"
-                    width={20}
-                    height={20}
-                    className="ml-[-30px]"
-                  />
-                  Facebook
-                </button>
-                <button className="flex items-center gap-4 font-semibold duration-300 mt-6 rounded-md text-[15px] relative border-2 border-gray-800 bg-transparent py-2.5 px-10 font-medium uppercase text-gray-800 transition-colors before:absolute before:left-0 before:top-0 before:-z-10 before:h-full before:w-full before:origin-top-left before:scale-x-0 before:bg-[#000000] before:transition-transform before:duration-300 before:content-[''] hover:text-white before:hover:scale-x-100 animate__animated animate__fadeInUp animate__delay-3s">
-                  <Image
-                    src="/images/google.png"
-                    alt="Google"
-                    width={20}
-                    height={20}
-                    className="ml-[-30px]"
-                  />
-                  Google
-                </button>
-              </div>
+              
+              
               <div className="pt-10">
                 <p className="text-[15px]">
                   Dont have an account?{" "}
                   <a
-                    className="text-[#FFEB55] cursor-pointer px-2 animate__animated animate__fadeInUp animate__delay-4s"
+                    className="text-[#FFEB55] cursor-pointer px-2 animate__animated animate__fadeInUp animate__delay-2s"
                     onClick={handleSignup}
                   >
                     Sign Up
