@@ -392,16 +392,21 @@ const Adopt = () => {
         currentPets.map((pet) => (
           <Link href={`/pet-detail/${pet._id}`} key={pet._id}>
             <div
-              key={pet.petCode}
-              className="bg-[#F5F5F5] shadow-md p-4 h-full w-[280px] transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 duration-300"
+              key={pet._id}
+              className={`relative text-center mx-auto animate__animated ${pet.isAdopted ? 'bg-gray-300' : 'bg-white'} shadow-md rounded-lg p-4 transition duration-300 ease-in-out hover:shadow-lg`}
             >
               <img
                 src={pet.image}
                 alt={pet.name}
                 width={200}
                 height={200}
-                className="w-full h-[200px] object-cover"
+                 className="rounded-md w-full h-56 object-cover"
               />
+              {pet.isAdopted && (
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full bg-black bg-opacity-70 text-white font-bold text-lg rounded-lg px-4 py-2 shadow-xl transition duration-300 ease-in-out uppercase flex items-center justify-center">
+                    Adopted
+                  </div>
+                )}
               <div className="mt-2">
                 <h3 className="text-[23px] font-bold">{pet.name}</h3>
               </div>
