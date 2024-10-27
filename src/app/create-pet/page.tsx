@@ -52,12 +52,29 @@ const CreatePet = () => {
   const [note, setNote] = useState("");
   const [checkingDate, setCheckingDate] = useState("");
   const [checkingBy, setCheckingBy] = useState("");
-  const [checkingType, setCheckingType] = useState<
-    CheckingTypeShelterStaff | undefined
-  >(undefined);
+  const [checkingType, setCheckingType] = useState<CheckingTypeShelterStaff>(CheckingTypeShelterStaff.ROUTINE);
   const [hiddenCheckingBy, setHiddenCheckingBy] = useState("");
   const [loading, setLoading] = useState(false);
+  const [healthCheckCreated, setHealthCheckCreated] = useState<{ [key: string]: { created: boolean; type?: string } }>({});
+  const [hasHydrated, setHasHydrated] = useState(false);
+  useEffect(() => {
+    setHasHydrated(true);
+    if (typeof window !== "undefined") {
+      const storedHealthCheckCreated = localStorage.getItem("healthCheckCreated");
+      if (storedHealthCheckCreated) {
+        setHealthCheckCreated(JSON.parse(storedHealthCheckCreated));
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (hasHydrated) {
+      localStorage.setItem("healthCheckCreated", JSON.stringify(healthCheckCreated));
+    }
+  }, [healthCheckCreated, hasHydrated]);
+
   const showModal = (pet) => {
+   
     setPetId(pet._id);
     setDisplayPetId("********");
     setHealthStatus(undefined);
@@ -66,7 +83,7 @@ const CreatePet = () => {
     setWeight(undefined);
     setTemperature(undefined);
     setCheckingDate("");
-    setCheckingType(undefined);
+    setCheckingType(CheckingTypeShelterStaff.ROUTINE);
     setOpen(true);
   };
 
@@ -75,14 +92,58 @@ const CreatePet = () => {
     setTimeout(() => {
       setLoading(false);
       setOpen(false);
-    }, 3000);
+    }, 1000);
   };
 
   const handleCancel = () => {
     setOpen(false);
   };
-
+  const [weightError, setWeightError] = useState<string | null>(null);
+  const [temperatureError, setTemperatureError] = useState<string | null>(null);
+  const validateWeight = (weight: number | undefined): string | null => {
+    if (weight === undefined) {
+      return "Weight is required.";
+    }
+    if (weight <= 0) {
+      return "Weight must be a positive number greater than zero.";
+    }
+    if (weight >= 90) {
+      return "Weight must be less than 90kg.";
+    }
+    return null;
+  };
+  const handleWeightChange = (value: number | undefined) => {
+    setWeight(value);
+    const error = validateWeight(value);
+    setWeightError(error);
+  };
+  const validateTemperature = (temperature: number | undefined): string | null => {
+    if (temperature === undefined) {
+      return "Temperature is required.";
+    }
+    if (temperature <= 0) {
+      return "Temperature must be a positive number greater than zero.";
+    }
+    if (temperature >= 50) {
+      return "Temperature must be less than 50°C.";
+    }
+    return null;
+  };
+  const handleTemperatureChange = (value: number | undefined) => {
+    setTemperature(value);
+    const error = validateTemperature(value);
+    setTemperatureError(error);
+  };
+  
   const handleSubmit = async () => {
+    const weightError = validateWeight(weight);
+  const temperatureError = validateTemperature(temperature);
+  
+  if (weightError || temperatureError) {
+    alert(weightError || temperatureError);
+    return;
+  }
+    const currentCheckingDate = new Date();
     const healthCheckData = {
       petId,
       healthStatus: healthStatus ? healthStatus.toString() : "",
@@ -90,7 +151,7 @@ const CreatePet = () => {
       note,
       weight,
       temperature,
-      checkingDate: new Date(checkingDate),
+      checkingDate:  currentCheckingDate,
       checkingBy,
       checkingType: checkingType ? checkingType.toString() : "",
     };
@@ -98,10 +159,14 @@ const CreatePet = () => {
     setLoading(true);
     try {
       await dispatch(createHealthCheck(healthCheckData)).unwrap();
+      setHealthCheckCreated((prev) => ({
+        ...prev,
+        [petId]: { created: true, type: checkingType },
+      }));
       setTimeout(() => {
         setLoading(false);
-        handleOk(); // Đóng modal sau khi tạo thành công
-      }, 3000);
+        handleOk(); // Close modal after successful creation
+      }, 2000);
     } catch (error) {
       console.error("Error from API:", error);
       if (error instanceof Error) {
@@ -156,6 +221,11 @@ const CreatePet = () => {
   }, [petsStatus, dispatch]);
 
   const handleUpdateStatus = async (petId: string) => {
+    if (!healthCheckCreated[petId] || healthCheckCreated[petId].type !== "ROUTINE") {
+      message.warning("You must create a  health check before approve.");
+      return;
+    }
+  
     try {
       await dispatch(
         updatePetDelivery({ petId, deliveryStatus: "COMPLETED" })
@@ -239,12 +309,16 @@ const CreatePet = () => {
           >
             Delete
           </Button>
+        
+          {(!healthCheckCreated[record._id] ||
+          healthCheckCreated[record._id]?.type !== "ROUTINE") && (
           <Button
             style={{ backgroundColor: "blue", color: "white" }}
             onClick={() => showModal(record)}
           >
             Create Health Check
           </Button>
+        )}
         </>
       ),
     },
@@ -260,7 +334,7 @@ const CreatePet = () => {
           style={{ backgroundColor: "green", color: "white" }}
           onClick={() => handleUpdateStatus(record._id)}
         >
-          Update to COMPLETED status
+          APPROVED
         </Button>
       ),
     },
@@ -289,20 +363,20 @@ const CreatePet = () => {
           <Button key="back" onClick={handleCancel}>
             Return
           </Button>,
-          <Button key="submit" type="primary" onClick={handleSubmit}>
+          <Button key="submit" type="primary" onClick={handleSubmit} loading={loading}>
             Submit
           </Button>,
         ]}
       >
         <div className="space-y-4">
-          <div className="flex flex-col">
+          {/* <div className="flex flex-col">
             <label className="font-semibold">Pet ID:</label>
             <Input
               value={displayPetId}
               onChange={(e) => setPetId(e.target.value)}
               disabled
             />
-          </div>
+          </div> */}
           <div className="flex flex-col">
             <label className="font-semibold">Health Status:</label>
             <Select
@@ -332,38 +406,40 @@ const CreatePet = () => {
             />
           </div>
           <div className="flex flex-col">
-            <label className="font-semibold">Weight(Kg):</label>
-            <Input
-              type="number"
-              value={weight}
-              onChange={(e) => setWeight(Number(e.target.value))}
-            />
-          </div>
-          <div className="flex flex-col">
-            <label className="font-semibold">Temperature(°C):</label>
-            <Input
-              type="number"
-              value={temperature}
-              onChange={(e) => setTemperature(Number(e.target.value))}
-            />
-          </div>
-          <div className="flex flex-col">
+      <label className="font-semibold">Weight(Kg):</label>
+      <Input
+        type="number"
+        value={weight}
+        onChange={(e) => handleWeightChange(Number(e.target.value))}
+      />
+      {weightError && <span style={{ color: 'red' }}>{weightError}</span>}
+    </div>
+    <div className="flex flex-col">
+      <label className="font-semibold">Temperature(°C):</label>
+      <Input
+        type="number"
+        value={temperature}
+        onChange={(e) => handleTemperatureChange(Number(e.target.value))}
+      />
+      {temperatureError && <span style={{ color: 'red' }}>{temperatureError}</span>}
+    </div>
+          {/* <div className="flex flex-col">
             <label className="font-semibold">Checking Date:</label>
             <Input
               type="datetime-local"
               value={checkingDate}
               onChange={(e) => setCheckingDate(e.target.value)}
             />
-          </div>
-          <div className="flex flex-col">
+          </div> */}
+          {/* <div className="flex flex-col">
             <label className="font-semibold">Checked By:</label>
             <Input
               value={hiddenCheckingBy}
               onChange={(e) => setCheckingBy(e.target.value)}
               disabled
             />
-          </div>
-          <div className="flex flex-col">
+          </div> */}
+          {/* <div className="flex flex-col">
             <label className="font-semibold">Checking Type:</label>
             <Select
               value={checkingType}
@@ -378,7 +454,7 @@ const CreatePet = () => {
                 </Select.Option>
               ))}
             </Select>
-          </div>
+          </div> */}
         </div>
       </Modal>
     </div>
