@@ -20,6 +20,7 @@
     "axios": "^1.7.7",
     "jwt-decode": "^4.0.0",
     "next": "14.2.12",
+    "next-auth": "^4.24.10",
     "react": "^18",
     "react-bootstrap": "^2.10.4",
     "react-dom": "^18",

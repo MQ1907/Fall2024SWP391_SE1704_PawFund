@@ -7,18 +7,15 @@ export const createAdoptionRequest = createAsyncThunk(
   async (adoptionData: {
     petId: string;
     userId: string;
-    requestDate: Date;
-    reviewBy: string;
+    requestDate: Date; // Changed from Date to string
     comment: string;
-    adoptionDate: Date;
-    status: string;
   }) => {
     try {
       const response = await axios.post(
         "http://localhost:8000/adoption-requests/create",
         adoptionData
       );
-      return response.data; // Trả về dữ liệu của yêu cầu nhận nuôi đã tạo thành công
+      return response.data;
     } catch (error: any) {
       if (error.response) {
         throw new Error(
@@ -77,13 +74,14 @@ export const updateAdoptionRequestStatus = createAsyncThunk(
       requestId,
       status,
       comment,
-    }: { requestId: string; status: string; comment: string }, // Thêm comment vào tham số
+      reviewBy,
+    }: { requestId: string; status: string; comment: string; reviewBy: string },
     { rejectWithValue }
   ) => {
     try {
       const response = await axios.put(
         `http://localhost:8000/adoption-requests/update-status/${requestId}`,
-        { status, comment }
+        { status, comment, reviewBy }
       );
       return response.data;
     } catch (error: any) {
