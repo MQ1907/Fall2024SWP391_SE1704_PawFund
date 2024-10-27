@@ -158,7 +158,9 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
         .map(request => request.reviewBy)
         .filter(Boolean);
       
-      const uniqueReviewerIds = Array.from(new Set(reviewerIds));
+
+      const uniqueReviewerIds = [...new Set(reviewerIds)];
+
 
       for (const reviewerId of uniqueReviewerIds) {
         try {
