@@ -1,36 +1,12 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 
-// Định nghĩa kiểu dữ liệu cho user
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-}
-
-// Cập nhật AuthState để bao gồm user
-interface AuthState {
-  token: string | null;
-  user: User | null;
-  status: 'idle' | 'loading' | 'succeeded' | 'failed';
-  error: string | null;
-}
-
-const initialState: AuthState = {
-  token: typeof window !== 'undefined' ? localStorage.getItem('token') : null,
-  user: null,
-  status: 'idle',
-  error: null,
-};
-
-// Cập nhật signin thunk để trả về cả token và thông tin user
 export const signin = createAsyncThunk('auth/login', async (credentials: { email: string, password: string }, { rejectWithValue }) => {
   try {
     const response = await axios.post('http://localhost:8000/auth/login', credentials);
     console.log(response.data);
-    return response.data; // Giả sử response.data chứa cả token và thông tin user
+    return response.data; 
   } catch (error: any) {
     if (error.response) {
       return rejectWithValue(error.response.data.message || "Login failed");
@@ -53,18 +29,26 @@ export const signup = createAsyncThunk('auth/signup', async (userData: { name: s
   }
 });
 
+interface AuthState {
+  token: string | null;
+  status: 'idle' | 'loading' | 'succeeded' | 'failed';
+  error: string | null;
+}
+
+const initialState: AuthState = {
+  token: typeof window !== 'undefined' ? localStorage.getItem('token') : null, 
+  status: 'idle',
+  error: null,
+};
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
     logout: (state) => {
       state.token = null;
-      state.user = null;
       state.status = 'idle';
-      localStorage.removeItem('token');
-    },
-    setUser: (state, action: PayloadAction<User>) => {
-      state.user = action.payload;
+      localStorage.removeItem('token'); 
     }
   },
   extraReducers: (builder) => {
@@ -74,10 +58,9 @@ const authSlice = createSlice({
       })
       .addCase(signin.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.token = action.payload.token;
-        state.user = action.payload.user; // Lưu thông tin user
+        state.token = action.payload.token; 
         if (typeof window !== 'undefined') {
-          localStorage.setItem('token', action.payload.token);
+          localStorage.setItem('token', action.payload.token); 
         }
       })
       .addCase(signin.rejected, (state, action) => {
@@ -91,7 +74,6 @@ const authSlice = createSlice({
       .addCase(signup.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.token = action.payload.token; 
-        state.user = action.payload.user; // Lưu thông tin user
         console.log('Signup successful:', action.payload); // Log the signup response
         if (typeof window !== 'undefined') {
           localStorage.setItem('token', action.payload.token); 
@@ -105,6 +87,6 @@ const authSlice = createSlice({
   }
 });
 
-export const { logout, setUser } = authSlice.actions;
+export const { logout } = authSlice.actions;
 
 export default authSlice.reducer;

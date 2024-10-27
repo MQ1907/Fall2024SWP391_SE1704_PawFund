@@ -29,7 +29,7 @@ import {
   fetchAdoptionRequestsByPetId,
   updateAdoptionRequestStatus,
 } from "../../lib/features/adopt/adoptSlice";
-import { fetchPetById } from "@/lib/features/pet/petSlice";
+import { fetchPetById, updateAdoptedStatus } from "@/lib/features/pet/petSlice";
 import { fetchUserData } from "@/lib/features/user/userSlice"; // Assume this action exists
 
 function getCurrentShelterStaffId() {
@@ -159,7 +159,10 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
         .filter(Boolean);
       
 
-      const uniqueReviewerIds = [...new Set(reviewerIds)];
+      const uniqueReviewerIds = Array.from(new Set(reviewerIds));
+
+
+ 
 
 
       for (const reviewerId of uniqueReviewerIds) {
@@ -190,11 +193,12 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
     try {
       if (newStatus === "REJECTED" || newStatus === "APPROVED") {
         const shelterStaffId = getCurrentShelterStaffId();
-
+  
         if (!shelterStaffId) {
           throw new Error("Shelter staff ID not found");
         }
-
+  
+        // Cập nhật trạng thái yêu cầu nhận nuôi
         await dispatch(
           updateAdoptionRequestStatus({
             requestId: currentRequestId!,
@@ -203,7 +207,25 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
             reviewBy: shelterStaffId,
           })
         ).unwrap();
-
+  
+        // Tìm thông tin pet từ yêu cầu hiện tại
+        const currentRequest = adoptionRequestsWithPetInfo.find(
+          (request) => request._id === currentRequestId
+        );
+  
+        if (currentRequest) {
+          // Cập nhật trạng thái isAdopted của pet
+          await dispatch(
+            updateAdoptedStatus({
+              petId: currentRequest.petId,
+              isAdopted: newStatus === "APPROVED",
+            })
+          ).unwrap();
+  
+          // Log để kiểm tra
+          console.log(`Updated isAdopted status for pet ${currentRequest.petId} to ${newStatus === "APPROVED"}`);
+        }
+  
         setAdoptionRequestsWithPetInfo((prevRequests) =>
           prevRequests.map((request) =>
             request._id === currentRequestId
@@ -218,16 +240,17 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
         );
         setSnackbarMessage(`Adoption request ${newStatus.toLowerCase()}.`);
         setSnackbarOpen(true);
-
+  
         // Update filter and active tab
         setFilter(newStatus);
         setActiveTab(1);
       }
     } catch (error) {
+      console.error("Error in handleOk:", error);
       setSnackbarMessage("Failed to update status.");
       setSnackbarOpen(true);
     }
-
+  
     setIsModalVisible(false);
     setComment("");
   };
