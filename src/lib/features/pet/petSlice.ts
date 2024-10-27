@@ -160,14 +160,13 @@ export const deletePet = createAsyncThunk(
   "pets/deletePet",
   async (petId: string, { rejectWithValue }) => {
     try {
-      const response = await axios.delete(
+      const response = await axios.put(
         `http://localhost:8000/pet/delete/${petId}`
       );
-      return response.data; // Trả về kết quả từ server nếu thành công
+      return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message ||
-          "Something went wrong while deleting pet"
+        error.response?.data?.message || "Failed to delete pet"
       );
     }
   }
@@ -467,6 +466,4 @@ export const updatePetDeliveryStatus = createAsyncThunk(
     }
   }
 );
-
-
 

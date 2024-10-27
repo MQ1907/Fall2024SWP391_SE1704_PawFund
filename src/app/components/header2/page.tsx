@@ -25,6 +25,7 @@ const Header2 = () => {
       setLastScrollY(window.scrollY);
     }
   };
+  
 
   useEffect(() => {
     setHasHydrated(true);

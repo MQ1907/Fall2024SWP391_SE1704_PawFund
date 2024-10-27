@@ -42,6 +42,17 @@ const Header = () => {
     }
   };
 
+  const handleClickHistory = () => {
+  if (role === "VOLUNTEER") {
+    router.push("/history-volunteer"); // Chỉ cho phép Volunteer truy cập
+  } else if (role === "SHELTER_STAFF") {
+    router.push("/history-shelterstaff"); // Chỉ cho phép Shelter Staff truy cập
+  } else if (role === "CUSTOMER") {
+    router.push("/history-customer"); // Chỉ cho phép Customer truy cập
+  } else {
+    router.push("/errorpage"); // Điều hướng tới trang lỗi nếu vai trò không hợp lệ
+  }
+};
   useEffect(() => {
     if (typeof window !== "undefined") {
       window.addEventListener("scroll", controlHeader);
@@ -140,6 +151,7 @@ const Header = () => {
       setSpinning(false);
     }, 1000); // Simulate a delay for loading
   };
+  
 
   const handleShelterStaffClick = () => {
     setSpinning(true);
@@ -158,6 +170,15 @@ const Header = () => {
   const toggleDropdown = () => {
     setDropdownVisible((prev) => !prev);
   };
+
+  const handleTaskEventClick = () => {
+    setSpinning(true);
+    setTimeout(() => {
+      router.push("/task-event");
+      setSpinning(false);
+    }, 1000);
+  };
+
   if (!hasHydrated) {
     return null;
   }
@@ -241,16 +262,26 @@ const Header = () => {
         </div>
           <img src="/images/right-arrow.png" alt="" width={15} height={15} />
         </li>
-        <li
-          className="px-4 py-3 hover:bg-orange-300 cursor-pointer flex justify-between items-center"
-          onClick={() => handleClick("/history")}
-        >
-        <div className="flex items-center gap-8">
-        <img src="/images/restore.png" alt="" width={30} height={30} />
-        <div className="font-semibold">History</div>
-        </div>
-          <img src="/images/right-arrow.png" alt="" width={15} height={15} />
-        </li>
+         <li
+                      className="px-4 py-3 hover:bg-orange-300 cursor-pointer flex justify-between items-center"
+                      onClick={handleClickHistory} 
+                    >
+                      <div className="flex items-center gap-8">
+                        <img
+                          src="/images/restore.png"
+                          alt="History"
+                          width={30}
+                          height={30}
+                        />
+                        <div className="font-semibold">History</div>
+                      </div>
+                      <img
+                        src="/images/right-arrow.png"
+                        alt="Right Arrow"
+                        width={15}
+                        height={15}
+                      />
+                    </li>
         <li
           className="px-4 py-3 hover:bg-red-500 cursor-pointer flex justify-between items-center"
           onClick={handleLogoutClick}
@@ -343,6 +374,16 @@ const Header = () => {
             </li>
             <li
               className={`cursor-pointer animate__animated animate__fadeInLeft ${
+                pathname === "/news"
+                  ? "text-[#D94E66]"
+                  : "text-black hover:text-[#D94E66]"
+              }`}
+              onClick={() => handleClick("/eventinf")}
+            >
+              EVENTS
+            </li>
+            <li
+              className={`cursor-pointer animate__animated animate__fadeInLeft ${
                 pathname === "/contact"
                   ? "text-[#D94E66]"
                   : "text-black hover:text-[#D94E66]"
@@ -353,7 +394,7 @@ const Header = () => {
             </li>
             <li
               className={`cursor-pointer animate__animated animate__fadeInLeft ${
-                pathname === "/admin"
+                pathname === "/admin" || pathname === "/shelter-staff" || pathname === "/task-event"
                   ? "text-[#D94E66]"
                   : "text-black hover:text-[#D94E66]"
               }`}
@@ -362,11 +403,14 @@ const Header = () => {
                   ? handleAdminClick
                   : role === "SHELTER_STAFF"
                   ? handleShelterStaffClick
+                  : role === "VOLUNTEER"
+                  ? handleTaskEventClick
                   : undefined
               }
             >
               {role === "ADMIN" && "ADMIN DASHBOARD"}
               {role === "SHELTER_STAFF" && "SHELTERSTAFF DASHBOARD"}
+              {role === "VOLUNTEER" && "TASK-EVENT"}
             </li>
           </ul>
         </div>
