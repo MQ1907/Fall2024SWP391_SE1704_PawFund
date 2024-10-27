@@ -30,6 +30,11 @@ import {
   updateAdoptionRequestStatus,
 } from "../../lib/features/adopt/adoptSlice";
 import { fetchPetById } from "@/lib/features/pet/petSlice";
+import { fetchUserData } from "@/lib/features/user/userSlice"; // Assume this action exists
+
+function getCurrentShelterStaffId() {
+  return "671c7c8774d370684d5097c9";
+}
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -74,6 +79,8 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [userNames, setUserNames] = useState<{ [key: string]: string }>({});
+  const [reviewerNames, setReviewerNames] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
     if (petId) {
@@ -92,6 +99,16 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
           requests.map(async (request: any) => {
             try {
               const pet = await dispatch(fetchPetById(request.petId)).unwrap();
+              const user = await dispatch(
+                fetchUserData(request.userId)
+              ).unwrap();
+
+              // Update userNames state
+              setUserNames((prev) => ({
+                ...prev,
+                [request.userId]: user.name,
+              }));
+
               return {
                 ...request,
                 petName: pet.name,
@@ -99,7 +116,7 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
               };
             } catch (error) {
               console.error(
-                `Failed to fetch pet info for request ${request._id}:`,
+                `Failed to fetch pet or user info for request ${request._id}:`,
                 error
               );
             }
@@ -135,6 +152,32 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
     fetchRequests();
   }, [dispatch]);
 
+  useEffect(() => {
+    const fetchReviewerNames = async () => {
+      const reviewerIds = adoptionRequestsWithPetInfo
+        .map(request => request.reviewBy)
+        .filter(Boolean);
+      
+      const uniqueReviewerIds = Array.from(new Set(reviewerIds));
+
+      for (const reviewerId of uniqueReviewerIds) {
+        try {
+          const reviewer = await dispatch(fetchUserData(reviewerId)).unwrap();
+          setReviewerNames(prev => ({
+            ...prev,
+            [reviewerId]: reviewer.name
+          }));
+        } catch (error) {
+          console.error(`Failed to fetch reviewer info for ID ${reviewerId}:`, error);
+        }
+      }
+    };
+
+    if (adoptionRequestsWithPetInfo.length > 0) {
+      fetchReviewerNames();
+    }
+  }, [adoptionRequestsWithPetInfo, dispatch]);
+
   const showModal = (requestId: string, status: string) => {
     setCurrentRequestId(requestId);
     setNewStatus(status);
@@ -144,17 +187,30 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
   const handleOk = async () => {
     try {
       if (newStatus === "REJECTED" || newStatus === "APPROVED") {
+        const shelterStaffId = getCurrentShelterStaffId();
+
+        if (!shelterStaffId) {
+          throw new Error("Shelter staff ID not found");
+        }
+
         await dispatch(
           updateAdoptionRequestStatus({
             requestId: currentRequestId!,
             status: newStatus,
             comment,
+            reviewBy: shelterStaffId,
           })
         ).unwrap();
+
         setAdoptionRequestsWithPetInfo((prevRequests) =>
           prevRequests.map((request) =>
             request._id === currentRequestId
-              ? { ...request, status: newStatus, comment }
+              ? {
+                  ...request,
+                  status: newStatus,
+                  comment,
+                  reviewBy: shelterStaffId,
+                }
               : request
           )
         );
@@ -196,14 +252,14 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
       renderCell: (params: any) => new Date(params.value).toLocaleDateString(),
     },
     { field: "comment", headerName: "Comment", width: 200 },
-    {
-      field: "adoptionDate",
-      headerName: "Adoption Date",
-      width: 150,
-      renderCell: (params: any) =>
-        params.value ? new Date(params.value).toLocaleDateString() : "",
-    },
     { field: "status", headerName: "Status", width: 120 },
+    {
+      field: "adoptBy",
+      headerName: "Adopt By",
+      width: 200,
+      renderCell: (params: any) =>
+        userNames[params.row.userId] || params.row.userId || "N/A",
+    },
     {
       field: "action",
       headerName: "Action",
@@ -273,7 +329,7 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
   };
 
   return (
-    <div style={{ marginTop: 50}}>
+    <div style={{ marginTop: 50 }}>
       {requestsStatus === "loading" && <CircularProgress />}
       {requestsStatus === "failed" && (
         <Alert severity="error">Error: {error}</Alert>
@@ -282,11 +338,10 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
         <Box sx={{ width: "100%" }}>
           <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
             <Tabs
-           
               value={activeTab}
               onChange={(_, newValue) => setActiveTab(newValue)}
             >
-              <Tab  className="text-black" label="Pet Adoption Summary" />
+              <Tab className="text-black" label="Pet Adoption Summary" />
               <Tab className="text-yellow-500" label="Pending Requests" />
               <Tab className="text-green-500" label="Approved Requests" />
               <Tab className="text-red-500" label="Rejected Requests" />
@@ -464,6 +519,12 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
                   {new Date(selectedRequest.adoptionDate).toLocaleDateString()}
                 </Typography>
               )}
+              <Typography>
+                <strong>Reviewed By:</strong>{" "}
+                {selectedRequest.reviewBy
+                  ? reviewerNames[selectedRequest.reviewBy] || "Loading..."
+                  : "Not reviewed yet"}
+              </Typography>
             </DialogContentText>
           )}
         </DialogContent>
@@ -480,5 +541,6 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
     </div>
   );
 };
+
 
 export default AdoptableManagement;
