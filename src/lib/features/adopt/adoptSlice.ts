@@ -82,11 +82,14 @@ export const fetchAdoptionRequestsByUserId = createAsyncThunk(
             "Failed to fetch adoption requests for this user"
         );
       }
-      console.error("Error:", error); // Debugging log
+      console.error("Error:", error); 
       return rejectWithValue("Failed to fetch adoption requests for this user");
     }
   }
 );
+
+
+
 // Async Thunk for updating adoption request status
 export const updateAdoptionRequestStatus = createAsyncThunk(
   "adoption/updateStatus",

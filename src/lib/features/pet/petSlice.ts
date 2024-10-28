@@ -119,6 +119,29 @@ export const fetchPetsByStatus = createAsyncThunk(
   }
 );
 
+export const fetchCreateByVolunteerId = createAsyncThunk(
+  "create/fetchByVolunteerId",
+  async (userId: string, { rejectWithValue }) => {
+    try {
+      const url = `http://localhost:8000/pet/view-by-volunteer/${userId}`;
+      console.log("Fetching adoption requests from URL:", url); // Debugging log
+      const response = await axios.get(url);
+      return response.data;
+    } catch (error: any) {
+      if (error.response) {
+        console.error("Error response:", error.response); // Debugging log
+        return rejectWithValue(
+          error.response.data.message ||
+            "Failed to fetch adoption requests for this volunteer"
+        );
+      }
+      console.error("Error:", error);
+      return rejectWithValue("Failed to fetch adoption requests for this volunteer");
+    }
+  }
+);
+
+
 // Update the fetchPetById thunk
 export const fetchPetById = createAsyncThunk(
   "pet/fetchById",
@@ -211,6 +234,7 @@ export const updatePetDelivery = createAsyncThunk(
     return { petId, deliveryStatus };
   }
 );
+
 export const updateAdoptedStatus = createAsyncThunk(
   "pets/updateAdoptedStatus",
   async (
@@ -251,6 +275,7 @@ interface Pet {
 }
 
 interface PetState {
+  historyPet:any[],
   pets: Pet[];
   filteredPets: Pet[];
   currentPet: Pet | null;
@@ -260,6 +285,7 @@ interface PetState {
 }
 
 const initialState: PetState = {
+  historyPet:[],
   pets: [],
   filteredPets: [],
   currentPet: null,
@@ -405,6 +431,19 @@ const petSlice = createSlice({
       .addCase(updateAdoptedStatus.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload as string;
+      })
+      //History Volunteer
+       .addCase(fetchCreateByVolunteerId.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchCreateByVolunteerId.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.historyPet = action.payload; // Cập nhật danh sách yêu cầu
+      })
+      .addCase(fetchCreateByVolunteerId.rejected, (state, action) => {
+        state.status = "failed";
+        state.error =
+          (action.payload as string) || "Failed to fetch adoption requests";
       });
   },
 });
