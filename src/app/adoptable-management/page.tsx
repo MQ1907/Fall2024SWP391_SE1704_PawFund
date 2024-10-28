@@ -31,9 +31,26 @@ import {
 } from "../../lib/features/adopt/adoptSlice";
 import { fetchPetById, updateAdoptedStatus } from "@/lib/features/pet/petSlice";
 import { fetchUserData } from "@/lib/features/user/userSlice"; // Assume this action exists
+import { jwtDecode } from "jwt-decode";
+
+interface DecodedToken {
+  id: string;
+  exp: number;
+  iat: number;
+}
 
 function getCurrentShelterStaffId() {
-  return "671c7c8774d370684d5097c9";
+  const storedToken = localStorage.getItem("token");
+  if (storedToken) {
+    try {
+      const decodedToken = jwtDecode<DecodedToken>(storedToken);
+      return decodedToken.id;
+    } catch (error) {
+      console.error("Invalid token:", error);
+      return null;
+    }
+  }
+  return null;
 }
 
 interface TabPanelProps {
@@ -198,7 +215,7 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
           throw new Error("Shelter staff ID not found");
         }
   
-        // Cập nhật trạng thái yêu cầu nhận nuôi
+        
         await dispatch(
           updateAdoptionRequestStatus({
             requestId: currentRequestId!,
@@ -208,13 +225,13 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
           })
         ).unwrap();
   
-        // Tìm thông tin pet từ yêu cầu hiện tại
+       
         const currentRequest = adoptionRequestsWithPetInfo.find(
           (request) => request._id === currentRequestId
         );
   
         if (currentRequest) {
-          // Cập nhật trạng thái isAdopted của pet
+        
           await dispatch(
             updateAdoptedStatus({
               petId: currentRequest.petId,

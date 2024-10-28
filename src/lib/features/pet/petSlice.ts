@@ -223,7 +223,7 @@ export const updateAdoptedStatus = createAsyncThunk(
   ) => {
     try {
       const response = await axios.put(
-        `http://localhost:8000/pet/upate-pet-adopted/${petId}`,
+        `http://localhost:8000/pet/update-pet-adopted/${petId}`,
         {
           isAdopted,
         }
