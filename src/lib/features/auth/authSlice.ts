@@ -1,6 +1,28 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
+interface User {
+  _id: string;
+  email: string;
+  name: string;
+  role: string;
+  // thêm các trường khác nếu cần
+}
+
+interface AuthState {
+  token: string | null;
+  currentUser: User | null;  // thêm currentUser
+  status: 'idle' | 'loading' | 'succeeded' | 'failed';
+  error: string | null;
+}
+
+const initialState: AuthState = {
+  token: typeof window !== 'undefined' ? localStorage.getItem('token') : null,
+  currentUser: null,  // thêm vào initial state
+  status: 'idle',
+  error: null,
+};
+
 export const signin = createAsyncThunk('auth/login', async (credentials: { email: string, password: string }, { rejectWithValue }) => {
   try {
     const response = await axios.post('http://localhost:8000/auth/login', credentials);
@@ -28,26 +50,18 @@ export const signup = createAsyncThunk('auth/signup', async (userData: { name: s
   }
 });
 
-interface AuthState {
-  token: string | null;
-  status: 'idle' | 'loading' | 'succeeded' | 'failed';
-  error: string | null;
-}
-
-const initialState: AuthState = {
-  token: typeof window !== 'undefined' ? localStorage.getItem('token') : null, 
-  status: 'idle',
-  error: null,
-};
-
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
     logout: (state) => {
       state.token = null;
+      state.currentUser = null;  // clear user khi logout
       state.status = 'idle';
-      localStorage.removeItem('token'); 
+      localStorage.removeItem('token');
+    },
+    setCurrentUser: (state, action) => {
+      state.currentUser = action.payload;
     }
   },
   extraReducers: (builder) => {
@@ -57,9 +71,10 @@ const authSlice = createSlice({
       })
       .addCase(signin.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.token = action.payload.token; 
+        state.token = action.payload.token;
+        state.currentUser = action.payload.user;  // lưu thông tin user
         if (typeof window !== 'undefined') {
-          localStorage.setItem('token', action.payload.token); 
+          localStorage.setItem('token', action.payload.token);
         }
       })
       .addCase(signin.rejected, (state, action) => {
@@ -72,10 +87,10 @@ const authSlice = createSlice({
       })
       .addCase(signup.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.token = action.payload.token; 
-        console.log('Signup successful:', action.payload); // Log the signup response
+        state.token = action.payload.token;
+        state.currentUser = action.payload.user;  // lưu thông tin user
         if (typeof window !== 'undefined') {
-          localStorage.setItem('token', action.payload.token); 
+          localStorage.setItem('token', action.payload.token);
         }
       })
       .addCase(signup.rejected, (state, action) => {
@@ -85,6 +100,9 @@ const authSlice = createSlice({
   }
 });
 
-export const { logout } = authSlice.actions;
+export const { logout, setCurrentUser } = authSlice.actions;
+
+// Thêm selector để dễ dàng lấy currentUser
+export const selectCurrentUser = (state: { auth: AuthState }) => state.auth.currentUser;
 
 export default authSlice.reducer;

@@ -32,8 +32,12 @@ import {
 import { fetchPetById, updateAdoptedStatus } from "@/lib/features/pet/petSlice";
 import { fetchUserData } from "@/lib/features/user/userSlice"; // Assume this action exists
 
-function getCurrentShelterStaffId() {
-  return "671c7c8774d370684d5097c9";
+import { jwtDecode } from "jwt-decode";
+
+interface DecodedToken {
+  id: string;
+  exp: number;
+  iat: number;
 }
 
 interface TabPanelProps {
@@ -80,9 +84,26 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [userNames, setUserNames] = useState<{ [key: string]: string }>({});
-  const [reviewerNames, setReviewerNames] = useState<{ [key: string]: string }>({});
+  const [reviewerNames, setReviewerNames] = useState<{ [key: string]: string }>(
+    {}
+  );
 
   useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    let staffId: string | null = null;
+
+    if (storedToken) {
+      try {
+        const decodedToken = jwtDecode<DecodedToken>(storedToken);
+      
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        staffId = decodedToken.id;
+      } catch (error) {
+        console.error("Invalid token:", error);
+        // Handle invalid token (optional: redirect to login)
+      }
+    }
+
     if (petId) {
       dispatch(fetchAdoptionRequestsByPetId(petId));
     } else {
@@ -154,26 +175,21 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
 
   useEffect(() => {
     const fetchReviewerNames = async () => {
-      const reviewerIds = adoptionRequestsWithPetInfo
-        .map(request => request.reviewBy)
+      const staffIds = adoptionRequestsWithPetInfo
+        .map((request) => request.reviewBy) // reviewBy contains staffId
         .filter(Boolean);
-      
 
-      const uniqueReviewerIds = Array.from(new Set(reviewerIds));
+      const uniqueStaffIds = Array.from(new Set(staffIds));
 
-
- 
-
-
-      for (const reviewerId of uniqueReviewerIds) {
+      for (const staffId of uniqueStaffIds) {
         try {
-          const reviewer = await dispatch(fetchUserData(reviewerId)).unwrap();
-          setReviewerNames(prev => ({
+          const staffMember = await dispatch(fetchUserData(staffId)).unwrap();
+          setReviewerNames((prev) => ({
             ...prev,
-            [reviewerId]: reviewer.name
+            [staffId]: staffMember.name,
           }));
         } catch (error) {
-          console.error(`Failed to fetch reviewer info for ID ${reviewerId}:`, error);
+          console.error(`Failed to fetch staff info for ID ${staffId}:`, error);
         }
       }
     };
@@ -192,40 +208,51 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
   const handleOk = async () => {
     try {
       if (newStatus === "REJECTED" || newStatus === "APPROVED") {
-        const shelterStaffId = getCurrentShelterStaffId();
-  
-        if (!shelterStaffId) {
-          throw new Error("Shelter staff ID not found");
+        const storedToken = localStorage.getItem("token");
+        let staffId: string | null = null;
+
+        if (storedToken) {
+          try {
+            const decodedToken = jwtDecode<DecodedToken>(storedToken);
+            staffId = decodedToken.id;
+          } catch (error) {
+            console.error("Invalid token:", error);
+            throw new Error("Invalid token");
+          }
         }
-  
-        // Cập nhật trạng thái yêu cầu nhận nuôi
+
+        if (!staffId) {
+          throw new Error("Staff ID not found");
+        }
+
         await dispatch(
           updateAdoptionRequestStatus({
             requestId: currentRequestId!,
             status: newStatus,
             comment,
-            reviewBy: shelterStaffId,
+            reviewBy: staffId, // Use the decoded staffId
           })
         ).unwrap();
-  
-        // Tìm thông tin pet từ yêu cầu hiện tại
+
         const currentRequest = adoptionRequestsWithPetInfo.find(
           (request) => request._id === currentRequestId
         );
-  
+
         if (currentRequest) {
-          // Cập nhật trạng thái isAdopted của pet
           await dispatch(
             updateAdoptedStatus({
               petId: currentRequest.petId,
               isAdopted: newStatus === "APPROVED",
             })
           ).unwrap();
-  
-          // Log để kiểm tra
-          console.log(`Updated isAdopted status for pet ${currentRequest.petId} to ${newStatus === "APPROVED"}`);
+
+          console.log(
+            `Updated isAdopted status for pet ${currentRequest.petId} to ${
+              newStatus === "APPROVED"
+            }`
+          );
         }
-  
+
         setAdoptionRequestsWithPetInfo((prevRequests) =>
           prevRequests.map((request) =>
             request._id === currentRequestId
@@ -233,24 +260,25 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
                   ...request,
                   status: newStatus,
                   comment,
-                  reviewBy: shelterStaffId,
+                  reviewBy: staffId, // Cập nhật reviewBy với staffId
                 }
               : request
           )
         );
+
         setSnackbarMessage(`Adoption request ${newStatus.toLowerCase()}.`);
         setSnackbarOpen(true);
-  
-        // Update filter and active tab
         setFilter(newStatus);
         setActiveTab(1);
       }
     } catch (error) {
       console.error("Error in handleOk:", error);
-      setSnackbarMessage("Failed to update status.");
+      setSnackbarMessage(
+        error instanceof Error ? error.message : "Failed to update status"
+      );
       setSnackbarOpen(true);
     }
-  
+
     setIsModalVisible(false);
     setComment("");
   };
@@ -566,6 +594,5 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
     </div>
   );
 };
-
 
 export default AdoptableManagement;
