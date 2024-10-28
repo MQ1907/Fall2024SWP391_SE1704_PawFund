@@ -19,4 +19,9 @@ export enum CheckingTypeShelterStaff {
     ROUTINE = 'ROUTINE',
     // ADOPTED = 'ADOPTED',
 }
+export enum CheckingTypeCustomer{
+    // INITIAL = "INITIAL",
+    ADOPTED = 'ADOPTED', 
+    // ADOPTED = 'ADOPTED',
+}
 
