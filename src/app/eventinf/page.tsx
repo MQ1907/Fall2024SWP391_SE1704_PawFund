@@ -1,6 +1,7 @@
 "use client";
 import React from 'react';
 import Image from "next/image";
+import Event from '../event/page';
 import { useRouter } from "next/navigation";
 
 const Eventinf = () => {
@@ -85,6 +86,7 @@ const Eventinf = () => {
                     </div>
                 </div>
             </div>
+            <Event /> 
             <div
         className="h-[150px] w-full relative bg-fixed bg-center bg-cover bg-no-repeat flex items-center justify-center"
         style={{

@@ -1,50 +1,22 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from "next/image";
 import { useRouter } from 'next/navigation';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/lib/store';
+import { fetchEvents } from '@/lib/features/event/eventSlice';
 
 const Event = () => {
   const router = useRouter();
-  const events = [
-    {
-      id: 1,
-      title: 'Phiên chợ gây quỹ nhận nuôi Hanoi Pet Adoption',
-      image: '/images/event.png',
-      calender: "4/21/2024 10:15:00 AM",
-      address: "102 Quang an, Tay Ho, Ha Noi",
-    },
-    {
-      id: 2,
-      title: 'Phiên chợ gây quỹ nhận nuôi Hanoi Pet Adoption',
-      image: '/images/event.png',
-      calender: "4/21/2024 10:15:00 AM",
-      address: "102 Quang an, Tay Ho, Ha Noi",
-    },
-    {
-      id: 3,
-      title: 'Phiên chợ gây quỹ nhận nuôi Hanoi Pet Adoption',
-      image: '/images/event.png',
-      calender: "4/21/2024 10:15:00 AM",
-      address: "102 Quang an, Tay Ho, Ha Noi",
-    },
-    {
-      id: 4,
-      title: 'Phiên chợ gây quỹ nhận nuôi Hanoi Pet Adoption',
-      image: '/images/event.png',
-      calender: "4/21/2024 10:15:00 AM",
-      address: "102 Quang an, Tay Ho, Ha Noi",
-    },
-    {
-      id: 5,
-      title: 'Phiên chợ gây quỹ nhận nuôi Hanoi Pet Adoption',
-      image: '/images/event.png',
-      calender: "4/21/2024 10:15:00 AM",
-      address: "102 Quang an, Tay Ho, Ha Noi",
-    },
-  ];
-
+  const dispatch = useDispatch<AppDispatch>();
+  const { events, status } = useSelector((state: RootState) => state.events);
   const [currentIndex, setCurrentIndex] = useState(0);
   const petsPerPage = 3; 
+  const [isAnimating] = useState(true);
+
+  useEffect(() => {
+    dispatch(fetchEvents());
+  }, [dispatch]);
 
   const handlePrevClick = () => {
     setCurrentIndex((prevIndex) =>
@@ -58,8 +30,15 @@ const Event = () => {
     );
   };
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return {
+      day: date.getDate(),
+      month: date.getMonth() + 1,
+    };
+  };
+
   const currentEvents = events.slice(currentIndex, currentIndex + petsPerPage);
-  const [isAnimating] = useState(true);
 
   return (
     <div>
@@ -69,27 +48,48 @@ const Event = () => {
           <Image src="/images/dogfoot.png" alt="" width={30} height={30} className="transform rotate-12" />
         </div>
         <div className="flex justify-center gap-14"> 
-          {currentEvents.map((event) => (
-            <div key={event.id} className={`bg-white w-80 h-auto rounded-lg shadow-md overflow-hidden relative ${isAnimating ? 'animate__animated animate__fadeInLeft animate__delay-2s animate__duration-4s' : ''}`}>
-              <div className="overflow-hidden" style={{ height: '200px' }}>
-                <Image
-                  src={event.image}
-                  alt={event.title}
-                  width={320}
-                  height={300}
-                  className="rounded-lg shadow-md object-cover"
-                  onClick={() => router.push('/eventinf')}
-                />
-                <div className="absolute top-[180px] ml-5 left-0 text-white bg-[#D61C62] w-[40px] h-[20px] z-10 flex items-center justify-center">23</div>
-                <div className="absolute top-[200px] ml-5 left-0 text-white bg-[#D61C62] w-[40px] h-[20px] z-10 flex items-center justify-center">T9</div>
+          {status === 'loading' ? (
+            <div>Loading...</div>
+          ) : (
+            currentEvents.map((event) => (
+              <div 
+                key={event._id} 
+                className="overflow-hidden cursor-pointer" 
+                onClick={() => {
+                  if (event._id) {
+                    console.log('Navigating to:', `/news/${event._id}`);
+                    router.push(`/news/${event._id}`);
+                  }
+                }}
+              >
+                <div className={`bg-white w-80 h-auto rounded-lg shadow-md overflow-hidden relative ${isAnimating ? 'animate__animated animate__fadeInLeft animate__delay-2s animate__duration-4s' : ''}`}>
+                  <div 
+                    className="overflow-hidden" 
+                    style={{ height: '200px' }}
+                  >
+                    <img
+                      src={event.image}
+                      alt={event.title}
+                      className="w-full h-full rounded-lg shadow-md object-cover"
+                    />
+                    <div className="absolute top-[180px] ml-5 left-0 text-white bg-[#D61C62] w-[40px] h-[20px] z-10 flex items-center justify-center">
+                      {formatDate(event.start).day}
+                    </div>
+                    <div className="absolute top-[200px] ml-5 left-0 text-white bg-[#D61C62] w-[40px] h-[20px] z-10 flex items-center justify-center">
+                      T{formatDate(event.start).month}
+                    </div>
+                  </div>
+                  <div className='p-4'>
+                    <h3 className="text-xl font-semibold mt-4">{event.title}</h3>
+                    <p className="text-[#6F6F6F] mt-5 font-medium">
+                      {new Date(event.start).toLocaleString('vi-VN')}
+                    </p>
+                    <p className="text-[#6F6F6F] mt-5 font-medium">{event.location}</p>
+                  </div>
+                </div>
               </div>
-              <div className='p-4'>
-                <h3 className="text-xl font-semibold mt-4">{event.title}</h3>
-                <p className="text-[#6F6F6F] mt-5 font-medium">{event.calender}</p>
-                <p className="text-[#6F6F6F] mt-5 font-medium">{event.address}</p>
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
         <div className="flex justify-center mt-5 space-x-2"> 
           <button

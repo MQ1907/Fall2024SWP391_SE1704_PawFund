@@ -4,7 +4,11 @@ import petReducer from "../lib/features/pet/petSlice"
 import healthCheckReducer  from "../lib/features/pet/HealthCheckSlice"
 import adoptionReducer  from "./features/adopt/adoptSlice"
 import userReducer from './features/user/userSlice';
+
 import paymentReducer from './features/payment/paymentSlice';
+
+import eventReducer from './features/event/eventSlice';
+
 
 export const makeStore = () => {
   return configureStore({
@@ -14,7 +18,11 @@ export const makeStore = () => {
          healthChecks: healthCheckReducer,
          adoption: adoptionReducer,
          user: userReducer, 
+
          payment: paymentReducer,
+
+         events: eventReducer,
+
     }
   })
 }

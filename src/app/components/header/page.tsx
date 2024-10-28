@@ -45,9 +45,7 @@ const Header = () => {
   const handleClickHistory = () => {
   if (role === "VOLUNTEER") {
     router.push("/history-volunteer"); // Chỉ cho phép Volunteer truy cập
-  } else if (role === "SHELTER_STAFF") {
-    router.push("/history-shelterstaff"); // Chỉ cho phép Shelter Staff truy cập
-  } else if (role === "CUSTOMER") {
+  }  else if (role === "CUSTOMER") {
     router.push("/history-customer"); // Chỉ cho phép Customer truy cập
   } else {
     router.push("/errorpage"); // Điều hướng tới trang lỗi nếu vai trò không hợp lệ
@@ -262,26 +260,32 @@ const Header = () => {
         </div>
           <img src="/images/right-arrow.png" alt="" width={15} height={15} />
         </li>
-         <li
-                      className="px-4 py-3 hover:bg-orange-300 cursor-pointer flex justify-between items-center"
-                      onClick={handleClickHistory} 
-                    >
-                      <div className="flex items-center gap-8">
-                        <img
-                          src="/images/restore.png"
-                          alt="History"
-                          width={30}
-                          height={30}
-                        />
-                        <div className="font-semibold">History</div>
-                      </div>
-                      <img
-                        src="/images/right-arrow.png"
-                        alt="Right Arrow"
-                        width={15}
-                        height={15}
-                      />
-                    </li>
+        {role === "ADMIN" || role ==="SHELTER_STAFF" ?(
+          ""
+        ) :(
+          <li
+          className="px-4 py-3 hover:bg-orange-300 cursor-pointer flex justify-between items-center"
+          onClick={handleClickHistory} 
+        >
+          <div className="flex items-center gap-8">
+            <img
+              src="/images/restore.png"
+              alt="History"
+              width={30}
+              height={30}
+            />
+            <div className="font-semibold">History</div>
+          </div>
+          <img
+            src="/images/right-arrow.png"
+            alt="Right Arrow"
+            width={15}
+            height={15}
+          />
+        </li>
+        )
+
+        }
         <li
           className="px-4 py-3 hover:bg-red-500 cursor-pointer flex justify-between items-center"
           onClick={handleLogoutClick}
@@ -361,16 +365,6 @@ const Header = () => {
               onClick={() => handleClick("/volunteer")}
             >
               VOLUNTEER
-            </li>
-            <li
-              className={`cursor-pointer animate__animated animate__fadeInLeft ${
-                pathname === "/news"
-                  ? "text-[#D94E66]"
-                  : "text-black hover:text-[#D94E66]"
-              }`}
-              onClick={() => handleClick("/news")}
-            >
-              NEWS
             </li>
             <li
               className={`cursor-pointer animate__animated animate__fadeInLeft ${
