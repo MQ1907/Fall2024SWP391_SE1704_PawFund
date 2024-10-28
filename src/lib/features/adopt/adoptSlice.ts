@@ -65,7 +65,28 @@ export const fetchAdoptionRequestsByPetId = createAsyncThunk(
     }
   }
 );
-
+// Async Thunk for fetching adoption requests by userId
+export const fetchAdoptionRequestsByUserId = createAsyncThunk(
+  "adoption/fetchByUserId",
+  async (userId: string, { rejectWithValue }) => {
+    try {
+      const url = `http://localhost:8000/adoption-requests/find-by-user/${userId}`;
+      console.log("Fetching adoption requests from URL:", url); // Debugging log
+      const response = await axios.get(url);
+      return response.data;
+    } catch (error: any) {
+      if (error.response) {
+        console.error("Error response:", error.response); // Debugging log
+        return rejectWithValue(
+          error.response.data.message ||
+            "Failed to fetch adoption requests for this user"
+        );
+      }
+      console.error("Error:", error); // Debugging log
+      return rejectWithValue("Failed to fetch adoption requests for this user");
+    }
+  }
+);
 // Async Thunk for updating adoption request status
 export const updateAdoptionRequestStatus = createAsyncThunk(
   "adoption/updateStatus",
@@ -176,6 +197,19 @@ const adoptionSlice = createSlice({
         state.error =
           (action.payload as string) ||
           "Failed to update adoption request status";
+      })
+      // Xử lý các yêu cầu fetch adoption requests by userId
+      .addCase(fetchAdoptionRequestsByUserId.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchAdoptionRequestsByUserId.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.adoptionRequests = action.payload; // Cập nhật danh sách yêu cầu
+      })
+      .addCase(fetchAdoptionRequestsByUserId.rejected, (state, action) => {
+        state.status = "failed";
+        state.error =
+          (action.payload as string) || "Failed to fetch adoption requests";
       });
   },
 });
