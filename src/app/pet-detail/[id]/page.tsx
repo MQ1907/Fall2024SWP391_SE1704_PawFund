@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Button, Modal } from "antd";
+import { Button, Modal, Tag } from "antd";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "../../../lib/hook";
@@ -30,6 +30,7 @@ const PetDetail = () => {
   const [isAnimating, setIsAnimating] = useState(true);
   const params = useParams();
   const id = params.id as string;
+  console.log(id)
   const dispatch = useAppDispatch();
   const { currentPet, status, error } = useAppSelector((state) => state.pets);
 
@@ -52,6 +53,7 @@ const PetDetail = () => {
   if (!currentPet) {
     return <div>Pet not found</div>;
   }
+  console.log(currentPet.isAdopted)
   return (
     <div className="mt-[148px]">
       <div
@@ -74,76 +76,79 @@ const PetDetail = () => {
           </div>
         </div>
       </div>
-      <div className="flex gap-4 mt-[20px] mx-[200px]">
-        <div className="w-[40%] ml-[200px] ">
-          <img
-            src={currentPet.image}
-            alt={currentPet.name}
-            className="w-[100%] h-auto rounded-[5px] ml-[-200px]"
-          />
-        </div>
+      <div className="flex flex-col gap-8 mt-10 mx-[200px] p-6 bg-white shadow-lg rounded-lg">
+  <div className="flex gap-8">
+    <div className="w-[40%]">
+      <img
+        src={currentPet.image}
+        alt={currentPet.name}
+        className="w-full h-auto rounded-lg"
+      />
+    </div>
 
-        <div className="w-[70%] ml-[-120px]">
-          <div className="flex flex-col gap-2">
-            <h1 className="text-[34px] font-medium">{currentPet.name}</h1>
-            <hr className="border-t-[1px] border-dashed border-[#adacac] " />
-            <div className="flex my-1 ">
-              <p className="font-semibold">Location Found: </p>
-              <p className="px-1 ">{currentPet.locationFound}</p>
-            </div>
-            <hr className="border-t-[1px] border-dashed border-[#adacac] " />
-            <div className="flex my-1 ">
-              <p className="font-semibold">Gender: </p>
-              <p className="px-1 ">{currentPet.gender}</p>
-            </div>
-            <hr className="border-t-[1px] border-dashed border-[#adacac] " />
-            <div className="flex my-1 ">
-              <p className="font-semibold">Vaccinated: </p>
-              <p className="px-1 ">{currentPet.isVacinted ? "Yes" : "No"}</p>
-            </div>
-            <hr className="border-t-[1px] border-dashed border-[#adacac] " />
-            <div className="flex my-1 ">
-              <p className="font-semibold">Color: </p>
-              <p className="px-1 ">{currentPet.color}</p>
-            </div>
-            <div className="flex gap-4">
-              <button
-                onClick={showAdoptPetModal}
-                className="relative border-2 border-gray-800 rounded-[5px] bg-transparent py-2.5 px-10 font-medium uppercase text-gray-800 transition-colors before:absolute before:left-0 before:top-0 before:-z-10 before:h-full before:w-full before:origin-top-left before:scale-x-0 before:bg-pink-500 before:transition-transform before:duration-300 before:content-[''] hover:text-white before:hover:scale-x-100"
-              >
-                Adopt
-              </button>
-              <Modal
-                open={OpenAdoptionRequest}
-                title="You want to adopt this pet ?"
-                className="text-[20px]"
-                onOk={handleOkAdoptPet}
-                onCancel={handleCancelCreateAdoptionRequest}
-                footer={[
-                  <Button
-                    key="cancel"
-                    onClick={handleCancelCreateAdoptionRequest}
-                  >
-                    Cancel
-                  </Button>,
-                ]}
-              >
-                <AdoptionRequest petId={currentPet._id} />
-              </Modal>
-            </div>
-          </div>
+    <div className="w-[60%]">
+      <div className="flex flex-col gap-4">
+        <h1 className="text-[34px] font-medium">{currentPet.name}</h1>
+        <hr className="border-t-[1px] border-dashed border-gray-300" />
+        <div className="flex my-1">
+          <p className="font-semibold">Location Found:</p>
+          <p className="px-1">{currentPet.locationFound}</p>
+        </div>
+        <hr className="border-t-[1px] border-dashed border-gray-300" />
+        <div className="flex my-1">
+          <p className="font-semibold">Gender:</p>
+          <p className="px-1">{currentPet.gender}</p>
+        </div>
+        <hr className="border-t-[1px] border-dashed border-gray-300" />
+        <div className="flex my-1">
+          <p className="font-semibold">Vaccinated:</p>
+          <p className="px-1">{currentPet.isVacinted ? "Yes" : "No"}</p>
+        </div>
+        <hr className="border-t-[1px] border-dashed border-gray-300" />
+        <div className="flex my-1">
+          <p className="font-semibold">Color:</p>
+          <p className="px-1">{currentPet.color}</p>
+        </div>
+        <div className="flex gap-4 mt-4">
+          {currentPet.isAdopted === false ? (
+            <button
+              onClick={showAdoptPetModal}
+              className="relative border-2 border-gray-800 rounded-lg bg-transparent py-2.5 px-10 font-medium uppercase text-gray-800 transition-colors before:absolute before:left-0 before:top-0 before:-z-10 before:h-full before:w-full before:origin-top-left before:scale-x-0 before:bg-pink-500 before:transition-transform before:duration-300 before:content-[''] hover:text-white before:hover:scale-x-100"
+            >
+              Adopt
+            </button>
+          ) : (
+            <Tag color="green" className="font-semibold uppercase">
+              This pet is already adopted.
+            </Tag>
+          )}
+
+          <Modal
+            open={OpenAdoptionRequest}
+            title="You want to adopt this pet?"
+            className="text-[20px]"
+            onOk={handleOkAdoptPet}
+            onCancel={handleCancelCreateAdoptionRequest}
+            footer={[
+              <Button key="cancel" onClick={handleCancelCreateAdoptionRequest} className="relative border-2 border-gray-800 rounded-[5px] bg-transparent py-2.5 px-10 font-medium uppercase text-gray-800 transition-colors before:absolute before:left-0 before:top-0 before:-z-10 before:h-full before:w-full before:origin-top-left before:scale-x-0 before:bg-pink-500 before:transition-transform before:duration-300 before:content-[''] before:hover:scale-x-100">
+                Cancel
+              </Button>,
+            ]}
+          >
+            <AdoptionRequest petId={currentPet._id} />
+          </Modal>
         </div>
       </div>
-      <div className="mt-10 ml-[200px]">
-        <h1 className="text-[34px] font-medium">Information</h1>
-        <hr className="border-1 border-gray-600 w-[50px]" />
-        <p className="mt-6">{currentPet.description}</p>
-      </div>
-      <div className="mt-10 ml-[200px]">
-        <h1 className="text-[34px] font-medium">Information</h1>
-        <hr className="border-1 border-gray-600 w-[50px]" />
-        <p className="mt-6">ajskhdsljhsdls</p>
-      </div>
+    </div>
+  </div>
+
+  <div className="mt-10 p-6 bg-white shadow-lg rounded-lg">
+    <h1 className="text-[34px] font-medium uppercase text-green-500 mb-4">Information</h1>
+    <hr className="border-1 border-gray-300 w-full mb-4" />
+    <p className="mt-6 font-semibold text-gray-700">Description: {currentPet.description}</p>
+  </div>
+</div>
+ 
       <div
         className="h-[200px] w-full  relative bg-fixed bg-center bg-cover bg-no-repeat flex items-center justify-center mt-3"
         style={{
@@ -353,24 +358,7 @@ const PetDetail = () => {
           </div>
         </div>
       </div>
-      <div className="h-[775px] bg-[#F6F6F7] ">
-        <div
-          className={`flex flex-col items-center justify-center pt-10 gap-3 ${
-            isAnimating
-              ? "animate__animated animate__fadeInLeft animate__delay-3s animate__duration-4s"
-              : ""
-          }`}
-        >
-          <div className="font-semibold text-3xl">MORE PETS</div>
-          <Image
-            src="/images/dogfoot.png"
-            alt=""
-            width={30}
-            height={30}
-            className="transform rotate-12"
-          />
-        </div>
-      </div>
+     
     </div>
   );
 };
