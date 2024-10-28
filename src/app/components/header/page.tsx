@@ -45,9 +45,7 @@ const Header = () => {
   const handleClickHistory = () => {
   if (role === "VOLUNTEER") {
     router.push("/history-volunteer"); // Chỉ cho phép Volunteer truy cập
-  } else if (role === "SHELTER_STAFF") {
-    router.push("/history-shelterstaff"); // Chỉ cho phép Shelter Staff truy cập
-  } else if (role === "CUSTOMER") {
+  }  else if (role === "CUSTOMER") {
     router.push("/history-customer"); // Chỉ cho phép Customer truy cập
   } else {
     router.push("/errorpage"); // Điều hướng tới trang lỗi nếu vai trò không hợp lệ
@@ -262,7 +260,7 @@ const Header = () => {
         </div>
           <img src="/images/right-arrow.png" alt="" width={15} height={15} />
         </li>
-        {role === "ADMIN" ?(
+        {role === "ADMIN" || role ==="SHELTER_STAFF" ?(
           ""
         ) :(
           <li
