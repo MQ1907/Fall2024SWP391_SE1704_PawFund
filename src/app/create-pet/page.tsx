@@ -16,7 +16,7 @@ import {
   selectPendingPets,
   selectCompletedPets,
   updatePetDelivery,
-  deletePet,
+  
 } from "../../lib/features/pet/petSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/hook";
 import { useRouter } from "next/navigation";
@@ -220,6 +220,19 @@ const CreatePet = () => {
     }
   }, [petsStatus, dispatch]);
 
+  // const handleUpdateStatusCancel = async (petId: string) => {
+  
+  //   try {
+  //     await dispatch(
+  //       updatePetDelivery({ petId, deliveryStatus: "CANCELED" })
+  //     ).unwrap();
+  //     message.success("Status cancel successfully!");
+  //   } catch (error) {
+  //     console.error("Error updating status:", error);
+  //     message.error("Failed to update status. Please try again.");
+  //   }
+  // };
+
   const handleUpdateStatus = async (petId: string) => {
     if (!healthCheckCreated[petId] || healthCheckCreated[petId].type !== "ROUTINE") {
       message.warning("You must create a  health check before approve.");
@@ -237,21 +250,19 @@ const CreatePet = () => {
     }
   };
 
-  const handleDelete = (petId: string) => {
-    dispatch(deletePet(petId));
-  };
+ 
 
-  const confirmDelete = (petId: string) => {
-    Modal.confirm({
-      title: "Are you sure you want to delete this pet?",
-      okText: "Yes",
-      okType: "danger",
-      cancelText: "No",
-      onOk() {
-        handleDelete(petId);
-      },
-    });
-  };
+  // const confirmCancle = (petId: string) => {
+  //   Modal.confirm({
+  //     title: "Are you sure you want to cancle this pet?",
+  //     okText: "Yes",
+  //     okType: "danger",
+  //     cancelText: "No",
+  //     onOk() {
+  //       handleUpdateStatusCancel(petId);
+  //     },
+  //   });
+  // };
 
   const commonColumns = [
     {
@@ -303,12 +314,12 @@ const CreatePet = () => {
       key: "button",
       render: (text: string, record: { _id: string }) => (
         <>
-          <Button
+          {/* <Button
             style={{ backgroundColor: "red", color: "white", marginRight: 8 }}
-            onClick={() => confirmDelete(record._id)}
+            onClick={() => confirmCancle(record._id)}
           >
-            Delete
-          </Button>
+            Cancel
+          </Button> */}
         
           {(!healthCheckCreated[record._id] ||
           healthCheckCreated[record._id]?.type !== "ROUTINE") && (
@@ -369,14 +380,7 @@ const CreatePet = () => {
         ]}
       >
         <div className="space-y-4">
-          {/* <div className="flex flex-col">
-            <label className="font-semibold">Pet ID:</label>
-            <Input
-              value={displayPetId}
-              onChange={(e) => setPetId(e.target.value)}
-              disabled
-            />
-          </div> */}
+      
           <div className="flex flex-col">
             <label className="font-semibold">Health Status:</label>
             <Select
@@ -423,38 +427,7 @@ const CreatePet = () => {
       />
       {temperatureError && <span style={{ color: 'red' }}>{temperatureError}</span>}
     </div>
-          {/* <div className="flex flex-col">
-            <label className="font-semibold">Checking Date:</label>
-            <Input
-              type="datetime-local"
-              value={checkingDate}
-              onChange={(e) => setCheckingDate(e.target.value)}
-            />
-          </div> */}
-          {/* <div className="flex flex-col">
-            <label className="font-semibold">Checked By:</label>
-            <Input
-              value={hiddenCheckingBy}
-              onChange={(e) => setCheckingBy(e.target.value)}
-              disabled
-            />
-          </div> */}
-          {/* <div className="flex flex-col">
-            <label className="font-semibold">Checking Type:</label>
-            <Select
-              value={checkingType}
-              onChange={(value) =>
-                setCheckingType(value as CheckingTypeShelterStaff)
-              }
-              placeholder="Select Checking Type"
-            >
-              {Object.values(CheckingTypeShelterStaff).map((type) => (
-                <Select.Option key={type} value={type}>
-                  {type}
-                </Select.Option>
-              ))}
-            </Select>
-          </div> */}
+     
         </div>
       </Modal>
     </div>
