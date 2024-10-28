@@ -1,22 +1,9 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
   CircularProgress,
   Alert,
   Snackbar,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
   TextField,
   Tab,
   Tabs,
@@ -32,6 +19,9 @@ import {
 import { fetchPetById, updateAdoptedStatus } from "@/lib/features/pet/petSlice";
 import { fetchUserData } from "@/lib/features/user/userSlice"; // Assume this action exists
 import { jwtDecode } from "jwt-decode";
+import { Modal, Typography as AntTypography, Button as AntButton } from "antd";
+const { Text, Title } = AntTypography;
+import { Table as AntTable } from "antd"; // Thêm import này
 
 interface DecodedToken {
   id: string;
@@ -93,11 +83,21 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
   const [filter, setFilter] = useState<string>("ALL");
   const [petAdoptionSummary, setPetAdoptionSummary] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [userNames, setUserNames] = useState<{ [key: string]: string }>({});
-  const [reviewerNames, setReviewerNames] = useState<{ [key: string]: string }>({});
+  const [reviewerNames, setReviewerNames] = useState<{ [key: string]: string }>(
+    {}
+  );
+
+  // Thêm state mới
+  const [notificationDialog, setNotificationDialog] = useState({
+    open: false,
+    message: "",
+    title: "",
+  });
 
   useEffect(() => {
     if (petId) {
@@ -172,25 +172,23 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
   useEffect(() => {
     const fetchReviewerNames = async () => {
       const reviewerIds = adoptionRequestsWithPetInfo
-        .map(request => request.reviewBy)
+        .map((request) => request.reviewBy)
         .filter(Boolean);
-      
 
       const uniqueReviewerIds = Array.from(new Set(reviewerIds));
-
-
- 
-
 
       for (const reviewerId of uniqueReviewerIds) {
         try {
           const reviewer = await dispatch(fetchUserData(reviewerId)).unwrap();
-          setReviewerNames(prev => ({
+          setReviewerNames((prev) => ({
             ...prev,
-            [reviewerId]: reviewer.name
+            [reviewerId]: reviewer.name,
           }));
         } catch (error) {
-          console.error(`Failed to fetch reviewer info for ID ${reviewerId}:`, error);
+          console.error(
+            `Failed to fetch reviewer info for ID ${reviewerId}:`,
+            error
+          );
         }
       }
     };
@@ -210,12 +208,20 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
     try {
       if (newStatus === "REJECTED" || newStatus === "APPROVED") {
         const shelterStaffId = getCurrentShelterStaffId();
-  
+
         if (!shelterStaffId) {
           throw new Error("Shelter staff ID not found");
         }
-  
-        
+
+        const currentRequest = adoptionRequestsWithPetInfo.find(
+          (request) => request._id === currentRequestId
+        );
+
+        if (!currentRequest) {
+          throw new Error("Request not found");
+        }
+
+        // Cập nhật trạng thái yêu cầu hiện tại
         await dispatch(
           updateAdoptionRequestStatus({
             requestId: currentRequestId!,
@@ -224,50 +230,94 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
             reviewBy: shelterStaffId,
           })
         ).unwrap();
-  
-       
-        const currentRequest = adoptionRequestsWithPetInfo.find(
-          (request) => request._id === currentRequestId
-        );
-  
-        if (currentRequest) {
-        
+
+        // Chỉ khi APPROVED mới xử lý thêm
+        if (newStatus === "APPROVED") {
+          // 1. Tìm và tự động reject các yêu cầu pending khác của cùng pet
+          const otherRequests = adoptionRequestsWithPetInfo.filter(
+            (request) =>
+              request.petId === currentRequest.petId &&
+              request._id !== currentRequestId &&
+              request.status === "PENDING"
+          );
+
+          for (const request of otherRequests) {
+            await dispatch(
+              updateAdoptionRequestStatus({
+                requestId: request._id,
+                status: "REJECTED",
+                comment: "Auto rejected as another request was approved",
+                reviewBy: shelterStaffId,
+              })
+            ).unwrap();
+          }
+
+          // 2. Chỉ khi APPROVED mới cập nhật isAdopted thành true
           await dispatch(
             updateAdoptedStatus({
               petId: currentRequest.petId,
-              isAdopted: newStatus === "APPROVED",
+              isAdopted: true,
             })
           ).unwrap();
-  
+
           // Log để kiểm tra
-          console.log(`Updated isAdopted status for pet ${currentRequest.petId} to ${newStatus === "APPROVED"}`);
+          console.log(
+            `Updated isAdopted status for pet ${currentRequest.petId} to true`
+          );
         }
-  
+
+        // Cập nhật UI
         setAdoptionRequestsWithPetInfo((prevRequests) =>
-          prevRequests.map((request) =>
-            request._id === currentRequestId
-              ? {
-                  ...request,
-                  status: newStatus,
-                  comment,
-                  reviewBy: shelterStaffId,
-                }
-              : request
-          )
+          prevRequests.map((request) => {
+            if (request._id === currentRequestId) {
+              return {
+                ...request,
+                status: newStatus,
+                comment,
+                reviewBy: shelterStaffId,
+              };
+            }
+            // Nếu APPROVED, cập nhật trạng thái các yêu cầu khác của cùng pet
+            if (
+              newStatus === "APPROVED" &&
+              request.petId === currentRequest.petId &&
+              request.status === "PENDING"
+            ) {
+              return {
+                ...request,
+                status: "REJECTED",
+                comment: "Auto rejected as another request was approved",
+                reviewBy: shelterStaffId,
+              };
+            }
+            return request;
+          })
         );
-        setSnackbarMessage(`Adoption request ${newStatus.toLowerCase()}.`);
-        setSnackbarOpen(true);
-  
-        // Update filter and active tab
+
+        // Hiển thị thông báo phù hợp
+        setNotificationDialog({
+          open: true,
+          title:
+            newStatus === "APPROVED"
+              ? "Approval Successful"
+              : "Rejection Successful",
+          message:
+            newStatus === "APPROVED"
+              ? `The adoption request has been approved successfully. All other pending requests for this pet have been automatically rejected.`
+              : `The adoption request has been rejected successfully.`,
+        });
+
         setFilter(newStatus);
         setActiveTab(1);
       }
     } catch (error) {
-      console.error("Error in handleOk:", error);
-      setSnackbarMessage("Failed to update status.");
-      setSnackbarOpen(true);
+      setNotificationDialog({
+        open: true,
+        title: "Error",
+        message: "Failed to update status.",
+      });
     }
-  
+
     setIsModalVisible(false);
     setComment("");
   };
@@ -278,62 +328,87 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
   };
 
   const columns = [
-    { field: "petName", headerName: "Pet Name", width: 150 },
     {
-      field: "petImage",
-      headerName: "Image",
-      width: 100,
-      renderCell: (params: any) => (
-        <img src={params.value} alt="Pet" style={{ width: 60, height: 60 }} />
+      title: "Pet Name",
+      dataIndex: "petName",
+      key: "petName",
+    },
+    {
+      title: "Image",
+      dataIndex: "petImage",
+      key: "petImage",
+      render: (image: string) => (
+        <img src={image} alt="Pet" style={{ width: 60, height: 60 }} />
       ),
     },
     {
-      field: "requestDate",
-      headerName: "Request Date",
-      width: 150,
-      renderCell: (params: any) => new Date(params.value).toLocaleDateString(),
-    },
-    { field: "comment", headerName: "Comment", width: 200 },
-    { field: "status", headerName: "Status", width: 120 },
-    {
-      field: "adoptBy",
-      headerName: "Adopt By",
-      width: 200,
-      renderCell: (params: any) =>
-        userNames[params.row.userId] || params.row.userId || "N/A",
+      title: "Request Date",
+      dataIndex: "requestDate",
+      key: "requestDate",
+      render: (date: string) => new Date(date).toLocaleDateString(),
     },
     {
-      field: "action",
-      headerName: "Action",
-      width: 200,
-      renderCell: (params: any) => (
+      title: "Comment",
+      dataIndex: "comment",
+      key: "comment",
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      render: (status: string) => {
+        const statusColors: Record<string, string> = {
+          PENDING: "bg-yellow-200 text-yellow-900",
+          APPROVED: "bg-green-200 text-green-900",
+          REJECTED: "bg-red-200 text-red-900",
+        };
+
+        return (
+          <span
+            className={`px-2 py-1 rounded-full font-medium ${
+              statusColors[status] || ""
+            }`}
+          >
+            {status}
+          </span>
+        );
+      },
+    },
+    {
+      title: "Adopt By",
+      dataIndex: "userId",
+      key: "adoptBy",
+      render: (userId: string) => userNames[userId] || userId || "N/A",
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (_, record: any) => (
         <>
-          {params.row.status === "PENDING" ? (
+          {record.status === "PENDING" ? (
             <>
-              <Button
-                variant="contained"
-                color="success"
-                onClick={() => showModal(params.row._id, "APPROVED")}
-                style={{ marginRight: 8 }}
+              <AntButton
+                type="primary"
+                style={{
+                  marginRight: 8,
+                  backgroundColor: "#52c41a",
+                }}
+                onClick={() => showModal(record._id, "APPROVED")}
               >
                 Approve
-              </Button>
-              <Button
-                variant="contained"
-                color="error"
-                onClick={() => showModal(params.row._id, "REJECTED")}
+              </AntButton>
+              <AntButton
+                danger
+                type="primary"
+                onClick={() => showModal(record._id, "REJECTED")}
               >
                 Reject
-              </Button>
+              </AntButton>
             </>
           ) : (
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => showViewModal(params.row)}
-            >
+            <AntButton type="primary" onClick={() => showViewModal(record)}>
               View
-            </Button>
+            </AntButton>
           )}
         </>
       ),
@@ -341,16 +416,24 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
   ];
 
   const petSummaryColumns = [
-    { field: "petName", headerName: "Pet Name", width: 150 },
     {
-      field: "petImage",
-      headerName: "Image",
-      width: 100,
-      renderCell: (params: any) => (
-        <img src={params.value} alt="Pet" style={{ width: 60, height: 60 }} />
+      title: "Pet Name",
+      dataIndex: "petName",
+      key: "petName",
+    },
+    {
+      title: "Image",
+      dataIndex: "petImage",
+      key: "petImage",
+      render: (image: string) => (
+        <img src={image} alt="Pet" style={{ width: 60, height: 60 }} />
       ),
     },
-    { field: "requestCount", headerName: "Number of Requests", width: 200 },
+    {
+      title: "Number of Requests",
+      dataIndex: "requestCount",
+      key: "requestCount",
+    },
   ];
 
   const [viewModalVisible, setViewModalVisible] = useState(false);
@@ -361,17 +444,53 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
     setViewModalVisible(true);
   };
 
-  const getFilteredRequests = (status: string | null) => {
-    if (status === null) {
-      return adoptionRequestsWithPetInfo; // Return all requests
+  const getFilteredRequestsByAdopter = (
+    requests: any[],
+    status: string | null
+  ) => {
+    let filteredByStatus = requests;
+
+    if (status) {
+      filteredByStatus = requests.filter(
+        (request) => request.status === status
+      );
     }
-    return adoptionRequestsWithPetInfo.filter(
-      (request) => request.status === status
-    );
+
+    if (!searchTerm) {
+      return filteredByStatus;
+    }
+
+    return filteredByStatus.filter((request) => {
+      const adopterName = userNames[request.userId] || "";
+      return adopterName.toLowerCase().includes(searchTerm.toLowerCase());
+    });
   };
 
   return (
     <div style={{ marginTop: 50 }}>
+      {/* Add search bar */}
+      <div className="mb-4 px-3">
+        <TextField
+          fullWidth
+          variant="outlined"
+          placeholder="Search by adopter name..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          size="small"
+          sx={{
+            backgroundColor: "white",
+            "& .MuiOutlinedInput-root": {
+              "& fieldset": {
+                borderColor: "#e5e7eb",
+              },
+              "&:hover fieldset": {
+                borderColor: "#d1d5db",
+              },
+            },
+          }}
+        />
+      </div>
+
       {requestsStatus === "loading" && <CircularProgress />}
       {requestsStatus === "failed" && (
         <Alert severity="error">Error: {error}</Alert>
@@ -390,190 +509,169 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
             </Tabs>
           </Box>
           <TabPanel value={activeTab} index={0}>
-            <TableContainer component={Paper}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    {petSummaryColumns.map((column) => (
-                      <TableCell key={column.field}>
-                        {column.headerName}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {petAdoptionSummary.map((row) => (
-                    <TableRow key={row.petId}>
-                      {petSummaryColumns.map((column) => (
-                        <TableCell key={column.field}>
-                          {column.renderCell
-                            ? column.renderCell({ value: row[column.field] })
-                            : row[column.field]}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+            <AntTable
+              columns={petSummaryColumns}
+              dataSource={petAdoptionSummary}
+              rowKey="petId"
+            />
           </TabPanel>
           <TabPanel value={activeTab} index={1}>
-            <TableContainer component={Paper}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    {columns.map((column) => (
-                      <TableCell key={column.field}>
-                        {column.headerName}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {getFilteredRequests("PENDING").map((row) => (
-                    <TableRow key={row._id}>
-                      {columns.map((column) => (
-                        <TableCell key={column.field}>
-                          {column.renderCell
-                            ? column.renderCell({
-                                row,
-                                value: row[column.field],
-                              })
-                            : row[column.field]}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+            <AntTable
+              columns={columns}
+              dataSource={getFilteredRequestsByAdopter(
+                adoptionRequestsWithPetInfo,
+                "PENDING"
+              )}
+              rowKey="_id"
+            />
           </TabPanel>
           <TabPanel value={activeTab} index={2}>
-            <TableContainer component={Paper}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    {columns.map((column) => (
-                      <TableCell key={column.field}>
-                        {column.headerName}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {getFilteredRequests("APPROVED").map((row) => (
-                    <TableRow key={row._id}>
-                      {columns.map((column) => (
-                        <TableCell key={column.field}>
-                          {column.renderCell
-                            ? column.renderCell({
-                                row,
-                                value: row[column.field],
-                              })
-                            : row[column.field]}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+            <AntTable
+              columns={columns}
+              dataSource={getFilteredRequestsByAdopter(
+                adoptionRequestsWithPetInfo,
+                "APPROVED"
+              )}
+              rowKey="_id"
+            />
           </TabPanel>
           <TabPanel value={activeTab} index={3}>
-            <TableContainer component={Paper}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    {columns.map((column) => (
-                      <TableCell key={column.field}>
-                        {column.headerName}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {getFilteredRequests("REJECTED").map((row) => (
-                    <TableRow key={row._id}>
-                      {columns.map((column) => (
-                        <TableCell key={column.field}>
-                          {column.renderCell
-                            ? column.renderCell({
-                                row,
-                                value: row[column.field],
-                              })
-                            : row[column.field]}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+            <AntTable
+              columns={columns}
+              dataSource={getFilteredRequestsByAdopter(
+                adoptionRequestsWithPetInfo,
+                "REJECTED"
+              )}
+              rowKey="_id"
+            />
           </TabPanel>
         </Box>
       )}
-      <Dialog open={isModalVisible} onClose={handleCancel}>
-        <DialogTitle>Enter a comment</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            id="comment"
-            label="Comment"
-            type="text"
-            fullWidth
-            variant="standard"
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCancel}>Cancel</Button>
-          <Button onClick={handleOk}>
+      <Modal
+        open={isModalVisible}
+        title="Enter a comment"
+        onCancel={handleCancel}
+        footer={[
+          <AntButton key="cancel" onClick={handleCancel}>
+            Cancel
+          </AntButton>,
+          <AntButton
+            key="submit"
+            type="primary"
+            style={
+              newStatus === "APPROVED"
+                ? { backgroundColor: "#52c41a" }
+                : { backgroundColor: "#ff4d4f" }
+            }
+            onClick={handleOk}
+          >
             {newStatus === "APPROVED" ? "Approve" : "Reject"}
-          </Button>
-        </DialogActions>
-      </Dialog>
-      <Dialog
-        open={viewModalVisible}
-        onClose={() => setViewModalVisible(false)}
+          </AntButton>,
+        ]}
       >
-        <DialogTitle>Request Details</DialogTitle>
-        <DialogContent>
-          {selectedRequest && (
-            <DialogContentText>
-              <Typography>
-                <strong>Pet Name:</strong> {selectedRequest.petName}
-              </Typography>
-              <Typography>
-                <strong>Status:</strong> {selectedRequest.status}
-              </Typography>
-              <Typography>
-                <strong>Request Date:</strong>{" "}
+        <TextField
+          autoFocus
+          margin="dense"
+          id="comment"
+          label="Comment"
+          type="text"
+          fullWidth
+          variant="standard"
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+        />
+      </Modal>
+      <Modal
+        open={viewModalVisible}
+        title={<Title level={4}>Request Details</Title>}
+        onCancel={() => setViewModalVisible(false)}
+        footer={[
+          <AntButton
+            key="close"
+            type="primary"
+            onClick={() => setViewModalVisible(false)}
+          >
+            Close
+          </AntButton>,
+        ]}
+      >
+        {selectedRequest && (
+          <div className="space-y-4">
+            <div>
+              <Text strong>Pet Name: </Text>
+              <Text>{selectedRequest.petName}</Text>
+            </div>
+
+            <div>
+              <Text strong>Status: </Text>
+              <Text>
+                <span
+                  className={`px-2 py-1 rounded-full font-medium ${
+                    selectedRequest.status === "PENDING"
+                      ? "bg-yellow-200 text-yellow-900"
+                      : selectedRequest.status === "APPROVED"
+                      ? "bg-green-200 text-green-900"
+                      : "bg-red-200 text-red-900"
+                  }`}
+                >
+                  {selectedRequest.status}
+                </span>
+              </Text>
+            </div>
+
+            <div>
+              <Text strong>Request Date: </Text>
+              <Text>
                 {new Date(selectedRequest.requestDate).toLocaleDateString()}
-              </Typography>
-              <Typography>
-                <strong>Comment:</strong> {selectedRequest.comment}
-              </Typography>
-              {selectedRequest.adoptionDate && (
-                <Typography>
-                  <strong>Adoption Date:</strong>{" "}
+              </Text>
+            </div>
+
+            <div>
+              <Text strong>Comment: </Text>
+              <Text>{selectedRequest.comment}</Text>
+            </div>
+
+            {selectedRequest.adoptionDate && (
+              <div>
+                <Text strong>Adoption Date: </Text>
+                <Text>
                   {new Date(selectedRequest.adoptionDate).toLocaleDateString()}
-                </Typography>
-              )}
-              <Typography>
-                <strong>Reviewed By:</strong>{" "}
+                </Text>
+              </div>
+            )}
+
+            <div>
+              <Text strong>Reviewed By: </Text>
+              <Text>
                 {selectedRequest.reviewBy
                   ? reviewerNames[selectedRequest.reviewBy] || "Loading..."
                   : "Not reviewed yet"}
-              </Typography>
-            </DialogContentText>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setViewModalVisible(false)}>Close</Button>
-        </DialogActions>
-      </Dialog>
+              </Text>
+            </div>
+          </div>
+        )}
+      </Modal>
+      {/* Thay thế Snackbar bằng Dialog này */}
+      <Modal
+        open={notificationDialog.open}
+        title={notificationDialog.title}
+        onCancel={() =>
+          setNotificationDialog((prev) => ({ ...prev, open: false }))
+        }
+        footer={[
+          <AntButton
+            key="close"
+            type="primary"
+            onClick={() =>
+              setNotificationDialog((prev) => ({ ...prev, open: false }))
+            }
+          >
+            Close
+          </AntButton>,
+        ]}
+      >
+        <p>{notificationDialog.message}</p>
+      </Modal>
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}
@@ -583,6 +681,5 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
     </div>
   );
 };
-
 
 export default AdoptableManagement;

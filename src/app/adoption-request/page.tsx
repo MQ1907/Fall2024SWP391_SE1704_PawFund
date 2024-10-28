@@ -45,12 +45,12 @@ const CreateAdoptionRequest = () => {
 
   const handleSubmit = async (values: any) => {
     if (!userId) {
-      message.error("ID người dùng không khả dụng. Vui lòng đăng nhập.");
+      message.error("User ID is not available. Please log in.");
       return;
     }
 
     if (hasExistingRequest(petId, userId)) {
-      message.error("Bạn đã gửi yêu cầu nhận nuôi cho con vật cưng này rồi.");
+      message.error("You have already submitted an adoption request for this pet.");
       return;
     }
 
@@ -68,17 +68,17 @@ const CreateAdoptionRequest = () => {
 
       if (createAdoptionRequest.fulfilled.match(resultAction)) {
         addRequest({ petId, userId });
-        message.success("Yêu cầu nhận nuôi đã được gửi thành công!");
+        message.success("Adoption request has been sent successfully!");
         form.resetFields();
         setShowForm(false);
       } else {
         const errorMessage =
-          resultAction.error.message || "Đã xảy ra lỗi không xác định";
-        message.error(`Không thể gửi yêu cầu nhận nuôi: ${errorMessage}`);
+          resultAction.error.message || "An undefined error occurred";
+        message.error(`Cannot send adoption request: ${errorMessage}`);
       }
     } catch (error) {
-      console.error("Lỗi khi gửi yêu cầu nhận nuôi:", error);
-      message.error("Đã xảy ra lỗi không mong muốn. Vui lòng thử lại sau.");
+      console.error("Error when sending adoption request:", error);
+      message.error("An unexpected error occurred. Please try again later.");
     }
   };
 
