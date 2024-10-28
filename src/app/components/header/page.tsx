@@ -368,16 +368,6 @@ const Header = () => {
                   ? "text-[#D94E66]"
                   : "text-black hover:text-[#D94E66]"
               }`}
-              onClick={() => handleClick("/news")}
-            >
-              NEWS
-            </li>
-            <li
-              className={`cursor-pointer animate__animated animate__fadeInLeft ${
-                pathname === "/news"
-                  ? "text-[#D94E66]"
-                  : "text-black hover:text-[#D94E66]"
-              }`}
               onClick={() => handleClick("/eventinf")}
             >
               EVENTS

@@ -4,6 +4,7 @@ import petReducer from "../lib/features/pet/petSlice"
 import healthCheckReducer  from "../lib/features/pet/HealthCheckSlice"
 import adoptionReducer  from "./features/adopt/adoptSlice"
 import userReducer from './features/user/userSlice';
+import eventReducer from './features/event/eventSlice';
 
 export const makeStore = () => {
   return configureStore({
@@ -13,6 +14,7 @@ export const makeStore = () => {
          healthChecks: healthCheckReducer,
          adoption: adoptionReducer,
          user: userReducer, 
+         events: eventReducer,
     }
   })
 }
