@@ -375,7 +375,7 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
       },
     },
     {
-      title: "Adopt By",
+      title: "Request Adopt By",
       dataIndex: "userId",
       key: "adoptBy",
       render: (userId: string) => userNames[userId] || userId || "N/A",
@@ -651,7 +651,6 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
           </div>
         )}
       </Modal>
-      {/* Thay thế Snackbar bằng Dialog này */}
       <Modal
         open={notificationDialog.open}
         title={notificationDialog.title}

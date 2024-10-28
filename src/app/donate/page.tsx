@@ -1,38 +1,84 @@
 "use client";
-import Image from "next/image";
-import React from "react";
-import { useRouter } from "next/navigation";
+import React, { useState } from 'react';
+import { useAppDispatch } from '@/lib/hook';
+import { Button, Input, Form, InputNumber, message } from 'antd';
+import { useRouter } from 'next/navigation';
 import GoodBaby from "../goodpet/page";
+import Image from 'next/image'; // Thêm dòng này ở đầu file
 
 const Donate = () => {
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
   const supporterData = [
     {
       id: 1,
-      name: "ME-0 Viet Nam",
-      description: "Nhà cung cấp thức ăn số 1 cho mèo",
+      name: "ME-0 Vietnam",
+      description: "Number 1 cat food supplier",
       image: "/images/sp1.png",
     },
     {
       id: 2,
-      name: "SmartHeart Viet Nam",
-      description: "Nhà cung cấp thức ăn số 1 cho mèo",
+      name: "SmartHeart Vietnam",
+      description: "Number 1 cat food supplier",
       image: "/images/sp2.png",
     },
     {
       id: 3,
-      name: " BetterWord Saigon",
-      description: "Nhà cung cấp thức ăn số 1 cho mèo",
+      name: "BetterWord Saigon",
+      description: "Number 1 cat food supplier",
       image: "/images/sp3.png",
     },
     {
       id: 4,
       name: "FPT University",
-      description: "Nhà tài trợ chiến dịch ủng hộ và gây quỹ cho động vật",
+      description: "Sponsor of animal support and fundraising campaigns",
       image: "/images/sp4.png",
     },
   ];
-  const router = useRouter();
   
+  const handleDonate = async (values: any) => {
+    try {
+      setLoading(true);
+
+      const paymentData = {
+        amount: Number(values.amount),
+        returnUrl: 'http://localhost:3000/success',
+        cancelUrl: 'http://localhost:3000/cancel'
+      };
+
+      console.log('Sending payment data:', paymentData);
+
+      const response = await fetch('/api/payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(paymentData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'API request failed');
+      }
+
+      const result = await response.json();
+      console.log('API response:', result);
+
+      if (result.data?.checkoutUrl) {
+        window.location.href = result.data.checkoutUrl;
+      } else {
+        throw new Error('No checkout URL in response');
+      }
+
+    } catch (error: any) {
+      console.error('Payment error:', error);
+      message.error(error.message || 'An error occurred while creating the transaction');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="mt-[148px]">
       <div
@@ -93,16 +139,75 @@ const Donate = () => {
             height={230}
           />
         </div>
-        <div className="flex items-end ml-[200px]">
+       
+       <div>
+         <div className="bg-yellow-200 p-6 rounded-lg shadow-md ml-[200px] w-[800px]">
+        <h2 className="text-2xl font-bold mb-4">DONATE TO PAWFUND</h2>
+        <Form
+          onFinish={handleDonate}
+          layout="vertical"
+        >
+                   <Form.Item
+            name="amount"
+            label="Donation Amount (VND)"
+            rules={[
+              { required: true, message: 'Please enter amount' },
+              { type: 'number', min: 10000, message: 'Minimum amount is 10,000 VND' },
+              { type: 'number', max: 100000000, message: 'Maximum amount is 100,000,000 VND' }
+            ]}
+          >
+            <InputNumber
+              style={{ width: '100%' }}
+              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+              parser={value => value!.replace(/[^\d]/g, '')} // Only allow digits
+              placeholder="Enter amount"
+              min={10000}
+              max={100000000}
+              precision={0}
+              keyboard={true}
+              controls={false}
+              onKeyPress={(e) => {
+                const charCode = e.which ? e.which : e.keyCode;
+                if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+                  e.preventDefault();
+                }
+              }}
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="description"
+            label="Message"
+          >
+            <Input.TextArea 
+              placeholder="Enter your message (optional)"
+              rows={4}
+            />
+          </Form.Item>
+
+          <Form.Item>
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={loading}
+              className="w-full bg-[#EC4899] hover:bg-[#008ADE]/80"
+            >
+              Donate Now
+            </Button>
+          </Form.Item>
+        </Form>
+      </div>
+      <div className="flex items-end ml-[200px] mt-7">
           <button
             onClick={() => {
               router.push("/contact");
             }}
             className="bg-pink-500 hover:bg-[#008ADF] text-white text-lg font-bold py-3 px-8 rounded-full w-[200px]"
           >
-            DONATE NOW
+           SUPPORT
           </button>
         </div>
+       </div>
       </div>
       <div className="flex flex-col items-center justify-center pt-10 mt-8 gap-3 bg-[#F6F6F6]">
         <div className="font-semibold text-3xl ">SUPPORTER COMMUNITY</div>
@@ -114,12 +219,6 @@ const Donate = () => {
           className="transform rotate-12"
         />
         <div>
-          {/* <div className="flex flex-nowrap gap-10">
-              <div>01</div>
-              <div>02</div>
-              <div>03</div>
-              <div>03</div>
-            </div> */}
           <div className="flex justify-center">
             <div className="grid grid-cols-4 gap-6 p-6 w-[1100px]">
               {supporterData.slice(0, 16).map((suppoter, index) => (
@@ -184,14 +283,11 @@ const Donate = () => {
             </div>
           </div>
         </div>
-        
       </div>
       <div className="mt-3">
           <GoodBaby />
-        </div>
-        <div>
-
-        </div>
+      </div>
+      
     </div>
   );
 };
