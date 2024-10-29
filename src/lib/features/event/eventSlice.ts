@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
+const API_URL = 'http://localhost:8000';
 
 export const fetchEvents = createAsyncThunk(
   "events/fetchEvents",
@@ -57,6 +58,62 @@ export const createEvent = createAsyncThunk(
       return rejectWithValue(
         error.response?.data?.message || "Failed to create event"
       );
+    }
+  }
+);
+
+// Thêm action updateEvent
+interface Supporter {
+  _id?: string;
+  name?: string;
+  avatar?: string;
+}
+
+interface UpdateEventDto {
+  title: string;
+  description: string;
+  image: string;
+  start: Date;
+  end: Date;
+  location: string;
+  supporters: (string | Supporter)[];
+}
+
+export const updateEvent = createAsyncThunk(
+  'events/updateEvent',
+  async ({ id, updateEventDto }: { id: string, updateEventDto: UpdateEventDto }) => {
+    try {
+      // Đảm bảo supporters là array hợp lệ
+      const eventToUpdate = {
+        ...updateEventDto,
+        supporters: Array.isArray(updateEventDto.supporters) 
+          ? updateEventDto.supporters.filter(Boolean) 
+          : []
+      };
+
+      const response = await axios.put(`${API_URL}/event/update/${id}`, eventToUpdate);
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        throw new Error('Event cannot be updated when ongoing or deleted');
+      }
+      throw error;
+    }
+  }
+);
+
+// Thêm action deleteEvent
+export const deleteEvent = createAsyncThunk(
+  'events/deleteEvent',
+  async (id: string) => {
+    try {
+      const response = await axios.put(`${API_URL}/event/delete/${id}`);
+      return id; // Trả về id để xóa khỏi state
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        throw new Error('Event not found or already deleted');
+      }
+      throw error;
     }
   }
 );
@@ -128,6 +185,31 @@ const eventSlice = createSlice({
       .addCase(createEvent.rejected, (state, action) => {
         state.status = "failed";
         state.error = (action.payload as string) || "Failed to create event";
+      })
+      .addCase(updateEvent.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(updateEvent.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        const index = state.events.findIndex(event => event._id === action.payload._id);
+        if (index !== -1) {
+          state.events[index] = action.payload;
+        }
+      })
+      .addCase(updateEvent.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message || 'Failed to update event';
+      })
+      .addCase(deleteEvent.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(deleteEvent.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.events = state.events.filter(event => event._id !== action.payload);
+      })
+      .addCase(deleteEvent.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message || 'Failed to delete event';
       });
   },
 });
