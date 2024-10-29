@@ -181,20 +181,22 @@ const HistoryVolunteer = () => {
         ),
     },
     {
-    title: "Adopted",
-    dataIndex: "isAdopted",
-    key: "isAdopted",
-    render: (isAdopted: boolean) =>
-      isAdopted ? (
-        <Tag color="yellow" className="font-semibold uppercase">
-          Adopted
-        </Tag>
-      ) : (
-        <Tag color="red" className="font-semibold uppercase">
-          Not Adopted
-        </Tag>
-      ),
-  },
+      title: "Adopted",
+      dataIndex: "isAdopted",
+      key: "isAdopted",
+      render: (isAdopted: boolean, record: { deliveryStatus: string }) =>
+        ["CANCELED", "PENDING", "INPROCESS"].includes(
+          record.deliveryStatus
+        ) ? null : isAdopted ? ( 
+          <Tag color="yellow" className="font-semibold uppercase">
+            Adopted
+          </Tag>
+        ) : (
+          <Tag color="red" className="font-semibold uppercase">
+            Not Adopted
+          </Tag>
+        ),
+    },
   ];
 
   return (
