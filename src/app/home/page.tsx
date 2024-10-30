@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useEffect, useState } from "react";
 import Carousel from "../components/carousel/page";
 import Image from "next/image";
@@ -43,7 +43,7 @@ const Home = () => {
     router.push(link);
   };
 
-  const [isAnimating] = useState(true); 
+  const [isAnimating] = useState(true);
   const [rescues, setRescues] = useState(0);
   const [hasOwner, setHasOwner] = useState(0);
   const [waitingForOwner, setWaitingForOwner] = useState(0);
@@ -58,13 +58,13 @@ const Home = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      const section = document.getElementById('stats-section');
+      const section = document.getElementById("stats-section");
       if (section) {
         const { top, bottom } = section.getBoundingClientRect();
         if (top < window.innerHeight && bottom > 0) {
           stats.forEach(({ value, setValue }) => {
             let count = 0;
-            const increment = Math.ceil(value / 100); 
+            const increment = Math.ceil(value / 100);
             const interval = setInterval(() => {
               if (count < value) {
                 count += increment;
@@ -75,13 +75,13 @@ const Home = () => {
               }
             }, 20);
           });
-          window.removeEventListener('scroll', handleScroll); 
+          window.removeEventListener("scroll", handleScroll);
         }
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll); // Cleanup
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll); // Cleanup
   }, []);
 
   return (
@@ -106,24 +106,43 @@ const Home = () => {
               through social networks and volunteer activities.
             </div>
           </div>
-          <Image className={`${isAnimating ? 'animate__animated animate__zoomIn animate__delay-1s' : ''}`} src="/images/dogadoptme.png" alt="" width={383} height={383} />
+          <Image
+            className={`${
+              isAnimating
+                ? "animate__animated animate__zoomIn animate__delay-1s"
+                : ""
+            }`}
+            src="/images/dogadoptme.png"
+            alt=""
+            width={383}
+            height={383}
+          />
         </div>
         <div className="flex justify-center">
-          <button onClick={() => {
+          <button
+            onClick={() => {
               router.push("/aboutus");
-            }} className="bg-blue-500 text-white py-2 px-20 rounded-3xl hover:bg-[#FFCC00] animate__animated animate__pulse animate__infinite">
+            }}
+            className="bg-blue-500 text-white py-2 px-20 rounded-3xl hover:bg-[#FFCC00] animate__animated animate__pulse animate__infinite"
+          >
             {" "}
             About Us{" "}
           </button>
         </div>
 
-        <div className={`flex justify-center gap-10 p-6 mt-24 ${isAnimating ? 'animate__animated animate__fadeInUp animate__delay-1s' : ''}`}>
+        <div
+          className={`flex justify-center gap-10 p-6 mt-24 ${
+            isAnimating
+              ? "animate__animated animate__fadeInUp animate__delay-1s"
+              : ""
+          }`}
+        >
           {cardData.map((card, index) => (
             <div
               key={card.id}
               className={`bg-[#FFCC00] rounded-xl shadow-lg p-3 flex flex-col items-center w-[353px] h-[350px] relative animate__animated animate__fadeInUp animate__delay-${index}s`}
             >
-              <div className="bg-[#F6F6F6] rounded-xl shadow-lg p-3 flex flex-col items-center w-[330px] h-[325px] absolute top-[-80px]">
+              <div className="bg-[#F6F6F6] rounded-xl shadow-lg p-3 flex flex-col items-center w-[330px] h-[325px] absolute top-[-80px] transform transition-transform duration-300 hover:scale-110">
                 <Image
                   src={card.image}
                   alt={card.title}
@@ -170,8 +189,12 @@ const Home = () => {
           </div>
           <div className="flex flex-col items-center justify-center gap-5">
             <Image src="/images/train.png" alt="" width={122} height={122} />
-            <div className="text-4xl font-bold text-white">{waitingForOwner}</div>
-            <div className="text-2xl font-semibold text-white">Waiting for owner</div>
+            <div className="text-4xl font-bold text-white">
+              {waitingForOwner}
+            </div>
+            <div className="text-2xl font-semibold text-white">
+              Waiting for owner
+            </div>
           </div>
           <div className="flex flex-col items-center justify-center gap-5">
             <Image src="/images/food.png" alt="" width={122} height={122} />
