@@ -390,8 +390,7 @@ const Adopt = () => {
           <Link href={`/pet-detail/${pet._id}`} key={pet._id}>
             <div
               key={pet._id}
-              className={`relative text-center mx-auto animate__animated ${pet.isAdopted ? 'bg-gray-300' : 'bg-white'} shadow-md rounded-lg p-4 transition duration-300 ease-in-out hover:shadow-lg`}
-            >
+              className={`relative text-center mx-auto animate__animated transform transition-transform duration-300 hover:scale-110 ${pet.isAdopted ? 'bg-gray-300' : 'bg-white'} shadow-md rounded-lg p-4 transition duration-300 ease-in-out hover:shadow-lg`}            >
               <img
                 src={pet.image}
                 alt={pet.name}

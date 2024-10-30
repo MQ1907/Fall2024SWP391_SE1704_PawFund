@@ -137,6 +137,7 @@ const Donate = () => {
             alt="pets"
             width={230}
             height={230}
+               className='transform transition-transform duration-300 hover:scale-110'
           />
         </div>
        
