@@ -82,13 +82,11 @@ export const fetchAdoptionRequestsByUserId = createAsyncThunk(
             "Failed to fetch adoption requests for this user"
         );
       }
-      console.error("Error:", error); 
+      console.error("Error:", error);
       return rejectWithValue("Failed to fetch adoption requests for this user");
     }
   }
 );
-
-
 
 // Async Thunk for updating adoption request status
 export const updateAdoptionRequestStatus = createAsyncThunk(
@@ -120,10 +118,30 @@ export const updateAdoptionRequestStatus = createAsyncThunk(
   }
 );
 
+export const deleteAdoptionRequest = createAsyncThunk(
+  "adoption/delete",
+  async (requestId: string, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:8000/adoption-requests/delete/${requestId}`,
+        { status: "NOT_AVAILABLE" }
+      );
+      return response.data;
+    } catch (error: any) {
+      if (error.response) {
+        return rejectWithValue(
+          error.response.data.message || "Unable to cancel adoption request"
+        );
+      }
+      return rejectWithValue("Unable to cancel adoption request");
+    }
+  }
+);
+
 interface AdoptionState {
-  adoptionRequests: any[]; // Danh sách các yêu cầu nhận nuôi
-  status: "idle" | "loading" | "succeeded" | "failed"; // Trạng thái của yêu cầu
-  error: string | null; // Thông báo lỗi
+  adoptionRequests: any[];
+  status: "idle" | "loading" | "succeeded" | "failed";
+  error: string | null;
 }
 
 const initialState: AdoptionState = {
@@ -137,19 +155,36 @@ const adoptionSlice = createSlice({
   initialState,
   reducers: {
     clearError: (state) => {
-      state.error = null; // Xóa thông báo lỗi
+      state.error = null;
     },
-    // Thêm các reducer khác nếu cần
   },
   extraReducers: (builder) => {
-    // Xử lý các yêu cầu fetch all adoption requests
     builder
+      .addCase(deleteAdoptionRequest.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(deleteAdoptionRequest.fulfilled, (state, action) => {
+        state.status = "succeeded";
+
+        const index = state.adoptionRequests.findIndex(
+          (request) => request._id === action.payload._id
+        );
+        if (index !== -1) {
+          state.adoptionRequests[index].status = "NOT_AVAILABLE";
+        }
+      })
+      .addCase(deleteAdoptionRequest.rejected, (state, action) => {
+        state.status = "failed";
+        state.error =
+          (action.payload as string) || "Unable to cancel adoption request";
+      })
+
       .addCase(fetchAdoptionRequests.pending, (state) => {
         state.status = "loading";
       })
       .addCase(fetchAdoptionRequests.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.adoptionRequests = action.payload; // Cập nhật danh sách tất cả yêu cầu
+        state.adoptionRequests = action.payload;
       })
       .addCase(fetchAdoptionRequests.rejected, (state, action) => {
         state.status = "failed";

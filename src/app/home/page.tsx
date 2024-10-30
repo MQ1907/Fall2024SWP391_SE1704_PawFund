@@ -123,7 +123,7 @@ const Home = () => {
               key={card.id}
               className={`bg-[#FFCC00] rounded-xl shadow-lg p-3 flex flex-col items-center w-[353px] h-[350px] relative animate__animated animate__fadeInUp animate__delay-${index}s`}
             >
-              <div className="bg-[#F6F6F6] rounded-xl shadow-lg p-3 flex flex-col items-center w-[330px] h-[325px] absolute top-[-80px]">
+             <div className="bg-[#F6F6F6] rounded-xl shadow-lg p-3 flex flex-col items-center w-[330px] h-[325px] absolute top-[-80px] transform transition-transform duration-300 hover:scale-110">
                 <Image
                   src={card.image}
                   alt={card.title}

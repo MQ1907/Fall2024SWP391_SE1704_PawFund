@@ -94,7 +94,7 @@ const NewsHome = () => {
           {items.slice(currentIndex, currentIndex + 3).map((item) => (
             <div
               key={item.id}
-              className="max-w-xs rounded overflow-hidden shadow-lg text-center bg-[#F4F4F4] relative"
+              className="max-w-xs rounded overflow-hidden shadow-lg text-center bg-[#F4F4F4] relative transform transition-transform duration-300 hover:scale-110"
             >
               <div className="relative w-auto h-[300px]  ">
                 <Image

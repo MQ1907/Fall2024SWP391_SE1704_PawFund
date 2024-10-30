@@ -4,7 +4,7 @@ import { useAppDispatch } from '@/lib/hook';
 import { Button, Input, Form, InputNumber, message } from 'antd';
 import { useRouter } from 'next/navigation';
 import GoodBaby from "../goodpet/page";
-import Image from 'next/image'; // Thêm dòng này ở đầu file
+import Image from 'next/image'; 
 
 const Donate = () => {
   const dispatch = useAppDispatch();
@@ -137,6 +137,7 @@ const Donate = () => {
             alt="pets"
             width={230}
             height={230}
+            className='transform transition-transform duration-300 hover:scale-110'
           />
         </div>
        

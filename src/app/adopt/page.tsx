@@ -2,8 +2,8 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector } from "../../lib/hook"; // Import hooks
-import { fetchPetsByStatus } from "../../lib/features/pet/petSlice"; // Đường dẫn đến file petSlice
+import { useAppDispatch, useAppSelector } from "../../lib/hook";
+import { fetchPetsByStatus } from "../../lib/features/pet/petSlice";
 import Link from "next/link";
 
 const Adopt = () => {
@@ -13,7 +13,7 @@ const Adopt = () => {
   };
   const dispatch = useAppDispatch();
   const { pets, status, error } = useAppSelector((state) => state.pets);
-    const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
   const petsPerPage = 6;
 
@@ -41,7 +41,7 @@ const Adopt = () => {
       pet.deliveryStatus === "COMPLETED"
   );
 
-   const currentPets = filteredPets.slice(
+  const currentPets = filteredPets.slice(
     currentIndex,
     currentIndex + petsPerPage
   );
@@ -333,8 +333,8 @@ const Adopt = () => {
         </div>
 
         <div className="w-[1100px] mx-auto p-4 mt-[40px]">
-          <div className="flex gap-6 items-center">
-            <div className="flex-1">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div>
               <label className="block text-gray-700 font-medium mb-2">
                 Gender
               </label>
@@ -345,7 +345,7 @@ const Adopt = () => {
               </select>
             </div>
 
-            <div className="flex-1">
+            <div>
               <label className="block text-gray-700 font-medium mb-2">
                 Sterilization
               </label>
@@ -355,8 +355,10 @@ const Adopt = () => {
                 <option>No</option>
               </select>
             </div>
+          </div>
 
-            <div className="flex-1">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 mt-6">
+            <div>
               <label className="block text-gray-700 font-medium mb-2">
                 Color
               </label>
@@ -368,7 +370,7 @@ const Adopt = () => {
               </select>
             </div>
 
-            <div className="flex-1">
+            <div>
               <label className="block text-gray-700 font-medium mb-2">
                 Name
               </label>
@@ -384,46 +386,48 @@ const Adopt = () => {
         </div>
 
         <div>
-           <div className="grid grid-cols-3 gap-x-[15%] gap-y-[5%] p-6 h-full ml-[300px] my-[80px] w-[1000px]">
-      {currentPets.length > 0 ? (
-        currentPets.map((pet) => (
-          <Link href={`/pet-detail/${pet._id}`} key={pet._id}>
-            <div
-              key={pet._id}
-              className={`relative text-center mx-auto animate__animated ${pet.isAdopted ? 'bg-gray-300' : 'bg-white'} shadow-md rounded-lg p-4 transition duration-300 ease-in-out hover:shadow-lg`}
-            >
-              <img
-                src={pet.image}
-                alt={pet.name}
-                width={200}
-                height={200}
-                 className="rounded-md w-full h-56 object-cover"
-              />
-              {pet.isAdopted && (
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full bg-black bg-opacity-70 text-white font-bold text-lg rounded-lg px-4 py-2 shadow-xl transition duration-300 ease-in-out uppercase flex items-center justify-center">
-                    Adopted
+          <div className="grid grid-cols-3 gap-x-[15%] gap-y-[5%] p-6 h-full ml-[300px] my-[80px] w-[1000px]">
+            {currentPets.length > 0 ? (
+              currentPets.map((pet) => (
+                <Link href={`/pet-detail/${pet._id}`} key={pet._id}>
+                  <div
+                    key={pet._id}
+                    className={`relative text-center mx-auto animate__animated transform transition-transform duration-300 hover:scale-110 ${
+                      pet.isAdopted ? "bg-gray-300" : "bg-white"
+                    } shadow-md rounded-lg p-4 transition duration-300 ease-in-out hover:shadow-lg`}
+                  >
+                    <img
+                      src={pet.image}
+                      alt={pet.name}
+                      width={200}
+                      height={200}
+                      className="rounded-md w-full h-56 object-cover"
+                    />
+                    {pet.isAdopted && (
+                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full bg-black bg-opacity-70 text-white font-bold text-lg rounded-lg px-4 py-2 shadow-xl transition duration-300 ease-in-out uppercase flex items-center justify-center">
+                        Adopted
+                      </div>
+                    )}
+                    <div className="mt-2">
+                      <h3 className="text-[23px] font-bold">{pet.name}</h3>
+                    </div>
+                    <hr className="h-[2px] w-[50px] bg-[#adacac] my-3" />
+                    <div className="flex my-1">
+                      <p className="font-semibold">Gender: </p>
+                      <p className="px-1">{pet.gender}</p>
+                    </div>
+                    <hr className="border-t-[1px] border-dashed border-[#adacac]" />
+                    <div className="flex my-1">
+                      <p className="font-semibold">Vaccinated: </p>
+                      <p className="px-1">{pet.isVaccinated ? "Yes" : "No"}</p>
+                    </div>
                   </div>
-                )}
-              <div className="mt-2">
-                <h3 className="text-[23px] font-bold">{pet.name}</h3>
-              </div>
-              <hr className="h-[2px] w-[50px] bg-[#adacac] my-3" />
-              <div className="flex my-1">
-                <p className="font-semibold">Gender: </p>
-                <p className="px-1">{pet.gender}</p>
-              </div>
-              <hr className="border-t-[1px] border-dashed border-[#adacac]" />
-              <div className="flex my-1">
-                <p className="font-semibold">Vaccinated: </p>
-                <p className="px-1">{pet.isVaccinated ? "Yes" : "No"}</p>
-              </div>
-            </div>
-          </Link>
-        ))
-      ) : (
-        <p>No pets found.</p>
-      )}
-    </div>
+                </Link>
+              ))
+            ) : (
+              <p>No pets found.</p>
+            )}
+          </div>
         </div>
       </div>
 
