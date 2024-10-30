@@ -43,13 +43,17 @@ const Header = () => {
   };
 
   const handleClickHistory = () => {
-  if (role === "VOLUNTEER") {
-    router.push("/history-volunteer"); // Chỉ cho phép Volunteer truy cập
-  }  else if (role === "CUSTOMER") {
-    router.push("/history-customer"); // Chỉ cho phép Customer truy cập
-  } else {
-    router.push("/errorpage"); // Điều hướng tới trang lỗi nếu vai trò không hợp lệ
-  }
+    setSpinning(true);
+  
+  setTimeout(() => {
+    if (role === "VOLUNTEER") {
+      router.push("/history-volunteer"); 
+    }  else if (role === "CUSTOMER") {
+      router.push("/history-customer"); 
+    } else {
+      router.push("/errorpage");
+    }
+  }, 3000);
 };
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -156,7 +160,7 @@ const Header = () => {
     setTimeout(() => {
       router.push("/shelter-staff");
       setSpinning(false);
-    }, 1000); // Simulate a delay for loading
+    }, 3000); // Simulate a delay for loading
   };
   const handleProfileClick = () => {
     setSpinning(true);

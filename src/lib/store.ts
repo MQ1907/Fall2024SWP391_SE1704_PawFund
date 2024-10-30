@@ -13,7 +13,7 @@ import eventReducer from './features/event/eventSlice';
 export const makeStore = () => {
   return configureStore({
     reducer: {
-        auth: authReducer,
+        auth: authReducer,  
          pets: petReducer,
          healthChecks: healthCheckReducer,
          adoption: adoptionReducer,

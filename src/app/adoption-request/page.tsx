@@ -105,8 +105,18 @@ const CreateAdoptionRequest = () => {
           <Input type="hidden" />
         </Form.Item>
 
-        <Form.Item label="Comment" name="comment" className="text-[20px]">
-          <Input />
+        <Form.Item 
+          label="Comment" 
+          name="comment" 
+          className="text-[20px]"
+          labelCol={{ span: 24 }}
+          wrapperCol={{ span: 24 }}
+        >
+          <Input.TextArea 
+            className="mt-2"
+            autoSize={{ minRows: 3, maxRows: 6 }}
+            placeholder="Enter your comment here..."
+          />
         </Form.Item>
 
         <Form.Item
