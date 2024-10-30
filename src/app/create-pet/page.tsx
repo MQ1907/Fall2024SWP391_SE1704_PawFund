@@ -220,18 +220,18 @@ const CreatePet = () => {
     }
   }, [petsStatus, dispatch]);
 
-  // const handleUpdateStatusCancel = async (petId: string) => {
+  const handleUpdateStatusCancel = async (petId: string) => {
   
-  //   try {
-  //     await dispatch(
-  //       updatePetDelivery({ petId, deliveryStatus: "CANCELED" })
-  //     ).unwrap();
-  //     message.success("Status cancel successfully!");
-  //   } catch (error) {
-  //     console.error("Error updating status:", error);
-  //     message.error("Failed to update status. Please try again.");
-  //   }
-  // };
+    try {
+      await dispatch(
+        updatePetDelivery({ petId, deliveryStatus: "CANCELED" })
+      ).unwrap();
+      message.success("Status cancel successfully!");
+    } catch (error) {
+      console.error("Error updating status:", error);
+      message.error("Failed to update status. Please try again.");
+    }
+  };
 
   const handleUpdateStatus = async (petId: string) => {
     if (!healthCheckCreated[petId] || healthCheckCreated[petId].type !== "ROUTINE") {
@@ -252,17 +252,17 @@ const CreatePet = () => {
 
  
 
-  // const confirmCancle = (petId: string) => {
-  //   Modal.confirm({
-  //     title: "Are you sure you want to cancle this pet?",
-  //     okText: "Yes",
-  //     okType: "danger",
-  //     cancelText: "No",
-  //     onOk() {
-  //       handleUpdateStatusCancel(petId);
-  //     },
-  //   });
-  // };
+  const confirmCancel = (petId: string) => {
+    Modal.confirm({
+      title: "Are you sure you want to cancle this pet?",
+      okText: "Yes",
+      okType: "danger",
+      cancelText: "No",
+      onOk() {
+        handleUpdateStatusCancel(petId);
+      },
+    });
+  };
 
   const commonColumns = [
     {
@@ -314,12 +314,12 @@ const CreatePet = () => {
       key: "button",
       render: (text: string, record: { _id: string }) => (
         <>
-          {/* <Button
+          <Button
             style={{ backgroundColor: "red", color: "white", marginRight: 8 }}
-            onClick={() => confirmCancle(record._id)}
+            onClick={() => confirmCancel(record._id)}
           >
             Cancel
-          </Button> */}
+          </Button>
         
           {(!healthCheckCreated[record._id] ||
           healthCheckCreated[record._id]?.type !== "ROUTINE") && (

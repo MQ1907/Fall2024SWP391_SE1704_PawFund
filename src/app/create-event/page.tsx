@@ -28,6 +28,7 @@ const CreateEventPage = () => {
   const [selectedVolunteers, setSelectedVolunteers] = useState<Volunteer[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [errors, setErrors] = useState<{[key: string]: string}>({});
 
   useEffect(() => {
     dispatch(fetchUserList());
@@ -57,25 +58,92 @@ const CreateEventPage = () => {
     setSelectedVolunteers(selectedVolunteers.filter(v => v._id !== volunteerId));
   };
 
+  const resetForm = () => {
+    setTitle("");
+    setLocation("");
+    setDescription("");
+    setStartDate("");
+    setEndDate("");
+    setImage("");
+    setSelectedVolunteers([]);
+  };
+
+  const validateForm = () => {
+    const newErrors: {[key: string]: string} = {};
+    const now = new Date();
+    const startDateTime = new Date(startDate);
+    const endDateTime = new Date(endDate);
+    
+    // Validate title
+    if (title.trim().length < 3) {
+      newErrors.title = 'Title must be at least 3 characters long';
+    }
+
+    // Validate dates
+    if (startDateTime < now) {
+      newErrors.startDate = 'Start date cannot be in the past';
+    }
+
+    if (endDateTime <= startDateTime) {
+      newErrors.endDate = 'End date must be after start date';
+    }
+
+    // Validate minimum time difference (30 minutes)
+    const timeDifferenceInMinutes = (endDateTime.getTime() - startDateTime.getTime()) / (1000 * 60);
+    if (timeDifferenceInMinutes < 30) {
+      newErrors.endDate = 'End time must be at least 30 minutes after start time';
+    }
+
+    // Validate location
+    if (location.trim().length < 3) {
+      newErrors.location = 'Location must be at least 3 characters long';
+    }
+
+    // Validate description
+    if (description.trim().length < 10) {
+      newErrors.description = 'Description must be at least 10 characters long';
+    }
+
+    // Validate image URL (optional)
+    if (image && !isValidUrl(image)) {
+      newErrors.image = 'Please enter a valid image URL';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const isValidUrl = (url: string) => {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!validateForm()) {
+      return;
+    }
+
     const eventData = {
-      title,
-      description,
+      title: title.trim(),
+      description: description.trim(),
       image,
       start: new Date(startDate),
       end: new Date(endDate),
-      location,
-      supporters: selectedVolunteers.map(v => v._id) // Changed from volunteers to supporters
+      location: location.trim(),
+      supporters: selectedVolunteers.map(v => v._id)
     };
-
-    console.log('Submitting event with data:', eventData);
 
     try {
       await dispatch(createEvent(eventData)).unwrap();
       alert('Event created successfully!');
-      // Optional: Add redirect or form reset here
+      resetForm();
+      setErrors({});
     } catch (error) {
       console.error('Create event error:', error);
       alert('Failed to create event');
@@ -100,32 +168,37 @@ const CreateEventPage = () => {
               <h2 className="text-sm font-semibold uppercase text-gray-500 mb-2">TITLE</h2>
               <input 
                 type="text" 
-                className="w-full p-3 border rounded text-lg" 
+                className={`w-full p-3 border rounded text-lg ${errors.title ? 'border-red-500' : ''}`}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 required
               />
+              {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
 
               <div className="mt-8 grid grid-cols-2 gap-6">
                 <div>
                   <h2 className="text-sm font-semibold uppercase text-gray-500 mb-2">START DATE</h2>
                   <input 
                     type="datetime-local" 
-                    className="w-full p-3 border rounded"
+                    className={`w-full p-3 border rounded ${errors.startDate ? 'border-red-500' : ''}`}
                     value={startDate}
+                    min={new Date().toISOString().slice(0, 16)}
                     onChange={(e) => setStartDate(e.target.value)}
                     required
                   />
+                  {errors.startDate && <p className="text-red-500 text-sm mt-1">{errors.startDate}</p>}
                 </div>
                 <div>
                   <h2 className="text-sm font-semibold uppercase text-gray-500 mb-2">END DATE</h2>
                   <input 
                     type="datetime-local" 
-                    className="w-full p-3 border rounded"
+                    className={`w-full p-3 border rounded ${errors.endDate ? 'border-red-500' : ''}`}
                     value={endDate}
+                    min={startDate || new Date().toISOString().slice(0, 16)}
                     onChange={(e) => setEndDate(e.target.value)}
                     required
                   />
+                  {errors.endDate && <p className="text-red-500 text-sm mt-1">{errors.endDate}</p>}
                 </div>
               </div>
 
@@ -135,24 +208,26 @@ const CreateEventPage = () => {
 
               <h2 className="text-sm font-semibold uppercase text-gray-500 mt-8 mb-2">DESCRIPTION</h2>
               <textarea
-                className="w-full p-3 border rounded"
+                className={`w-full p-3 border rounded ${errors.description ? 'border-red-500' : ''}`}
                 rows={4}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Enter event description..."
                 required
               />
+              {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
 
               <h2 className="text-sm font-semibold uppercase text-gray-500 mt-8 mb-2">LOCATION</h2>
               <div className="flex gap-4">
                 <div className="flex-grow">
                   <input 
                     type="text" 
-                    className="w-full p-3 border rounded" 
+                    className={`w-full p-3 border rounded ${errors.location ? 'border-red-500' : ''}`}
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
                     required
                   />
+                  {errors.location && <p className="text-red-500 text-sm mt-1">{errors.location}</p>}
                 </div>
               </div>
 
@@ -165,8 +240,9 @@ const CreateEventPage = () => {
                   placeholder="Enter image URL"
                   value={image}
                   onChange={handleImageChange}
-                  className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.image ? 'border-red-500' : ''}`}
                 />
+                {errors.image && <p className="text-red-500 text-sm mt-1">{errors.image}</p>}
                 {image && (
                   <div className="mt-2">
                     <img 

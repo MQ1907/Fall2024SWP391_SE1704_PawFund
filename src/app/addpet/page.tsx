@@ -7,10 +7,12 @@ import {
   InputNumber,
   Select,
   message,
+  Upload,
 } from "antd";
-import { createPet } from "../../lib/features/pet/petSlice"; // Import the createPet action
+import { createPet } from "../../lib/features/pet/petSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/hook";
 import { jwtDecode } from "jwt-decode";
+import { UploadOutlined } from "@ant-design/icons";
 
 const { TextArea } = Input;
 
@@ -22,34 +24,7 @@ const AddPet: React.FC = () => {
   const [rescueBy, setRescueBy] = useState<string | null>(null);
   const dispatch = useAppDispatch();
   const { status, error } = useAppSelector((state) => state.pets);
-
-  const handleRescueFeeChange = (value: number | null) => {
-    setRescueFee(value);
-  };
-
-  useEffect(() => {
-    const fetchRescueByFromToken = () => {
-      const storedToken = localStorage.getItem("token");
-      if (storedToken) {
-        try {
-          const decodedToken = jwtDecode<DecodedToken>(storedToken);
-          setRescueBy(decodedToken.id);
-          // Cập nhật vào petData ngay sau khi lấy được rescueBy
-          setPetData((prevState) => ({
-            ...prevState,
-            rescueBy: decodedToken.id,
-          }));
-        } catch (error) {
-          console.error("Invalid token:", error);
-          message.error("Failed to decode token. Please log in again.");
-        }
-      } else {
-        message.error("No token found. Please log in.");
-      }
-    };
-
-    fetchRescueByFromToken();
-  }, []);
+  const [form] = Form.useForm();
 
   const [petData, setPetData] = useState({
     shelterLocation: "",
@@ -61,53 +36,66 @@ const AddPet: React.FC = () => {
     breed: "",
     note: "",
     rescueBy: rescueBy,
-    rescueFee: "",
+    rescueFee: null,
     locationFound: "",
   });
 
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      try {
+        const decodedToken = jwtDecode<DecodedToken>(storedToken);
+        setRescueBy(decodedToken.id);
+        setPetData((prevState) => ({
+          ...prevState,
+          rescueBy: decodedToken.id,
+        }));
+      } catch (error) {
+        console.error("Invalid token:", error);
+        message.error("Failed to decode token. Please log in again.");
+      }
+    } else {
+      message.error("No token found. Please log in.");
+    }
+  }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    const parsedValue = ["rescueFee"].includes(name)
-      ? parseInt(value, 10)
-      : value;
-
-    setPetData({ ...petData, [name]: parsedValue });
-    console.log("Updated petData:", { ...petData, [name]: parsedValue });
+    setPetData({ ...petData, [name]: value });
   };
 
- const handleSubmit = async () => {
-  try {
-    await form.validateFields();
+  const handleSubmit = async () => {
+    try {
+      await form.validateFields();
+      if (!petData.rescueBy) {
+        message.error("Failed to submit. No rescueBy found.");
+        return;
+      }
 
-    if (!petData.rescueBy) {
-      message.error("Failed to submit. No rescueBy found.");
-      return;
+      const resultAction = await dispatch(createPet(petData));
+      if (createPet.fulfilled.match(resultAction)) {
+        message.success("Pet added successfully!");
+        form.resetFields();
+      } else if (createPet.rejected.match(resultAction)) {
+        const errorMessage =
+          resultAction.error.message || "Unknown error occurred";
+        message.error(`Failed to add pet: ${errorMessage}`);
+      }
+    } catch (error) {
+      message.error(
+        "An error occurred while submitting the form. Please try again."
+      );
     }
-
-    console.log("Submitting petData:", petData);
-    const resultAction = await dispatch(createPet(petData));
-
-    if (createPet.fulfilled.match(resultAction)) {
-      message.success("Pet added successfully!");
-      // Reset form fields
-      form.resetFields();
-    } else if (createPet.rejected.match(resultAction)) {
-      const errorMessage =
-        resultAction.error.message || "Unknown error occurred";
-      message.error(`Failed to add pet: ${errorMessage}`);
-      console.error("Error details:", resultAction.error);
-    }
-  } catch (error) {
-    console.error("Submission error:", error);
-    message.error("An error occurred while submitting the form. Please try again.");
-  }
-};
-
-  const [form] = Form.useForm();
+  };
 
   return (
-    <div className="w-[100%] mt-[10px]">
-      <Form form={form}>
+    <div className="w-full mt-4">
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={handleSubmit}
+        className="max-w-2xl mx-auto"
+      >
         <Form.Item
           label="Name"
           name="name"
@@ -131,7 +119,6 @@ const AddPet: React.FC = () => {
         >
           <Select
             onChange={(value) => setPetData({ ...petData, gender: value })}
-            value={petData.gender}
             placeholder="Select gender"
           >
             <Select.Option value="Female">Female</Select.Option>
@@ -139,25 +126,21 @@ const AddPet: React.FC = () => {
           </Select>
         </Form.Item>
 
-        <Form.Item
-          label="Rescue By"
-          name="rescueBy"
-          initialValue={rescueBy}
-          hidden
-        >
-          <Input.TextArea rows={4} disabled />
+        <Form.Item label="Rescue By" name="rescueBy" hidden>
+          <Input value={rescueBy} disabled />
         </Form.Item>
 
         <Form.Item
           label="Shelter Location"
           name="shelterLocation"
-          rules={[{ required: true, message: "Please enter Shelter Location" }]}
+          rules={[
+            { required: true, message: "Please select Shelter Location" },
+          ]}
         >
           <Select
             onChange={(value) =>
               setPetData({ ...petData, shelterLocation: value })
             }
-            value={petData.shelterLocation}
             placeholder="Select Shelter Location"
           >
             <Select.Option value="Location A">Location A</Select.Option>
@@ -173,7 +156,6 @@ const AddPet: React.FC = () => {
         >
           <Select
             onChange={(value) => setPetData({ ...petData, color: value })}
-            value={petData.color}
             placeholder="Select a color"
           >
             <Select.Option value="Black">Black</Select.Option>
@@ -197,22 +179,21 @@ const AddPet: React.FC = () => {
           <Input name="breed" value={petData.breed} onChange={handleChange} />
         </Form.Item>
 
-       <Form.Item
-  label="Description"
-  name="description"
-  rules={[
-    { required: true, message: "Please enter a description" },
-    { max: 150, message: "Description cannot exceed 150 characters" },
-  ]}
->
-  <TextArea
-    name="description"
-    value={petData.description}
-    onChange={handleChange}
-    rows={4}
-  />
-</Form.Item>
-
+        <Form.Item
+          label="Description"
+          name="description"
+          rules={[
+            { required: true, message: "Please enter a description" },
+            { max: 150, message: "Description cannot exceed 150 characters" },
+          ]}
+        >
+          <TextArea
+            name="description"
+            value={petData.description}
+            onChange={handleChange}
+            rows={4}
+          />
+        </Form.Item>
 
         <Form.Item
           label="Rescue Fee"
@@ -242,13 +223,8 @@ const AddPet: React.FC = () => {
 
         <Form.Item
           label="Location Found"
-          name="locationFound" 
-          rules={[
-            {
-              required: true,
-              message: "Please enter the location where the pet was found",
-            },
-          ]}
+          name="locationFound"
+          rules={[{ required: true, message: "Please enter location found" }]}
         >
           <Input
             name="locationFound"
@@ -260,12 +236,7 @@ const AddPet: React.FC = () => {
         <Form.Item
           label="Note"
           name="note"
-          rules={[
-            {
-              required: true,
-              message: "Please enter a note",
-            },
-          ]}
+          rules={[{ required: true, message: "Please enter a note" }]}
         >
           <Input name="note" value={petData.note} onChange={handleChange} />
         </Form.Item>
@@ -283,11 +254,16 @@ const AddPet: React.FC = () => {
           <Input name="image" value={petData.image} onChange={handleChange} />
         </Form.Item>
 
-        <Button type="primary" onClick={handleSubmit}>
-          Submit
-        </Button>
+        <Form.Item>
+          <Button
+            type="primary"
+            htmlType="submit"
+            loading={status === "loading"}
+          >
+            Submit
+          </Button>
+        </Form.Item>
 
-        {status === "loading" && <p>Loading...</p>}
         {status === "failed" && <p style={{ color: "red" }}>{error}</p>}
       </Form>
     </div>

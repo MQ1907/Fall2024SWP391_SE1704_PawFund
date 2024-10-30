@@ -1,16 +1,32 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Button, Modal, Tag } from "antd";
+import { Avatar, Button, Modal, Tag } from "antd";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "../../../lib/hook";
 import { fetchPetById } from "../../../lib/features/pet/petSlice";
 import AdoptionRequest from "@/app/adoption-request/page";
+import { fetchFeedbackByPetId } from "@/lib/features/feedback/feedbackSlice";
+import { StarOutlined } from "@ant-design/icons";
+import { fetchUserData } from "@/lib/features/user/userSlice";
+
 
 const PetDetail = () => {
   const [OpenAdoptionRequest, setCreateAdoptionRequest] = useState(false);
   const [loading, setLoading] = useState(false); // Khai báo trạng thái loading
+  interface Feedback {
+    id: string;
+    rating: number;
+    description: string;
+    userId: string;
+    feedbackAt: string;
+    user?: {
+      name: string;
+      avatar: string;
+    };
+  }
 
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const showAdoptPetModal = () => {
     setCreateAdoptionRequest(true); // Mở modal
   };
@@ -37,10 +53,29 @@ const PetDetail = () => {
   useEffect(() => {
     if (id) {
       dispatch(fetchPetById(id));
+      dispatch(fetchFeedbackByPetId(id))
+        .unwrap()
+        .then(async (data) => {
+          const feedbacksWithUserData = await Promise.all(
+            data.map(async (feedback: Feedback) => {
+              const userData = await dispatch(fetchUserData(feedback.userId)).unwrap();
+              return {
+                ...feedback,
+                user: {
+                  name: userData.name,
+                  avatar: userData.avatar,
+                },
+              };
+            })
+          );
+          setFeedbacks(feedbacksWithUserData);
+      })
     }
+   
     const timer = setTimeout(() => setIsAnimating(false), 4000);
     return () => clearTimeout(timer);
   }, [id, dispatch]);
+  
 
   if (status === "loading") {
     return <div>Loading...</div>;
@@ -53,7 +88,8 @@ const PetDetail = () => {
   if (!currentPet) {
     return <div>Pet not found</div>;
   }
-  console.log(currentPet.isAdopted)
+  
+  
   return (
     <div className="mt-[148px]">
       <div
@@ -142,12 +178,37 @@ const PetDetail = () => {
     </div>
   </div>
 
-  <div className="mt-10 p-6 bg-white shadow-lg rounded-lg">
+<div className="mt-10 p-6 bg-white shadow-lg rounded-lg">
     <h1 className="text-[34px] font-medium uppercase text-green-500 mb-4">Information</h1>
     <hr className="border-1 border-gray-300 w-full mb-4" />
     <p className="mt-6 font-semibold text-gray-700">Description: {currentPet.description}</p>
+    <h1 className="text-[34px] font-medium uppercase text-orange-500 mb-4">FeedBack From Adopter</h1>
+    <hr className="border-1 border-gray-300 w-full mb-4" />
+    {feedbacks.length > 0 ? (
+              feedbacks.map((feedback) => (
+                <div key={feedback.id} className="mb-4">
+                  <div className="flex items-center mb-4">
+                    <Avatar src={feedback.user?.avatar} size="large" />
+                    <p className="font-semibold ml-2">{feedback.user?.name}</p>
+                  </div>
+                  <p className="font-semibold mb-4">Comment: {feedback.description}</p>
+                  <p className="font-semibold mb-4">Rating: 
+                    {Array.from({ length: feedback.rating }, (_, index) => (
+                      <StarOutlined key={index} style={{ color: '#FFCC00' }} />
+                    ))}
+                  </p>
+                  <p className="font-semibold">Feedback Date: {new Date(feedback.feedbackAt).toLocaleString()}</p>
+                  <hr className="border-t-[1px] border-dashed border-gray-300 mt-2" />
+                </div>
+              ))
+            ) : (
+              <p>No feedback available for this pet.</p>
+            )}
   </div>
+ 
 </div>
+
+
  
       <div
         className="h-[200px] w-full  relative bg-fixed bg-center bg-cover bg-no-repeat flex items-center justify-center mt-3"

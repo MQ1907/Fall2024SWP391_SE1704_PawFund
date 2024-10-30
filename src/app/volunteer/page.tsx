@@ -10,7 +10,7 @@ import AddPet from "../addpet/page";
 import { jwtDecode } from "jwt-decode";
 
 import axios from "axios";
-import { fetchPets, removePet } from "@/lib/features/pet/petSlice";
+import { fetchPets, removePet, deletePet } from "@/lib/features/pet/petSlice";
 
 const Volunteer = () => {
   const { pets, status, error, sentToShelter } = useAppSelector(
@@ -64,6 +64,23 @@ const Volunteer = () => {
 
   const handleCancel = () => {
     setOpen(false);
+  };
+
+   const handleDelete = (petId: string) => {
+    dispatch(deletePet(petId));
+  };
+
+  const confirmDelete = (petId: string) => {
+    Modal.confirm({
+      title: "Do you want to delete this pet",
+      okText: "Confirm",
+      okType: "danger",
+      cancelText: "Cancel",
+      onOk() {
+        handleDelete(petId);
+        message.success("Delete Pet success!");
+      },
+    });
   };
 
   const [petId, setPetId] = useState("");
@@ -243,6 +260,14 @@ const Volunteer = () => {
             
           >
             Send to Shelter
+          </Button>
+              <Button
+            onClick={() => confirmDelete(record._id)}
+            className="mt-2"
+            style={{ backgroundColor: "red", color: "white" }}
+            
+          >
+            Delete
           </Button>
         </div>
       ),

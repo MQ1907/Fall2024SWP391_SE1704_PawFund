@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Layout, Menu, Table, Image, Tag } from "antd";
+import { Layout, Menu, Table, Image, Tag, Button, Modal, message } from "antd";
 import {
   LogoutOutlined,
   HistoryOutlined,
@@ -9,7 +9,10 @@ import {
 import { useRouter } from "next/navigation";
 import { useAppDispatch } from "@/lib/hook";
 import { logout } from "@/lib/features/auth/authSlice";
-import { fetchCreateByVolunteerId } from "../../lib/features/pet/petSlice";
+import {
+  fetchCreateByVolunteerId,
+  deletePet,
+} from "../../lib/features/pet/petSlice";
 import { fetchPetById } from "@/lib/features/pet/petSlice";
 import { jwtDecode } from "jwt-decode";
 interface AdoptionRequest {
@@ -17,6 +20,8 @@ interface AdoptionRequest {
   deliveryStatus: string;
   comment: string;
   isAdopted: boolean;
+  note: string;
+  rescueDate: string;
   key: string; // Add the key property
   [key: string]: string | number | boolean;
 }
@@ -55,10 +60,37 @@ const HistoryVolunteer = () => {
       handleGoHome();
     }
   };
+
+  const handleDelete = async (petId: string) => {
+    try {
+      await dispatch(deletePet(petId));
+
+      setHistoryVolunteer((prevHistory) =>
+        prevHistory.filter((pet) => pet._id !== petId)
+      );
+      message.success("Pet deleted successfully!");
+    } catch (error) {
+      message.error("Failed to delete pet");
+      console.error("Delete error:", error);
+    }
+  };
+
+  const confirmDelete = (petId: string) => {
+    Modal.confirm({
+      title: "Are you sure you want to delete this pet?",
+      okText: "Yes",
+      okType: "danger",
+      cancelText: "Cancel",
+      onOk() {
+        handleDelete(petId);
+      },
+    });
+  };
+
   useEffect(() => {
     setHasHydrated(true);
     if (typeof window !== "undefined") {
-      const storedToken = localStorage.getItem("token"); // Check client-side before accessing localStorage
+      const storedToken = localStorage.getItem("token");
       setToken(storedToken);
 
       if (storedToken) {
@@ -135,15 +167,16 @@ const HistoryVolunteer = () => {
   const columns = [
     {
       title: "Image",
-      dataIndex: "petImage",
-      key: "petImage",
+      dataIndex: "image",
+      key: "image",
+      width: 200,
       render: (text: string) => (
         <Image
-          width={180}
+          width={200}
           height={200}
           className="rounded-sm shadow-2xl"
           src={text}
-          alt="Pet Image"
+          alt="Image"
         />
       ),
     },
@@ -151,14 +184,16 @@ const HistoryVolunteer = () => {
       title: "Name",
       dataIndex: "name",
       key: "name",
+      width: 100,
       render: (text: string) => (
         <span className="font-semibold text-sm">{text}</span>
       ),
     },
     {
-      title: "Delivery Status",
+      title: "Status",
       dataIndex: "deliveryStatus",
       key: "deliveryStatus",
+      width: 100,
       render: (text: string, record: { deliveryStatus: string }) =>
         record.deliveryStatus === "PENDING" ? (
           <Tag color="yellow" className="font-semibold uppercase">
@@ -181,20 +216,58 @@ const HistoryVolunteer = () => {
         ),
     },
     {
-    title: "Adopted",
-    dataIndex: "isAdopted",
-    key: "isAdopted",
-    render: (isAdopted: boolean) =>
-      isAdopted ? (
-        <Tag color="yellow" className="font-semibold uppercase">
-          Adopted
-        </Tag>
-      ) : (
-        <Tag color="red" className="font-semibold uppercase">
-          Not Adopted
-        </Tag>
+      title: "Adopted",
+      dataIndex: "isAdopted",
+      key: "isAdopted",
+      width: 100,
+      render: (isAdopted: boolean, record: { deliveryStatus: string }) =>
+        ["CANCELED", "PENDING", "INPROCESS"].includes(
+          record.deliveryStatus
+        ) ? null : isAdopted ? ( // Hide tag if status is CANCELED, PENDING, or INPROCESS
+          <Tag color="yellow" className="font-semibold uppercase">
+            Adopted
+          </Tag>
+        ) : (
+          <Tag color="red" className="font-semibold uppercase">
+            Not Adopted
+          </Tag>
+        ),
+    },
+    {
+      title: "Comment",
+      dataIndex: "note",
+      key: "note",
+      width: 100,
+      render: (text: string) => (
+        <span className="font-semibold text-sm">{text}</span>
       ),
-  },
+    },
+    {
+      title: "Day create",
+      dataIndex: "rescueDate",
+      key: "rescueDate",
+      width: 100,
+      render: (text: string) => (
+        <span className="font-semibold text-sm">
+          {new Date(text).toLocaleDateString()}
+        </span>
+      ),
+    },
+    {
+      title: "Action",
+      key: "action",
+       width: 100,
+      render: (text: string, record: { _id: string }) => (
+        <div>
+          <Button
+            style={{ backgroundColor: "red", color: "white" }}
+            onClick={() => confirmDelete(record._id)}
+          >
+            Delete
+          </Button>
+        </div>
+      ),
+    },
   ];
 
   return (
