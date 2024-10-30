@@ -12,6 +12,7 @@ import {
   Select,
   Input,
   message,
+  Popconfirm,
 } from "antd";
 import {
   LogoutOutlined,
@@ -22,7 +23,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useAppDispatch } from "@/lib/hook";
 import { logout } from "@/lib/features/auth/authSlice";
-import { fetchAdoptionRequestsByUserId } from "@/lib/features/adopt/adoptSlice";
+import { deleteAdoptionRequest, fetchAdoptionRequestsByUserId } from "@/lib/features/adopt/adoptSlice";
 import { fetchPetById } from "@/lib/features/pet/petSlice";
 import { jwtDecode } from "jwt-decode";
 import { createHealthCheck } from "@/lib/features/pet/HealthCheckSlice";
@@ -34,6 +35,7 @@ import {
 import { HealthStatus, CheckingTypeCustomer } from "../../enum";
 
 interface AdoptionRequest {
+  _id: string;
   petId: string;
   status: string;
   comment: string;
@@ -85,6 +87,18 @@ const Dashboard = () => {
   const [updateFeedbackRating, setUpdateFeedbackRating] = useState<
     number | undefined
   >(undefined);
+  const handleDeleteRequest = async (requestId: string) => {
+    try {
+      await dispatch(deleteAdoptionRequest(requestId)).unwrap();
+      setAdoptionRequests(prevRequests => 
+        prevRequests.filter(request => request._id !== requestId)
+      );
+      message.success('Successfully cancelled adoption request');
+    } catch (error: unknown) {
+      console.error('Error deleting request:', error);
+      message.error('Unable to cancel request. Please try again');
+    }
+  };
 
   const handleGoHome = () => {
     router.push("/");
@@ -370,6 +384,10 @@ const resetModalFeedback = () => {
           <Tag color="red" className="font-semibold uppercase">
             REJECTED
           </Tag>
+        ) : record.status === 'NOT_AVAILABLE' ? (
+          <Tag color="gray" className="font-semibold uppercase">
+            CANCELLED
+          </Tag>
         ) : (
           record.status
         ),
@@ -397,7 +415,7 @@ const resetModalFeedback = () => {
     {
       title: "Action",
       key: "action",
-      render: (text: string, record: { key: string; status: string }) => (
+      render: (text: string, record: AdoptionRequest) => (
         <div>
           {record.status === "APPROVED" && (
             <div className="flex gap-5">
@@ -421,7 +439,25 @@ const resetModalFeedback = () => {
                   Create Feedback
                 </Button>
               )}
+              
             </div>
+          )}
+            {record.status === 'PENDING' && (
+            <Popconfirm
+              title="Confirm cancellation"
+              description="Are you sure you want to cancel this adoption request?"
+              onConfirm={() => handleDeleteRequest(record._id)}
+              okText="Yes"
+              cancelText="No" 
+              okButtonProps={{ danger: true }}
+            >
+              <Button 
+                danger
+                type="primary"
+              >
+                DELETE REQUEST
+              </Button>
+            </Popconfirm>
           )}
         </div>
       ),
