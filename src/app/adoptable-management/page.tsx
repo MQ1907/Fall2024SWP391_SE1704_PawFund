@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import {
-  CircularProgress,
+  
   Alert,
   Snackbar,
   TextField,
@@ -13,13 +13,13 @@ import {
 import { useAppDispatch, useAppSelector } from "@/lib/hook";
 import {
   fetchAdoptionRequests,
-  fetchAdoptionRequestsByPetId,
+  fetchAdoptionRequestsByPetId, 
   updateAdoptionRequestStatus,
 } from "../../lib/features/adopt/adoptSlice";
 import { fetchPetById, updateAdoptedStatus } from "@/lib/features/pet/petSlice";
 import { fetchUserData } from "@/lib/features/user/userSlice"; // Assume this action exists
 import { jwtDecode } from "jwt-decode";
-import { Modal, Typography as AntTypography, Button as AntButton } from "antd";
+import { Modal, Typography as AntTypography, Button as AntButton, Spin } from "antd";
 const { Text, Title } = AntTypography;
 import { Table as AntTable } from "antd"; // Thêm import này
 
@@ -466,6 +466,12 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
     });
   };
 
+  const LoadingSpinner = () => (
+    <div className="flex justify-center items-center min-h-[400px]">
+      <Spin size="large" />
+    </div>
+  );
+
   return (
     <div style={{ marginTop: 50 }}>
       {/* Add search bar */}
@@ -491,11 +497,11 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
         />
       </div>
 
-      {requestsStatus === "loading" && <CircularProgress />}
-      {requestsStatus === "failed" && (
+      {requestsStatus === "loading" ? (
+        <LoadingSpinner />
+      ) : requestsStatus === "failed" ? (
         <Alert severity="error">Error: {error}</Alert>
-      )}
-      {requestsStatus === "succeeded" && (
+      ) : (
         <Box sx={{ width: "100%" }}>
           <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
             <Tabs

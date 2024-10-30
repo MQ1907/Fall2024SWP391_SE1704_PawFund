@@ -333,8 +333,8 @@ const Adopt = () => {
         </div>
 
         <div className="w-[1100px] mx-auto p-4 mt-[40px]">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div>
+          <div className="flex gap-6 items-center">
+            <div className="flex-1">
               <label className="block text-gray-700 font-medium mb-2">
                 Gender
               </label>
@@ -345,7 +345,7 @@ const Adopt = () => {
               </select>
             </div>
 
-            <div>
+            <div className="flex-1">
               <label className="block text-gray-700 font-medium mb-2">
                 Sterilization
               </label>
@@ -355,10 +355,8 @@ const Adopt = () => {
                 <option>No</option>
               </select>
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 mt-6">
-            <div>
+            <div className="flex-1">
               <label className="block text-gray-700 font-medium mb-2">
                 Color
               </label>
@@ -370,7 +368,7 @@ const Adopt = () => {
               </select>
             </div>
 
-            <div>
+            <div className="flex-1">
               <label className="block text-gray-700 font-medium mb-2">
                 Name
               </label>
@@ -382,7 +380,6 @@ const Adopt = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-
           </div>
         </div>
 
