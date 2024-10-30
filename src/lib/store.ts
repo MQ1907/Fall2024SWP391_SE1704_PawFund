@@ -8,7 +8,7 @@ import userReducer from './features/user/userSlice';
 import paymentReducer from './features/payment/paymentSlice';
 
 import eventReducer from './features/event/eventSlice';
-
+import feedbackReducer from './features/feedback/feedbackSlice';
 
 export const makeStore = () => {
   return configureStore({
@@ -22,6 +22,7 @@ export const makeStore = () => {
          payment: paymentReducer,
 
          events: eventReducer,
+         feedback: feedbackReducer,
 
     }
   })
