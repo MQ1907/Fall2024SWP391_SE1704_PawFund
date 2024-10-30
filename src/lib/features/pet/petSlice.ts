@@ -40,6 +40,19 @@ export const createPet = createAsyncThunk(
   }
 );
 
+
+
+// Tạo async thunk cho việc cập nhật
+export const changeVaccinated = createAsyncThunk(
+  'pets/changeVaccinated',
+  async ({ petId, isVaccinated }: UpdateVaccinatedPayload) => {
+    const response = await axios.patch(`http://localhost:8000/pet/update-pet-vacinted/${petId}`, {
+      isVaccinated,
+    });
+    return response.data; // Trả về dữ liệu nhận được từ server
+  }
+);
+
 export const fetchPets = createAsyncThunk("pet/fetchAll", async () => {
   try {
     const response = await axios.get("http://localhost:8000/pet/find-all");
@@ -263,6 +276,11 @@ export const updateAdoptedStatus = createAsyncThunk(
   }
 );
 
+interface UpdateVaccinatedPayload {
+  petId: string;
+  isVaccinated: boolean;
+}
+
 interface Pet {
   _id: string;
   name: string;
@@ -444,6 +462,24 @@ const petSlice = createSlice({
         state.status = "failed";
         state.error =
           (action.payload as string) || "Failed to fetch adoption requests";
+      })
+      //change vacinated
+      .addCase(changeVaccinated.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(changeVaccinated.fulfilled, (state, action) => {
+        state.loading = false;
+        // Cập nhật trạng thái isVaccinated cho pet trong state
+        const updatedPet = action.payload;
+        const index = state.pets.findIndex(pet => pet.id === updatedPet.id);
+        if (index !== -1) {
+          state.pets[index] = updatedPet;
+        }
+      })
+      .addCase(changeVaccinated.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
       });
   },
 });
