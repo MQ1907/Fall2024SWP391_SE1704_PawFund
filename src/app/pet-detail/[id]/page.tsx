@@ -10,7 +10,6 @@ import { fetchFeedbackByPetId } from "@/lib/features/feedback/feedbackSlice";
 import { StarOutlined } from "@ant-design/icons";
 import { fetchUserData } from "@/lib/features/user/userSlice";
 
-
 const PetDetail = () => {
   const [OpenAdoptionRequest, setCreateAdoptionRequest] = useState(false);
   const [loading, setLoading] = useState(false); // Khai báo trạng thái loading
@@ -46,7 +45,7 @@ const PetDetail = () => {
   const [isAnimating, setIsAnimating] = useState(true);
   const params = useParams();
   const id = params.id as string;
-  console.log(id)
+  console.log(id);
   const dispatch = useAppDispatch();
   const { currentPet, status, error } = useAppSelector((state) => state.pets);
 
@@ -58,7 +57,9 @@ const PetDetail = () => {
         .then(async (data) => {
           const feedbacksWithUserData = await Promise.all(
             data.map(async (feedback: Feedback) => {
-              const userData = await dispatch(fetchUserData(feedback.userId)).unwrap();
+              const userData = await dispatch(
+                fetchUserData(feedback.userId)
+              ).unwrap();
               return {
                 ...feedback,
                 user: {
@@ -69,13 +70,12 @@ const PetDetail = () => {
             })
           );
           setFeedbacks(feedbacksWithUserData);
-      })
+        });
     }
-   
+
     const timer = setTimeout(() => setIsAnimating(false), 4000);
     return () => clearTimeout(timer);
   }, [id, dispatch]);
-  
 
   if (status === "loading") {
     return <div>Loading...</div>;
@@ -88,10 +88,9 @@ const PetDetail = () => {
   if (!currentPet) {
     return <div>Pet not found</div>;
   }
-  
-  
+
   return (
-    <div className="mt-[148px]">
+    <div className="mt-[148px] bg-[#f3c62344]">
       <div
         className="w-full bg-cover bg-center relative "
         style={{ backgroundImage: "url('/images/petdetail.jpg')" }}
@@ -112,104 +111,127 @@ const PetDetail = () => {
           </div>
         </div>
       </div>
-      <div className="flex flex-col gap-8 mt-10 mx-[200px] p-6 bg-white shadow-lg rounded-lg">
-  <div className="flex gap-8">
-    <div className="w-[40%]">
-      <img
-        src={currentPet.image}
-        alt={currentPet.name}
-        className="w-full h-auto rounded-lg"
-      />
-    </div>
+      <div className="flex flex-col gap-8 mt-10 mx-[200px] p-6  rounded-lg">
+        <div className="flex gap-8">
+          <div className="w-[40%]">
+            <img
+              src={currentPet.image}
+              alt={currentPet.name}
+              className="w-full h-auto rounded-lg"
+            />
+          </div>
 
-    <div className="w-[60%]">
-      <div className="flex flex-col gap-4">
-        <h1 className="text-[34px] font-medium">{currentPet.name}</h1>
-        <hr className="border-t-[1px] border-dashed border-gray-300" />
-        <div className="flex my-1">
-          <p className="font-semibold">Location Found:</p>
-          <p className="px-1">{currentPet.locationFound}</p>
+          <div className="w-[60%]">
+            <div className="flex flex-col gap-4">
+              <h1 className="text-[34px] font-medium">{currentPet.name}</h1>
+              <hr className="border-t-[1px] border-dashed border-gray-300" />
+              <div className="flex my-1">
+                <p className="font-semibold">Location Found:</p>
+                <p className="px-1">{currentPet.locationFound}</p>
+              </div>
+              <hr className="border-t-[1px] border-dashed border-gray-300" />
+              <div className="flex my-1">
+                <p className="font-semibold">Gender:</p>
+                <p className="px-1">{currentPet.gender}</p>
+              </div>
+              <hr className="border-t-[1px] border-dashed border-gray-300" />
+              <div className="flex my-1">
+                <p className="font-semibold">Breed:</p>
+                <p className="px-1">{currentPet.breed}</p>
+              </div>
+              <hr className="border-t-[1px] border-dashed border-gray-300" />
+              <div className="flex my-1">
+                <p className="font-semibold">Rescue Day:</p>
+                <p className="px-1">{currentPet.rescueDate}</p>
+              </div>
+              <hr className="border-t-[1px] border-dashed border-gray-300" />
+              <div className="flex my-1">
+                <p className="font-semibold">Vaccinated:</p>
+                <p className="px-1">{currentPet.isVacinted ? "Yes" : "No"}</p>
+              </div>
+              <hr className="border-t-[1px] border-dashed border-gray-300" />
+              <div className="flex my-1">
+                <p className="font-semibold">Color:</p>
+                <p className="px-1">{currentPet.color}</p>
+              </div>
+              <div className="flex gap-4 mt-4">
+                {currentPet.isAdopted === false ? (
+                  <button
+                    onClick={showAdoptPetModal}
+                    className="relative border-2 border-gray-800 rounded-lg bg-transparent py-2.5 px-10 font-medium uppercase text-gray-800 transition-colors before:absolute before:left-0 before:top-0 before:-z-10 before:h-full before:w-full before:origin-top-left before:scale-x-0 before:bg-pink-500 before:transition-transform before:duration-300 before:content-[''] hover:text-white before:hover:scale-x-100"
+                  >
+                    Adopt
+                  </button>
+                ) : (
+                  <Tag color="green" className="font-semibold uppercase">
+                    This pet is already adopted.
+                  </Tag>
+                )}
+
+                <Modal
+                  open={OpenAdoptionRequest}
+                  title="YOU WANT TO ADOPT THIS PET?"
+                  className="text-[20px]"
+                  onOk={handleOkAdoptPet}
+                  onCancel={handleCancelCreateAdoptionRequest}
+                  footer={[
+                    <Button
+                      key="cancel"
+                      onClick={handleCancelCreateAdoptionRequest}
+                      className="relative border-2 border-gray-800 rounded-[5px] bg-transparent py-2.5 px-10 font-medium uppercase text-gray-800 transition-colors before:absolute before:left-0 before:top-0 before:-z-10 before:h-full before:w-full before:origin-top-left before:scale-x-0 before:bg-pink-500 before:transition-transform before:duration-300 before:content-[''] before:hover:scale-x-100"
+                    >
+                      Close
+                    </Button>,
+                  ]}
+                >
+                  <AdoptionRequest petId={currentPet._id} />
+                </Modal>
+              </div>
+            </div>
+          </div>
         </div>
-        <hr className="border-t-[1px] border-dashed border-gray-300" />
-        <div className="flex my-1">
-          <p className="font-semibold">Gender:</p>
-          <p className="px-1">{currentPet.gender}</p>
-        </div>
-        <hr className="border-t-[1px] border-dashed border-gray-300" />
-        <div className="flex my-1">
-          <p className="font-semibold">Vaccinated:</p>
-          <p className="px-1">{currentPet.isVacinted ? "Yes" : "No"}</p>
-        </div>
-        <hr className="border-t-[1px] border-dashed border-gray-300" />
-        <div className="flex my-1">
-          <p className="font-semibold">Color:</p>
-          <p className="px-1">{currentPet.color}</p>
-        </div>
-        <div className="flex gap-4 mt-4">
-          {currentPet.isAdopted === false ? (
-            <button
-              onClick={showAdoptPetModal}
-              className="relative border-2 border-gray-800 rounded-lg bg-transparent py-2.5 px-10 font-medium uppercase text-gray-800 transition-colors before:absolute before:left-0 before:top-0 before:-z-10 before:h-full before:w-full before:origin-top-left before:scale-x-0 before:bg-pink-500 before:transition-transform before:duration-300 before:content-[''] hover:text-white before:hover:scale-x-100"
-            >
-              Adopt
-            </button>
+
+        <div className="mt-10 p-6 bg-white shadow-lg rounded-lg">
+          <h1 className="text-[34px] font-medium uppercase text-green-500 mb-4">
+            Information
+          </h1>
+          <hr className="border-1 border-gray-300 w-full mb-4" />
+          <p className="mt-6 font-semibold text-gray-700">
+            Description: {currentPet.description}
+          </p>
+          <h1 className="text-[34px] font-medium uppercase text-orange-500 mb-4">
+            FeedBack From Adopter
+          </h1>
+          <hr className="border-1 border-gray-300 w-full mb-4" />
+          {feedbacks.length > 0 ? (
+            feedbacks.map((feedback) => (
+              <div key={feedback.id} className="mb-4">
+                <div className="flex items-center mb-4">
+                  <Avatar src={feedback.user?.avatar} size="large" />
+                  <p className="font-semibold ml-2">{feedback.user?.name}</p>
+                </div>
+                <p className="font-semibold mb-4">
+                  Comment: {feedback.description}
+                </p>
+                <p className="font-semibold mb-4">
+                  Rating:
+                  {Array.from({ length: feedback.rating }, (_, index) => (
+                    <StarOutlined key={index} style={{ color: "#FFCC00" }} />
+                  ))}
+                </p>
+                <p className="font-semibold">
+                  Feedback Date:{" "}
+                  {new Date(feedback.feedbackAt).toLocaleString()}
+                </p>
+                <hr className="border-t-[1px] border-dashed border-gray-300 mt-2" />
+              </div>
+            ))
           ) : (
-            <Tag color="green" className="font-semibold uppercase">
-              This pet is already adopted.
-            </Tag>
+            <p>No feedback available for this pet.</p>
           )}
-
-          <Modal
-            open={OpenAdoptionRequest}
-            title="YOU WANT TO ADOPT THIS PET?"
-            className="text-[20px]"
-            onOk={handleOkAdoptPet}
-            onCancel={handleCancelCreateAdoptionRequest}
-            footer={[
-              <Button key="cancel" onClick={handleCancelCreateAdoptionRequest} className="relative border-2 border-gray-800 rounded-[5px] bg-transparent py-2.5 px-10 font-medium uppercase text-gray-800 transition-colors before:absolute before:left-0 before:top-0 before:-z-10 before:h-full before:w-full before:origin-top-left before:scale-x-0 before:bg-pink-500 before:transition-transform before:duration-300 before:content-[''] before:hover:scale-x-100">
-                Close
-              </Button>,
-            ]}
-          >
-            <AdoptionRequest petId={currentPet._id} />
-          </Modal>
         </div>
       </div>
-    </div>
-  </div>
 
-<div className="mt-10 p-6 bg-white shadow-lg rounded-lg">
-    <h1 className="text-[34px] font-medium uppercase text-green-500 mb-4">Information</h1>
-    <hr className="border-1 border-gray-300 w-full mb-4" />
-    <p className="mt-6 font-semibold text-gray-700">Description: {currentPet.description}</p>
-    <h1 className="text-[34px] font-medium uppercase text-orange-500 mb-4">FeedBack From Adopter</h1>
-    <hr className="border-1 border-gray-300 w-full mb-4" />
-    {feedbacks.length > 0 ? (
-              feedbacks.map((feedback) => (
-                <div key={feedback.id} className="mb-4">
-                  <div className="flex items-center mb-4">
-                    <Avatar src={feedback.user?.avatar} size="large" />
-                    <p className="font-semibold ml-2">{feedback.user?.name}</p>
-                  </div>
-                  <p className="font-semibold mb-4">Comment: {feedback.description}</p>
-                  <p className="font-semibold mb-4">Rating: 
-                    {Array.from({ length: feedback.rating }, (_, index) => (
-                      <StarOutlined key={index} style={{ color: '#FFCC00' }} />
-                    ))}
-                  </p>
-                  <p className="font-semibold">Feedback Date: {new Date(feedback.feedbackAt).toLocaleString()}</p>
-                  <hr className="border-t-[1px] border-dashed border-gray-300 mt-2" />
-                </div>
-              ))
-            ) : (
-              <p>No feedback available for this pet.</p>
-            )}
-  </div>
- 
-</div>
-
-
- 
       <div
         className="h-[200px] w-full  relative bg-fixed bg-center bg-cover bg-no-repeat flex items-center justify-center mt-3"
         style={{
@@ -419,7 +441,6 @@ const PetDetail = () => {
           </div>
         </div>
       </div>
-     
     </div>
   );
 };

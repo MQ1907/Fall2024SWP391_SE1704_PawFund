@@ -1,8 +1,24 @@
 "use client";
 import React, { useEffect, useState } from "react";
-
-import { Table, Spin, Alert, Button, message, Modal, Form, Input } from "antd";
-import { fetchPets, selectCompletedPets, deletePet, updatePet } from "../../lib/features/pet/petSlice";
+import {
+  Table,
+  Spin,
+  Alert,
+  Button,
+  message,
+  Modal,
+  Form,
+  Input,
+  Select,
+  Switch,
+} from "antd"; // Import Switch from antd
+import {
+  fetchPets,
+  selectCompletedPets,
+  deletePet,
+  updatePet,
+  changeVaccinated, // Import your changeVaccinated action
+} from "../../lib/features/pet/petSlice";
 
 import { useAppDispatch, useAppSelector } from "@/lib/hook";
 import { useRouter } from "next/navigation";
@@ -73,20 +89,19 @@ const PetManagement = () => {
 
   const confirmDelete = (petId: string) => {
     Modal.confirm({
-      title: "Bạn có chắc chắn muốn xóa con pet này không?",
-      okText: "Đồng ý",
+      title: "Are you sure you want to delete this pet?",
+      okText: "Yes",
       okType: "danger",
-      cancelText: "Hủy",
+      cancelText: "Cancel",
       onOk() {
         handleDelete(petId);
-        message.success("Đã xóa con pet thành công!");
+        message.success("Pet deleted successfully!");
       },
     });
   };
-
   const showUpdateModal = (pet) => {
     setCurrentPet(pet);
-    form.setFieldsValue(pet); // Đặt giá trị hiện tại cho form
+    form.setFieldsValue(pet);
     setIsModalVisible(true);
   };
 
@@ -113,9 +128,10 @@ const PetManagement = () => {
       title: "Image",
       dataIndex: "image",
       key: "image",
-      render: (text: string, record: { _id: string; image: string; name: string }) => (
-        <img src={record.image} alt={record.name} style={{ width: 100 }} />
-      ),
+      render: (
+        text: string,
+        record: { _id: string; image: string; name: string }
+      ) => <img src={record.image} alt={record.name} style={{ width: 100 }} />,
     },
     {
       title: "Name",
@@ -131,6 +147,11 @@ const PetManagement = () => {
       title: "Rescue Day",
       dataIndex: "rescueDate",
       key: "rescueDate",
+      render: (rescueDate: string) => {
+        const date = new Date(rescueDate);
+        const formattedDate = date.toLocaleDateString();
+        return <span>{formattedDate}</span>;
+      },
     },
     {
       title: "Description",
@@ -153,13 +174,27 @@ const PetManagement = () => {
       key: "deliveryStatus",
     },
     {
+      title: "Vaccinated",
+      dataIndex: "isVacinted",
+      key: "isVacinted",
+      render: (isVaccinated: boolean) => (
+        <span>{isVaccinated ? "Yes" : "No"}</span>
+      ),
+    },
+
+    {
       title: "Action",
       key: "action",
+      width: 500,
       render: (text: string, record: { _id: string }) => (
         <div>
           <Button
-            style={{ backgroundColor: "yellow", color: "black", marginRight: "10px" }}
-            onClick={() => showUpdateModal(record)} // Hiển thị modal cho cập nhật
+            style={{
+              backgroundColor: "yellow",
+              color: "black",
+              marginRight: "10px",
+            }}
+            onClick={() => showUpdateModal(record)}
           >
             Update
           </Button>
@@ -175,9 +210,7 @@ const PetManagement = () => {
   ];
 
   return (
-
     <div className="mt-[148px]">
-
       <div style={{ marginBottom: 16 }}></div>
 
       {petsStatus === "loading" && <Spin tip="Loading..." />}
@@ -187,7 +220,7 @@ const PetManagement = () => {
       {petsStatus === "succeeded" && completedPets.length > 0 ? (
         <Table dataSource={completedPets} columns={columns} rowKey="_id" />
       ) : (
-        petsStatus === "succeeded" && <p>Không tìm thấy pet nào.</p>
+        petsStatus === "succeeded" && <p>Not find any pets</p>
       )}
 
       {/* Modal để cập nhật pet */}
@@ -198,22 +231,60 @@ const PetManagement = () => {
         onCancel={() => setIsModalVisible(false)}
       >
         <Form form={form} layout="vertical">
-          <Form.Item name="image" label="Hình ảnh" rules={[{ required: true }]}>
+          <Form.Item
+            name="image"
+            label="Image"
+            rules={[{ required: true, message: "Please upload an image!" }]}
+          >
             <Input />
           </Form.Item>
-          <Form.Item name="name" label="Tên" rules={[{ required: true }]}>
+          <Form.Item
+            name="name"
+            label="Name"
+            rules={[
+              { required: true, message: "Please enter the name!" },
+              {
+                validator: (_, value) => {
+                  if (!value || /^[a-zA-Z\s]*$/.test(value)) {
+                    return Promise.resolve(); // Valid input
+                  }
+                  return Promise.reject(
+                    new Error("Name cannot contain numbers!")
+                  );
+                },
+              },
+            ]}
+          >
             <Input />
           </Form.Item>
-          <Form.Item name="description" label="Mô tả">
+          <Form.Item name="description" label="Description">
             <Input />
           </Form.Item>
-          <Form.Item name="breed" label="Giống" rules={[{ required: true }]}>
+          <Form.Item
+            name="breed"
+            label="Breed"
+            rules={[{ required: true, message: "Please enter the breed!" }]}
+          >
             <Input />
           </Form.Item>
-          <Form.Item name="gender" label="Giới tính" rules={[{ required: true }]}>
-            <Input />
+          <Form.Item
+            name="gender"
+            label="Gender"
+            rules={[{ required: true, message: "Please select the gender!" }]}
+          >
+            <Select placeholder="Select gender">
+              <Select.Option value="Female">Female</Select.Option>
+              <Select.Option value="Male">Male</Select.Option>
+            </Select>
           </Form.Item>
-          {/* Thêm các trường khác nếu cần */}
+
+          <Form.Item
+            name="isVacinted"
+            label="Vaccinated"
+            valuePropName="checked"
+          >
+            <Switch />
+          </Form.Item>
         </Form>
       </Modal>
     </div>
