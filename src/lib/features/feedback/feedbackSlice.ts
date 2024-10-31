@@ -48,6 +48,13 @@ export const fetchFeedbackByUserId = createAsyncThunk(
       return response.data;
     }
   );
+  export const fetchAllFeedback = createAsyncThunk(
+    'feedback/fetchAllFeedback',
+    async () => {
+      const response = await axios.get('http://localhost:8000/feedback/view-all');
+      return response.data;
+    }
+  );
 const feedbackSlice = createSlice({
   name: 'feedback',
   initialState,
@@ -108,6 +115,17 @@ const feedbackSlice = createSlice({
       .addCase(deleteFeedback.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message || 'Failed to delete feedback';
+      })
+      .addCase(fetchAllFeedback.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchAllFeedback.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.feedback = action.payload;
+      })
+      .addCase(fetchAllFeedback.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message || 'Failed to fetch all feedback';
       });
   },
 });

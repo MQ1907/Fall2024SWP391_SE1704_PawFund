@@ -32,7 +32,24 @@ export const createHealthCheck = createAsyncThunk(
     }
   }
 );
-
+export const fetchHealthCheckByPetID = createAsyncThunk(
+  "healthCheck/fetchByPetID",
+  async (petId: string) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8000/health-check/pet/${petId}`
+      );
+      return response.data;
+    } catch (error: any) {
+      if (error.response) {
+        throw new Error(
+          error.response.data.message || "Failed to fetch health checks"
+        );
+      }
+      throw error;
+    }
+  }
+);
 interface HealthCheckState {
   healthChecks: any[]; // List of health checks
   status: "idle" | "loading" | "succeeded" | "failed";
@@ -66,7 +83,18 @@ const healthCheckSlice = createSlice({
       .addCase(createHealthCheck.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message || "Failed to create health check";
-      });
+      })
+      .addCase(fetchHealthCheckByPetID.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchHealthCheckByPetID.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.healthChecks = action.payload; // Replace the healthChecks array with the fetched data
+      })
+      .addCase(fetchHealthCheckByPetID.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message || "Failed to fetch health checks";
+      }); 
   },
 });
 

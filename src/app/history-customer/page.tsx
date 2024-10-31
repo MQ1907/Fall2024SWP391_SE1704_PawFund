@@ -29,14 +29,15 @@ import {
 } from "@/lib/features/adopt/adoptSlice";
 import { fetchPetById } from "@/lib/features/pet/petSlice";
 import { jwtDecode } from "jwt-decode";
-import { createHealthCheck } from "@/lib/features/pet/HealthCheckSlice";
+import { createHealthCheck, fetchHealthCheckByPetID } from "@/lib/features/pet/HealthCheckSlice";
 import {
   createFeedback,
   deleteFeedback,
   fetchFeedbackByUserId,
   updateFeedback,
 } from "@/lib/features/feedback/feedbackSlice";
-import { HealthStatus, CheckingTypeCustomer } from "../../enum";
+import { CheckingTypeCustomer, HealthStatus } from "@/enum";
+
 
 interface AdoptionRequest {
   _id: string;
@@ -91,6 +92,9 @@ const Dashboard = () => {
   const [updateFeedbackRating, setUpdateFeedbackRating] = useState<
     number | undefined
   >(undefined);
+  const [healthChecks, setHealthChecks] = useState<any[]>([]);
+
+
   const handleDeleteRequest = async (requestId: string) => {
     try {
       await dispatch(deleteAdoptionRequest(requestId)).unwrap();
@@ -135,6 +139,9 @@ const Dashboard = () => {
       handleGoHome();
     } else if (e.key === "4") {
       fetchUserFeedbacks();
+    }
+    else if (e.key === "3") {
+      fetchHealthChecks();
     }
   };
 
@@ -185,7 +192,21 @@ const Dashboard = () => {
       }
     }
   };
-
+  const fetchHealthChecks = async () => {
+    if (adoptionRequests.length > 0) {
+      try {
+        const petId = adoptionRequests[0].petId; // Assuming you want to fetch for the first adoption request's petId
+        const response = await dispatch(fetchHealthCheckByPetID(petId)).unwrap();
+        const adoptedHealthChecks = response.filter(
+          (healthCheck: any) => healthCheck.checkingType === "ADOPTED"
+        );
+        setHealthChecks(adoptedHealthChecks);
+      } catch (error) {
+        console.error("Error fetching health checks:", error);
+        message.error("Failed to fetch health checks. Please try again.");
+      }
+    }
+  };
   useEffect(() => {
     setHasHydrated(true);
     if (typeof window !== "undefined") {
@@ -558,7 +579,52 @@ const Dashboard = () => {
       ),
     },
   ];
-
+  const healthCheckColumns = [
+    {
+      title: "Health Status",
+      dataIndex: "healthStatus",
+      key: "healthStatus",
+      render: (text: string) => (
+        <span className="font-semibold text-sm">{text}</span>
+      ),
+    },
+    {
+      title: "Description",
+      dataIndex: "healthStatusDescription",
+      key: "healthStatusDescription",
+      render: (text: string) => (
+        <span className="font-semibold text-sm">{text}</span>
+      ),
+    },
+    {
+      title: "Note",
+      dataIndex: "note",
+      key: "note",
+      render: (text: string) => (
+        <span className="font-semibold text-sm">{text}</span>
+      ),
+    },
+    {
+      title: "Checking Date",
+      dataIndex: "checkingDate",
+      key: "checkingDate",
+      render: (text: string) => (
+        <span className="font-semibold text-sm">
+          {new Date(text).toLocaleString()}
+        </span>
+      ),
+    },
+   
+    {
+      title: "Checking Type",
+      dataIndex: "checkingType",
+      key: "checkingType",
+      render: (text: string) => (
+        
+        <span className="font-semibold text-sm">{text}</span>
+      ),
+    },
+  ];
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Sider>
@@ -581,6 +647,11 @@ const Dashboard = () => {
           {selectedKey === "4" && (
             <div>
               <Table columns={feedbackColumns} dataSource={feedbacks} />
+            </div>
+          )}
+           {selectedKey === "3" && (
+            <div>
+              <Table columns={healthCheckColumns} dataSource={healthChecks} />
             </div>
           )}
         </Content>

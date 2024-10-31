@@ -4,7 +4,9 @@ import React, { useState } from "react";
 import Link from "next/link";
 import ClientLayout from "../ClientLayout";
 import { usePathname } from 'next/navigation';
-
+import {
+  CommentOutlined
+ } from '@ant-design/icons';
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [isEventOpen, setIsEventOpen] = useState(false);
   const pathname = usePathname();
@@ -38,6 +40,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
                   </svg>
                   <span className="ml-3">User Management</span>
+                </Link>
+              </li>
+              <li className="px-6 py-3 ">
+              <Link
+                  href="/feedbackAll"
+                  className={`flex items-center text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg ${
+                    pathname === "/feedbackAll" ? "bg-gray-700 text-white" : ""
+                  }`}
+                >
+                   <CommentOutlined  />
+                  <span className="ml-3">FeedBack Management</span>
                 </Link>
               </li>
               <li className="px-6 py-3">
