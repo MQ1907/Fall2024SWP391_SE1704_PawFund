@@ -195,11 +195,23 @@ const Dashboard = () => {
   const fetchHealthChecks = async () => {
     if (adoptionRequests.length > 0) {
       try {
-        const petId = adoptionRequests[0].petId; // Assuming you want to fetch for the first adoption request's petId
-        const response = await dispatch(fetchHealthCheckByPetID(petId)).unwrap();
-        const adoptedHealthChecks = response.filter(
+        const allHealthChecks = await Promise.all(
+          adoptionRequests.map(async (request) => {
+            const healthCheckResponse = await dispatch(fetchHealthCheckByPetID(request.petId)).unwrap();
+            const petDetails = await dispatch(fetchPetById(request.petId)).unwrap();
+            return healthCheckResponse.map((healthCheck: any) => ({
+              ...healthCheck,
+              petName: petDetails.name,
+              petImage: petDetails.image,
+            }));
+          })
+        );
+  
+        const adoptedHealthChecks = allHealthChecks.flat().filter(
           (healthCheck: any) => healthCheck.checkingType === "ADOPTED"
         );
+  
+        console.log(adoptedHealthChecks); // Verify the data here
         setHealthChecks(adoptedHealthChecks);
       } catch (error) {
         console.error("Error fetching health checks:", error);
@@ -581,6 +593,22 @@ const Dashboard = () => {
   ];
   const healthCheckColumns = [
     {
+      title: "Pet Name",
+      dataIndex: "petName",
+      key: "petName",
+      render: (text: string) => (
+        <span className="font-semibold text-sm">{text}</span>
+      ),
+    },
+    {
+      title: "Pet Image",
+      dataIndex: "petImage",
+      key: "petImage",
+      render: (url: string) => (
+        <img src={url} alt="Pet Avatar" className="w-10 h-10 object-cover" />
+      ),
+    },
+    {
       title: "Health Status",
       dataIndex: "healthStatus",
       key: "healthStatus",
@@ -614,13 +642,11 @@ const Dashboard = () => {
         </span>
       ),
     },
-   
     {
       title: "Checking Type",
       dataIndex: "checkingType",
       key: "checkingType",
       render: (text: string) => (
-        
         <span className="font-semibold text-sm">{text}</span>
       ),
     },
