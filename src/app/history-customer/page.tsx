@@ -29,6 +29,7 @@ import { jwtDecode } from "jwt-decode";
 import { createHealthCheck } from "@/lib/features/pet/HealthCheckSlice";
 import {
   createFeedback,
+  deleteFeedback,
   fetchFeedbackByUserId,
   updateFeedback,
 } from "@/lib/features/feedback/feedbackSlice";
@@ -97,6 +98,16 @@ const Dashboard = () => {
     } catch (error: unknown) {
       console.error('Error deleting request:', error);
       message.error('Unable to cancel request. Please try again');
+    }
+  };
+  const handleDeleteFeedback = async (feedbackId: string) => {
+    try {
+      await dispatch(deleteFeedback(feedbackId)).unwrap();
+      message.success('Feedback deleted successfully');
+      fetchUserFeedbacks(); 
+    } catch (error) {
+      console.error('Error deleting feedback:', error);
+      message.error('Failed to delete feedback. Please try again.');
     }
   };
 
@@ -521,13 +532,25 @@ const resetModalFeedback = () => {
       title: "Action",
       key: "action",
       render: (text: string, record: { _id: string }) => (
-        <div>
+        <div className="flex gap-2">
           <Button
             style={{ backgroundColor: "green", color: "white" }}
             onClick={() => showUpdateFeedbackModal(record)}
           >
             Update Feedback
           </Button>
+          <Popconfirm
+            title="Delete Feedback"
+            description="Are you sure you want to delete this feedback?"
+            onConfirm={() => handleDeleteFeedback(record._id)}
+            okText="Yes"
+            cancelText="No"
+            okButtonProps={{ danger: true }}
+          >
+            <Button danger type="primary">
+              Delete Feedback
+            </Button>
+          </Popconfirm>
         </div>
       ),
     },
