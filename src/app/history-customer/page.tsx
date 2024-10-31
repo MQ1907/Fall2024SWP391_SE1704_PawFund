@@ -23,7 +23,10 @@ import {
 import { useRouter } from "next/navigation";
 import { useAppDispatch } from "@/lib/hook";
 import { logout } from "@/lib/features/auth/authSlice";
-import { deleteAdoptionRequest, fetchAdoptionRequestsByUserId } from "@/lib/features/adopt/adoptSlice";
+import {
+  deleteAdoptionRequest,
+  fetchAdoptionRequestsByUserId,
+} from "@/lib/features/adopt/adoptSlice";
 import { fetchPetById } from "@/lib/features/pet/petSlice";
 import { jwtDecode } from "jwt-decode";
 import { createHealthCheck } from "@/lib/features/pet/HealthCheckSlice";
@@ -91,23 +94,27 @@ const Dashboard = () => {
   const handleDeleteRequest = async (requestId: string) => {
     try {
       await dispatch(deleteAdoptionRequest(requestId)).unwrap();
-      setAdoptionRequests(prevRequests => 
-        prevRequests.filter(request => request._id !== requestId)
+      setAdoptionRequests((prevRequests) =>
+        prevRequests.filter((request) => request._id !== requestId)
       );
-      message.success('Successfully cancelled adoption request');
+      message.success("Successfully cancelled adoption request");
     } catch (error: unknown) {
-      console.error('Error deleting request:', error);
-      message.error('Unable to cancel request. Please try again');
+      console.error("Error deleting request:", error);
+      message.error("Unable to cancel request. Please try again");
     }
   };
   const handleDeleteFeedback = async (feedbackId: string) => {
     try {
-      await dispatch(deleteFeedback(feedbackId)).unwrap();
-      message.success('Feedback deleted successfully');
-      fetchUserFeedbacks(); 
+      const feedbackToDelete = feedbacks.find((f) => f._id === feedbackId);
+      if (feedbackToDelete) {
+        await dispatch(deleteFeedback(feedbackId)).unwrap();
+        localStorage.removeItem(`feedbackCreated_${feedbackToDelete.petId}`);
+        message.success("Feedback deleted successfully");
+        fetchUserFeedbacks();
+      }
     } catch (error) {
-      console.error('Error deleting feedback:', error);
-      message.error('Failed to delete feedback. Please try again.');
+      console.error("Error deleting feedback:", error);
+      message.error("Failed to delete feedback. Please try again.");
     }
   };
 
@@ -259,10 +266,10 @@ const Dashboard = () => {
       setLoading(false);
     }
   };
-const resetModalFeedback = () => {
-  setFeedbackDescription("");
-  setFeedbackRating(undefined);
-}
+  const resetModalFeedback = () => {
+    setFeedbackDescription("");
+    setFeedbackRating(undefined);
+  };
   const showFeedbackModal = () => {
     resetModalFeedback();
     setFeedbackOpen(true);
@@ -273,29 +280,29 @@ const resetModalFeedback = () => {
   };
 
   const handleFeedbackSubmit = async () => {
-      if (feedbackRating === undefined) {
-        message.error("Please provide a rating.");
-        return;
-      }
-      const feedbackData = {
-        userId: checkingBy,
-        petId,
-        description: feedbackDescription,
-        rating: feedbackRating,
-      };
-      setLoading(true);
-      try {
-        await dispatch(createFeedback(feedbackData)).unwrap();
-        message.success("Feedback created successfully!");
-        localStorage.setItem(`feedbackCreated_${petId}`, 'true');
-        setLoading(false);
-        setFeedbackOpen(false);
-      } catch (error) {
-        console.error("Error from API:", error);
-        message.error("Failed to create Feedback. Please try again.");
-        setLoading(false);
-      }
+    if (feedbackRating === undefined) {
+      message.error("Please provide a rating.");
+      return;
+    }
+    const feedbackData = {
+      userId: checkingBy,
+      petId,
+      description: feedbackDescription,
+      rating: feedbackRating,
     };
+    setLoading(true);
+    try {
+      await dispatch(createFeedback(feedbackData)).unwrap();
+      message.success("Feedback created successfully!");
+      localStorage.setItem(`feedbackCreated_${petId}`, "true");
+      setLoading(false);
+      setFeedbackOpen(false);
+    } catch (error) {
+      console.error("Error from API:", error);
+      message.error("Failed to create Feedback. Please try again.");
+      setLoading(false);
+    }
+  };
   const showUpdateFeedbackModal = (feedback: any) => {
     setUpdateFeedbackId(feedback._id);
     setUpdateFeedbackDescription(feedback.description);
@@ -395,7 +402,7 @@ const resetModalFeedback = () => {
           <Tag color="red" className="font-semibold uppercase">
             REJECTED
           </Tag>
-        ) : record.status === 'NOT_AVAILABLE' ? (
+        ) : record.status === "NOT_AVAILABLE" ? (
           <Tag color="gray" className="font-semibold uppercase">
             CANCELLED
           </Tag>
@@ -450,22 +457,18 @@ const resetModalFeedback = () => {
                   Create Feedback
                 </Button>
               )}
-              
             </div>
           )}
-            {record.status === 'PENDING' && (
+          {record.status === "PENDING" && (
             <Popconfirm
               title="Confirm cancellation"
               description="Are you sure you want to cancel this adoption request?"
               onConfirm={() => handleDeleteRequest(record._id)}
               okText="Yes"
-              cancelText="No" 
+              cancelText="No"
               okButtonProps={{ danger: true }}
             >
-              <Button 
-                danger
-                type="primary"
-              >
+              <Button danger type="primary">
                 DELETE REQUEST
               </Button>
             </Popconfirm>

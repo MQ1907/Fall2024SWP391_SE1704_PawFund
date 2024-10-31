@@ -340,16 +340,18 @@ const Header = () => {
             >
               HOMEPAGE
             </li>
-            <li
-              className={`cursor-pointer animate__animated animate__fadeInLeft ${
-                pathname === "/adopt"
-                  ? "text-[#D94E66]"
-                  : "text-black hover:text-[#D94E66]"
-              }`}
-              onClick={() => handleClick("/adopt")}
-            >
-              ADOPT
-            </li>
+            {role !== "SHELTER_STAFF" && (
+              <li
+                className={`cursor-pointer animate__animated animate__fadeInLeft ${
+                  pathname === "/adopt"
+                    ? "text-[#D94E66]"
+                    : "text-black hover:text-[#D94E66]"
+                }`}
+                onClick={() => handleClick("/adopt")}
+              >
+                ADOPT
+              </li>
+            )}
             <li
               className={`cursor-pointer animate__animated animate__fadeInLeft ${
                 pathname === "/donate"
