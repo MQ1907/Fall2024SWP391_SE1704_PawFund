@@ -141,7 +141,7 @@ const Admin = () => {
                 <th className="py-4 px-6">Breed</th>
                 <th className="py-4 px-6">Vaccinated</th>
                 <th className="py-4 px-6">Delivery Status</th>
-                <th className="py-4 px-6">Action</th>
+                {/* <th className="py-4 px-6">Action</th> */}
               </tr>
             </thead>
             <tbody>
@@ -155,14 +155,14 @@ const Admin = () => {
                   <td className="py-4 px-6">{pet.breed}</td>
                   <td className="py-4 px-6">{pet.isVacinted ? 'Yes' : 'No'}</td>
                   <td className="py-4 px-6">{pet.deliveryStatus}</td>
-                  <td className="py-4 px-6">
+                  {/* <td className="py-4 px-6">
                     <button
                       onClick={() => showUpdateModal(pet._id)}
                       className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition duration-200"
                     >
                       Update Status
                     </button>
-                  </td>
+                  </td> */}
                 </tr>
               ))}
             </tbody>

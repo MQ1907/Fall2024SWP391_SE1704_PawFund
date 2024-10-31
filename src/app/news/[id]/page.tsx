@@ -21,6 +21,7 @@ const Page = () => {
     const [hasHydrated, setHasHydrated] = useState(false);
     const [token, setToken] = useState<string | null>(null);
     const [isJoining, setIsJoining] = useState(false);
+    const [hasJoined, setHasJoined] = useState(false);
 
     useEffect(() => {
         if (id) {
@@ -31,15 +32,17 @@ const Page = () => {
     useEffect(() => {
         setHasHydrated(true);
         if (typeof window !== "undefined") {
-          const storedToken = localStorage.getItem("token"); // Check client-side before accessing localStorage
+          const storedToken = localStorage.getItem("token");
           setToken(storedToken);
     
           if (storedToken) {
             try {
               const decodedToken = jwtDecode<DecodedToken>(storedToken);
               const userId = decodedToken.id;
-    
-              console.log("userId", userId);
+              
+              if (currentEvent && currentEvent.participants) {
+                setHasJoined(currentEvent.participants.includes(userId));
+              }
     
             } catch (error) {
               console.error("Invalid token:", error);
@@ -48,7 +51,7 @@ const Page = () => {
             }
           }
         }
-      }, []);
+      }, [currentEvent]);
 
     const handleJoinEvent = async () => {
         if (!token) {
@@ -58,6 +61,11 @@ const Page = () => {
 
         if (currentEvent.eventStatus !== "ON_GOING") {
             message.error('You can only join events that are currently ongoing');
+            return;
+        }
+
+        if (hasJoined) {
+            message.error('You have already joined this event');
             return;
         }
 
@@ -128,15 +136,16 @@ const Page = () => {
                                 <div className="mt-8 flex justify-end">
                                     <button 
                                         onClick={handleJoinEvent}
-                                        disabled={isJoining || currentEvent.eventStatus !== "ON_GOING"}
+                                        disabled={isJoining || currentEvent.eventStatus !== "ON_GOING" || hasJoined}
                                         className={`w-[200px] ${
-                                            isJoining || currentEvent.eventStatus !== "ON_GOING"
+                                            isJoining || currentEvent.eventStatus !== "ON_GOING" || hasJoined
                                                 ? 'bg-gray-400 cursor-not-allowed' 
                                                 : 'bg-blue-500 hover:bg-blue-600'
                                         } text-white py-3 px-4 rounded-lg 
                                         transition duration-200 font-medium`}
                                     >
                                         {isJoining ? 'Joining...' : 
+                                         hasJoined ? 'Already Joined' :
                                          currentEvent.eventStatus === "SCHEDULED" ? 'Event Not Started' :
                                          currentEvent.eventStatus === "COMPLETED" ? 'Event Ended' :
                                          'Join Event'}

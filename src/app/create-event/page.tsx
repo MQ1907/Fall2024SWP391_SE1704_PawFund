@@ -257,63 +257,6 @@ const CreateEventPage = () => {
                   </div>
                 )}
               </div>
-
-              {/* <div className="bg-white p-6 rounded-lg shadow-sm mb-6">
-                <h2 className="text-sm font-semibold uppercase text-gray-500 mb-3">ADD TEAM MEMBERS</h2>
-                <div className="flex flex-wrap gap-2 mb-6">
-                  {selectedVolunteers.map(volunteer => (
-                    <div key={volunteer._id} className="relative">
-                      <img src={volunteer.avatar} alt={volunteer.name} className="w-10 h-10 rounded-full" />
-                      <button 
-                        type="button"
-                        onClick={() => removeVolunteer(volunteer._id)}
-                        className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
-                  <div className="relative" ref={dropdownRef}>
-                    <button 
-                      type="button"
-                      className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 text-xl hover:bg-gray-300"
-                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    >
-                      +
-                    </button>
-                    {isDropdownOpen && (
-                      <div className="absolute top-full left-0 mt-2 w-48 bg-white border rounded shadow-lg z-10 max-h-60 overflow-y-auto">
-                        {status === 'loading' && <p className="p-2">Loading...</p>}
-                        {status === 'failed' && <p className="p-2 text-red-500">{error}</p>}
-                        {status === 'succeeded' && volunteers.map(volunteer => (
-                          <button
-                            type="button"
-                            key={volunteer._id}
-                            onClick={() => addVolunteer(volunteer)}
-                            className="block w-full text-left px-4 py-2 hover:bg-gray-100"
-                          >
-                            <div className="flex items-center">
-                              <img src={volunteer.avatar || '/default-avatar.png'} alt={volunteer.name} className="w-8 h-8 rounded-full mr-2" />
-                              <div>
-                                <div>{volunteer.name}</div>
-                                <div className="text-xs text-gray-500">{volunteer.email}</div>
-                              </div>
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <button 
-                  type="submit"
-                  disabled={eventStatus === 'loading'}
-                  className="w-full bg-blue-500 text-white p-3 rounded hover:bg-blue-600 transition duration-300 disabled:bg-gray-400"
-                >
-                  {eventStatus === 'loading' ? 'Creating...' : 'Create event'}
-                </button>
-              </div> */}
             </div>
           </div>
 
