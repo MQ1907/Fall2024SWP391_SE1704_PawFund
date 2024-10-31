@@ -132,6 +132,21 @@ export const updateEventStatus = createAsyncThunk(
   }
 );
 
+export const fetchSupportedEvents = createAsyncThunk(
+  "events/fetchSupportedEvents",
+  async (userId: string, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`http://localhost:8000/event/view-event-supported/${userId}`);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error fetching supported events"
+      );
+    }
+  }
+);
+
+
 interface Event {
   _id: string;
   title: string;
@@ -239,6 +254,18 @@ const eventSlice = createSlice({
         state.status = 'failed';
         state.error = action.error.message;
       })
+       //supporters event
+      .addCase(fetchSupportedEvents.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchSupportedEvents.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.supportedEvents = action.payload;
+      })
+      .addCase(fetchSupportedEvents.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = (action.payload as string) || "Error fetching supported events";
+      });
   },
 });
 
