@@ -1,20 +1,83 @@
 "use client";
-import React, { useEffect } from 'react';
-import { useParams } from "next/navigation";
+import React, { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { message } from "antd";
 import { useAppDispatch, useAppSelector } from "../../../lib/hook";
-import { fetchEventById } from "../../../lib/features/event/eventSlice";
+import { fetchEventById, joinEvent } from "../../../lib/features/event/eventSlice";
+import { jwtDecode } from "jwt-decode";
 
+
+interface DecodedToken {
+    id: string;
+    exp: number;
+    iat: number;
+  }
 const Page = () => {
+    const router = useRouter();
     const params = useParams();
     const id = params.id as string;
     const dispatch = useAppDispatch();
     const { currentEvent, status, error } = useAppSelector((state) => state.events);
+    const [hasHydrated, setHasHydrated] = useState(false);
+    const [token, setToken] = useState<string | null>(null);
+    const [isJoining, setIsJoining] = useState(false);
 
     useEffect(() => {
         if (id) {
             dispatch(fetchEventById(id));
         }
     }, [id, dispatch]);
+
+    useEffect(() => {
+        setHasHydrated(true);
+        if (typeof window !== "undefined") {
+          const storedToken = localStorage.getItem("token"); // Check client-side before accessing localStorage
+          setToken(storedToken);
+    
+          if (storedToken) {
+            try {
+              const decodedToken = jwtDecode<DecodedToken>(storedToken);
+              const userId = decodedToken.id;
+    
+              console.log("userId", userId);
+    
+            } catch (error) {
+              console.error("Invalid token:", error);
+              localStorage.removeItem("token");
+              setToken(null);
+            }
+          }
+        }
+      }, []);
+
+    const handleJoinEvent = async () => {
+        if (!token) {
+            router.push('/signin');
+            return;
+        }
+
+        if (currentEvent.eventStatus !== "ON_GOING") {
+            message.error('You can only join events that are currently ongoing');
+            return;
+        }
+
+        try {
+            setIsJoining(true);
+            const decodedToken = jwtDecode<DecodedToken>(token);
+            const userId = decodedToken.id;
+            
+            await dispatch(joinEvent({ 
+                eventId: currentEvent._id, 
+                userId: userId 
+            })).unwrap();
+            
+            message.success('Joined event successfully!');
+        } catch (error: any) {
+            message.error(error.message || 'Failed to join event');
+        } finally {
+            setIsJoining(false);
+        }
+    };
 
     if (status === "loading") {
         return <div>Loading...</div>;
@@ -60,6 +123,24 @@ const Page = () => {
                                 <hr className="border-t border-[#6F6F6F] my-4" />
                                 <div className='text-[#6F6F6F] font-medium leading-relaxed'>
                                     <p className="text-justify">{currentEvent.description}</p>
+                                </div>
+
+                                <div className="mt-8 flex justify-end">
+                                    <button 
+                                        onClick={handleJoinEvent}
+                                        disabled={isJoining || currentEvent.eventStatus !== "ON_GOING"}
+                                        className={`w-[200px] ${
+                                            isJoining || currentEvent.eventStatus !== "ON_GOING"
+                                                ? 'bg-gray-400 cursor-not-allowed' 
+                                                : 'bg-blue-500 hover:bg-blue-600'
+                                        } text-white py-3 px-4 rounded-lg 
+                                        transition duration-200 font-medium`}
+                                    >
+                                        {isJoining ? 'Joining...' : 
+                                         currentEvent.eventStatus === "SCHEDULED" ? 'Event Not Started' :
+                                         currentEvent.eventStatus === "COMPLETED" ? 'Event Ended' :
+                                         'Join Event'}
+                                    </button>
                                 </div>
                             </div>
                         </div>
