@@ -118,6 +118,20 @@ export const deleteEvent = createAsyncThunk(
   }
 );
 
+export const updateEventStatus = createAsyncThunk(
+  'events/updateStatus',
+  async ({ id, updateStatusDto }: { id: string; updateStatusDto: { eventStatus: string } }) => {
+    const response = await axios.put(
+      `/api/event/update-status/${id}`,
+      updateStatusDto,
+      {
+        baseURL: process.env.NEXT_PUBLIC_API_URL
+      }
+    );
+    return response.data;
+  }
+);
+
 interface Event {
   _id: string;
   title: string;
@@ -210,6 +224,34 @@ const eventSlice = createSlice({
       .addCase(deleteEvent.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message || 'Failed to delete event';
+      })
+      .addCase(updateEventStatus.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(updateEventStatus.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        const index = state.events.findIndex(event => event._id === action.payload._id);
+        if (index !== -1) {
+          state.events[index] = action.payload;
+        }
+      })
+      .addCase(updateEventStatus.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      })
+      .addCase(joinEvent.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(joinEvent.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        const index = state.events.findIndex(event => event._id === action.payload._id);
+        if (index !== -1) {
+          state.events[index] = action.payload;
+        }
+      })
+      .addCase(joinEvent.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
       });
   },
 });

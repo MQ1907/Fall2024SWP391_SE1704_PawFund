@@ -71,6 +71,7 @@ const CreateEventPage = () => {
   const validateForm = () => {
     const newErrors: {[key: string]: string} = {};
     const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const startDateTime = new Date(startDate);
     const endDateTime = new Date(endDate);
     
@@ -80,12 +81,12 @@ const CreateEventPage = () => {
     }
 
     // Validate dates
-    if (startDateTime < now) {
+    if (startDateTime < today) {
       newErrors.startDate = 'Start date cannot be in the past';
     }
 
-    if (endDateTime <= startDateTime) {
-      newErrors.endDate = 'End date must be after start date';
+    if (endDateTime < startDateTime) {
+      newErrors.endDate = 'End date must be after or equal to start date';
     }
 
     // Validate minimum time difference (30 minutes)
@@ -179,10 +180,10 @@ const CreateEventPage = () => {
                 <div>
                   <h2 className="text-sm font-semibold uppercase text-gray-500 mb-2">START DATE</h2>
                   <input 
-                    type="datetime-local" 
+                    type="date" 
                     className={`w-full p-3 border rounded ${errors.startDate ? 'border-red-500' : ''}`}
-                    value={startDate}
-                    min={new Date().toISOString().slice(0, 16)}
+                    value={startDate.split('T')[0]}
+                    min={new Date().toISOString().split('T')[0]}
                     onChange={(e) => setStartDate(e.target.value)}
                     required
                   />
@@ -191,10 +192,10 @@ const CreateEventPage = () => {
                 <div>
                   <h2 className="text-sm font-semibold uppercase text-gray-500 mb-2">END DATE</h2>
                   <input 
-                    type="datetime-local" 
+                    type="date" 
                     className={`w-full p-3 border rounded ${errors.endDate ? 'border-red-500' : ''}`}
-                    value={endDate}
-                    min={startDate || new Date().toISOString().slice(0, 16)}
+                    value={endDate.split('T')[0]}
+                    min={startDate || new Date().toISOString().split('T')[0]}
                     onChange={(e) => setEndDate(e.target.value)}
                     required
                   />
@@ -203,7 +204,7 @@ const CreateEventPage = () => {
               </div>
 
               <p className="text-green-600 mt-3 text-sm">
-                {startDate && endDate && `This event will take place from ${new Date(startDate).toLocaleString()} until ${new Date(endDate).toLocaleString()}`}
+                {startDate && endDate && `This event will take place from ${new Date(startDate).toLocaleDateString()} until ${new Date(endDate).toLocaleDateString()}`}
               </p>
 
               <h2 className="text-sm font-semibold uppercase text-gray-500 mt-8 mb-2">DESCRIPTION</h2>

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/lib/store';
-import { fetchEvents, deleteEvent, updateEvent } from '@/lib/features/event/eventSlice';
+import { fetchEvents, deleteEvent, updateEvent, updateEventStatus } from '@/lib/features/event/eventSlice';
 import { fetchUserList } from '@/lib/features/user/userSlice';
 
 
@@ -154,6 +154,7 @@ const UpdateEventModal = ({ event, onClose, onUpdate }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [errors, setErrors] = useState<{[key: string]: string}>({});
+  const [eventStatus, setEventStatus] = useState(event.eventStatus);
 
   useEffect(() => {
     dispatch(fetchUserList());
@@ -185,35 +186,30 @@ const UpdateEventModal = ({ event, onClose, onUpdate }) => {
 
   const validateForm = () => {
     const newErrors: {[key: string]: string} = {};
-    const now = new Date();
     const startDateTime = new Date(startDate);
     const endDateTime = new Date(endDate);
     
+    // Validate title
     if (title.trim().length < 3) {
       newErrors.title = 'Title must be at least 3 characters long';
     }
 
-    if (startDateTime < now) {
-      newErrors.startDate = 'Start date cannot be in the past';
+    // Chỉ validate end date phải >= start date
+    if (endDateTime < startDateTime) {
+      newErrors.endDate = 'End date must be after or equal to start date';
     }
 
-    if (endDateTime <= startDateTime) {
-      newErrors.endDate = 'End date must be after start date';
-    }
-
-    const timeDifferenceInMinutes = (endDateTime.getTime() - startDateTime.getTime()) / (1000 * 60);
-    if (timeDifferenceInMinutes < 30) {
-      newErrors.endDate = 'End time must be at least 30 minutes after start time';
-    }
-
+    // Validate location
     if (location.trim().length < 3) {
       newErrors.location = 'Location must be at least 3 characters long';
     }
 
+    // Validate description
     if (description.trim().length < 10) {
       newErrors.description = 'Description must be at least 10 characters long';
     }
 
+    // Validate image URL
     if (image && !isValidUrl(image)) {
       newErrors.image = 'Please enter a valid image URL';
     }
@@ -245,7 +241,8 @@ const UpdateEventModal = ({ event, onClose, onUpdate }) => {
       start: new Date(startDate),
       end: new Date(endDate),
       location: location.trim(),
-      supporters: selectedVolunteers.map(v => v._id)
+      supporters: selectedVolunteers.map(v => v._id),
+      eventStatus
     };
 
     try {
@@ -264,10 +261,9 @@ const UpdateEventModal = ({ event, onClose, onUpdate }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg max-w-4xl w-full shadow-lg overflow-hidden">
-        <form onSubmit={handleSubmit} className="p-6">
-          <h2 className="text-2xl font-bold mb-6">Update Event</h2>
-          
+      <div className="bg-white rounded-lg w-full max-w-2xl p-6">
+        <h2 className="text-2xl font-semibold mb-4">Update Event</h2>
+        <form onSubmit={handleSubmit}>
           <div className="space-y-4">
             {/* Title */}
             <div>
@@ -305,13 +301,28 @@ const UpdateEventModal = ({ event, onClose, onUpdate }) => {
               {errors.location && <p className="text-red-500 text-sm mt-1">{errors.location}</p>}
             </div>
 
+            {/* Event Status */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Event Status</label>
+              <select
+                value={eventStatus}
+                onChange={(e) => setEventStatus(e.target.value)}
+                className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="SCHEDULED">SCHEDULED</option>
+                <option value="ON_GOING">ON GOING</option>
+                <option value="COMPLETED">COMPLETED</option>
+                <option value="CANCELLED">CANCELLED</option>
+              </select>
+            </div>
+
             {/* Dates */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
                 <input
-                  type="datetime-local"
-                  value={startDate}
+                  type="date"
+                  value={startDate.split('T')[0]}
                   onChange={(e) => setStartDate(e.target.value)}
                   className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.startDate ? 'border-red-500' : ''}`}
                 />
@@ -320,9 +331,10 @@ const UpdateEventModal = ({ event, onClose, onUpdate }) => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
                 <input
-                  type="datetime-local"
-                  value={endDate}
+                  type="date"
+                  value={endDate.split('T')[0]}
                   onChange={(e) => setEndDate(e.target.value)}
+                  min={startDate.split('T')[0]} // Đảm bảo end date không thể chọn trước start date
                   className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.endDate ? 'border-red-500' : ''}`}
                 />
                 {errors.endDate && <p className="text-red-500 text-sm mt-1">{errors.endDate}</p>}
