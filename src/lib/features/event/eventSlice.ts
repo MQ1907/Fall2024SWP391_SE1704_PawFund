@@ -146,6 +146,23 @@ export const fetchSupportedEvents = createAsyncThunk(
   }
 );
 
+// Thêm action joinEvent
+export const joinEvent = createAsyncThunk(
+  'events/joinEvent',
+  async ({ eventId, userId }: { eventId: string, userId: string }, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(`${API_URL}/event/join-event`, {
+        eventId,
+        userId
+      });
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to join event"
+      );
+    }
+  }
+);
 
 interface Event {
   _id: string;
@@ -265,6 +282,25 @@ const eventSlice = createSlice({
       .addCase(fetchSupportedEvents.rejected, (state, action) => {
         state.status = "failed";
         state.error = (action.payload as string) || "Error fetching supported events";
+      })
+      .addCase(joinEvent.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(joinEvent.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        // Cập nhật event trong danh sách
+        const index = state.events.findIndex(event => event._id === action.payload._id);
+        if (index !== -1) {
+          state.events[index] = action.payload;
+        }
+        // Cập nhật currentEvent nếu đang xem
+        if (state.currentEvent?._id === action.payload._id) {
+          state.currentEvent = action.payload;
+        }
+      })
+      .addCase(joinEvent.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload as string;
       });
   },
 });
