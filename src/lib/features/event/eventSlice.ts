@@ -239,20 +239,6 @@ const eventSlice = createSlice({
         state.status = 'failed';
         state.error = action.error.message;
       })
-      .addCase(joinEvent.pending, (state) => {
-        state.status = 'loading';
-      })
-      .addCase(joinEvent.fulfilled, (state, action) => {
-        state.status = 'succeeded';
-        const index = state.events.findIndex(event => event._id === action.payload._id);
-        if (index !== -1) {
-          state.events[index] = action.payload;
-        }
-      })
-      .addCase(joinEvent.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.error.message;
-      });
   },
 });
 
