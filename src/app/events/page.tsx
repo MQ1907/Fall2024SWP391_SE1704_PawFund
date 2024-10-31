@@ -6,6 +6,14 @@ import { AppDispatch, RootState } from '@/lib/store';
 import { fetchEvents, deleteEvent, updateEvent, updateEventStatus } from '@/lib/features/event/eventSlice';
 import { fetchUserList } from '@/lib/features/user/userSlice';
 
+interface Volunteer {
+  _id: string;
+  name: string;
+  avatar: string;
+  email: string;
+  role: string;
+}
+
 
 const EventModal = ({ event, onClose }) => {
   if (!event) return null
@@ -27,7 +35,7 @@ const EventModal = ({ event, onClose }) => {
               {event.supporters && event.supporters.map((supporter) => (
                 <div key={supporter._id} className="flex items-center space-x-2 bg-gray-100 rounded-full px-3 py-1">
                   <img
-                    src={supporter.avatar || '/default-avatar.png'}
+                    src={supporter.avatar }
                     alt={supporter.name}
                     className="w-6 h-6 rounded-full"
                   />
@@ -53,15 +61,21 @@ const EventModal = ({ event, onClose }) => {
 const EventRow = ({ event, onView, onUpdate }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { status } = useSelector((state: RootState) => state.events);
-  
+  const { userList } = useSelector((state: RootState) => state.user);
+
+  // Helper function to get volunteer info from supporter ID
+  const getVolunteerInfo = (supporterId: string) => {
+    return userList.find(user => user._id === supporterId);
+  };
+
   const handleDelete = async () => {
-    if (window.confirm('Are you sure you want to delete this event?')) {
+    if (window.confirm('Are you sure you want to cancel this event?')) {
       try {
         await dispatch(deleteEvent(event._id)).unwrap();
-        alert('Event deleted successfully!');
+        alert('Event canceld successfully!');
       } catch (error: any) {
-        console.error('Delete event error:', error);
-        alert(error.message || 'Failed to delete event');
+        console.error('Canceld event error:', error);
+        alert(error.message || 'Failed to cancel event');
       }
     }
   };
@@ -86,27 +100,17 @@ const EventRow = ({ event, onView, onUpdate }) => {
       <td className="py-4 px-6">
         <div className="flex -space-x-2">
           {event.supporters && Array.isArray(event.supporters) && event.supporters.length > 0 ? (
-            event.supporters.map((supporter: any) => {
-              if (!supporter || typeof supporter !== 'object') {
-                return (
-                  <div key={typeof supporter === 'string' ? supporter : Math.random()} className="relative">
-                    <img
-                      src="https://via.placeholder.com/150"
-                      alt="Supporter"
-                      className="w-8 h-8 rounded-full border-2 border-white shadow-sm"
-                      title="Supporter"
-                    />
-                  </div>
-                );
-              }
+            event.supporters.map((supporterId: string) => {
+              const volunteerInfo = getVolunteerInfo(supporterId);
+              if (!volunteerInfo) return null;
 
               return (
-                <div key={supporter._id} className="relative">
+                <div key={supporterId} className="relative">
                   <img
-                    src={supporter.avatar || "https://via.placeholder.com/150"}
-                    alt={supporter.name || "Supporter"}
+                    src={volunteerInfo.avatar || "https://via.placeholder.com/150"}
+                    alt={volunteerInfo.name}
                     className="w-8 h-8 rounded-full border-2 border-white shadow-sm"
-                    title={supporter.name || "Supporter"}
+                    title={volunteerInfo.name}
                     onError={(e) => {
                       e.currentTarget.src = "https://via.placeholder.com/150";
                     }}
@@ -133,7 +137,7 @@ const EventRow = ({ event, onView, onUpdate }) => {
             disabled={status === 'loading'}
             className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm shadow transition-colors duration-200 disabled:bg-gray-400"
           >
-            {status === 'loading' ? 'Deleting...' : 'Delete'}
+            {status === 'loading' ? 'Deleting...' : 'Cancel'}
           </button>
         </div>
       </td>
@@ -150,11 +154,23 @@ const UpdateEventModal = ({ event, onClose, onUpdate }) => {
   const [startDate, setStartDate] = useState(new Date(event.start).toISOString().slice(0, 16));
   const [endDate, setEndDate] = useState(new Date(event.end).toISOString().slice(0, 16));
   const [image, setImage] = useState(event.image);
-  const [selectedVolunteers, setSelectedVolunteers] = useState(event.supporters || []);
+  const [selectedVolunteers, setSelectedVolunteers] = useState(() => {
+    if (!Array.isArray(event.supporters)) return [];
+    
+    return event.supporters
+      .map(supporterId => userList.find(user => user._id === supporterId))
+      .filter(volunteer => volunteer !== undefined); // Remove any undefined values
+  });
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   const [eventStatus, setEventStatus] = useState(event.eventStatus);
+
+  useEffect(() => {
+    console.log('Selected Volunteers:', selectedVolunteers);
+    console.log('Event Supporters:', event.supporters);
+    console.log('User List:', userList);
+  }, [selectedVolunteers, event.supporters, userList]);
 
   useEffect(() => {
     dispatch(fetchUserList());
@@ -241,7 +257,7 @@ const UpdateEventModal = ({ event, onClose, onUpdate }) => {
       start: new Date(startDate),
       end: new Date(endDate),
       location: location.trim(),
-      supporters: selectedVolunteers.map(v => v._id),
+      supporters: selectedVolunteers.map(v => v._id || v),
       eventStatus
     };
 
@@ -312,7 +328,6 @@ const UpdateEventModal = ({ event, onClose, onUpdate }) => {
                 <option value="SCHEDULED">SCHEDULED</option>
                 <option value="ON_GOING">ON GOING</option>
                 <option value="COMPLETED">COMPLETED</option>
-                <option value="CANCELLED">CANCELLED</option>
               </select>
             </div>
 
@@ -372,11 +387,11 @@ const UpdateEventModal = ({ event, onClose, onUpdate }) => {
                 {selectedVolunteers.map(volunteer => (
                   <div key={volunteer._id} className="relative">
                     <img 
-                      src={volunteer.avatar || "https://via.placeholder.com/150"} 
+                      src={volunteer.avatar || '/default-avatar.png'} 
                       alt={volunteer.name} 
                       className="w-10 h-10 rounded-full"
                       onError={(e) => {
-                        e.currentTarget.src = "https://via.placeholder.com/150";
+                        e.currentTarget.src = "/default-avatar.png";
                       }}
                     />
                     <button 
@@ -404,7 +419,7 @@ const UpdateEventModal = ({ event, onClose, onUpdate }) => {
                       style={{
                         maxHeight: '300px',
                         overflowY: 'auto',
-                        bottom: '100%'  // Hiển thị dropdown phía trên nút +
+                        bottom: '100%'  
                       }}
                     >
                       {userStatus === 'loading' && <p className="p-2">Loading...</p>}

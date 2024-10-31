@@ -21,7 +21,7 @@ import {
   StarOutlined,
 } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
-import { useAppDispatch } from "@/lib/hook";
+import { useAppDispatch, useAppSelector } from "@/lib/hook";
 import { logout } from "@/lib/features/auth/authSlice";
 import {
   deleteAdoptionRequest,
@@ -37,7 +37,11 @@ import {
   updateFeedback,
 } from "@/lib/features/feedback/feedbackSlice";
 import { CheckingTypeCustomer, HealthStatus } from "@/enum";
-
+import { fetchEvents as fetchEventsAction } from "@/lib/features/event/eventSlice";
+import axios from "axios";
+import { fetchUserList } from "@/lib/features/user/userSlice";
+import { SearchOutlined } from '@ant-design/icons';
+const { Search } = Input;
 
 interface AdoptionRequest {
   _id: string;
@@ -94,6 +98,20 @@ const Dashboard = () => {
   >(undefined);
   const [healthChecks, setHealthChecks] = useState<any[]>([]);
 
+  const [events, setEvents] = useState<any[]>([]);
+
+  const { userList } = useAppSelector((state) => state.user);
+
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const [filteredEvents, setFilteredEvents] = useState<any[]>([]);
+
+  useEffect(() => {
+    dispatch(fetchUserList());
+  }, [dispatch]);
+
+  const getVolunteerInfo = (supporterId: string) => {
+    return userList.find(user => user._id === supporterId);
+  };
 
   const handleDeleteRequest = async (requestId: string) => {
     try {
@@ -142,6 +160,9 @@ const Dashboard = () => {
     }
     else if (e.key === "3") {
       fetchHealthChecks();
+    }
+    else if (e.key === "6") {
+      fetchEvents();
     }
   };
 
@@ -367,6 +388,54 @@ const Dashboard = () => {
       setLoading(false);
     }
   };
+
+  const fetchEvents = async () => {
+    if (token) {
+      const userId = getUserIdFromToken(token);
+      if (userId) {
+        try {
+          const response = await axios.get(`http://localhost:8000/event/view-event-joined/${userId}`);
+          console.log("Fetched joined events:", response.data);
+          
+          const formattedEvents = response.data.map((event: any) => ({
+            ...event,
+            key: event._id,
+            startDate: event.start,
+            endDate: event.end,
+            volunteer: event.supporters?.join(", ") || "No volunteers yet"
+          }));
+          
+          setEvents(formattedEvents);
+          message.success("Successfully fetched your joined events");
+        } catch (error: any) {
+          console.error("Failed to fetch joined events:", error);
+          if (error.response?.status === 404) {
+            message.info("You haven't joined any events yet");
+            setEvents([]); // Reset events list
+          } else {
+            message.error("Failed to fetch events. Please try again.");
+          }
+        }
+      }
+    }
+  };
+
+  const handleSearch = (value: string) => {
+    if (!value.trim()) {
+      setFilteredEvents(events);
+      return;
+    }
+    
+    const filtered = events.filter(event => 
+      event.title.toLowerCase().includes(value.toLowerCase())
+    );
+    setFilteredEvents(filtered);
+  };
+
+  useEffect(() => {
+    setFilteredEvents(events);
+  }, [events]);
+
   const menuItems = [
     {
       key: "1",
@@ -387,6 +456,11 @@ const Dashboard = () => {
       key: "4",
       icon: <HistoryOutlined />,
       label: "Pet Feedback",
+    },
+    {
+      key: "6",
+      icon: <HistoryOutlined />,
+      label: "Event ",
     },
     {
       key: "5",
@@ -651,6 +725,100 @@ const Dashboard = () => {
       ),
     },
   ];
+
+  const eventColumns = [
+    {
+      title: "Image",
+      dataIndex: "image",
+      key: "image",
+      render: (text: string) => (
+        <Image
+          width={180}
+          height={200}
+          className="rounded-sm shadow-2xl"
+          src={text}
+          alt="Event Image"
+        />
+      ),
+    },
+    {
+      title: "Title",
+      dataIndex: "title",
+      key: "title",
+      render: (text: string) => (
+        <span className="font-semibold text-sm">{text}</span>
+      ),
+    },
+    {
+      title: "Description",
+      dataIndex: "description",
+      key: "description",
+      render: (text: string) => (
+        <span className="font-semibold text-sm">{text}</span>
+      ),
+    },
+    {
+      title: "Volunteer",
+      dataIndex: "supporters",
+      key: "supporters",
+      render: (supporters: string[]) => (
+        <div className="flex -space-x-4">
+          {supporters && Array.isArray(supporters) && supporters.length > 0 ? (
+            supporters.map((supporterId: string) => {
+              const volunteerInfo = getVolunteerInfo(supporterId);
+              if (!volunteerInfo) return null;
+
+              return (
+                <div key={supporterId} className="relative">
+                  <Tooltip title={volunteerInfo.name}>
+                    <img
+                      src={volunteerInfo.avatar || "https://via.placeholder.com/150"}
+                      alt={volunteerInfo.name}
+                      className="w-16 h-16 rounded-full border-4 border-white shadow-lg hover:scale-110 transition-transform duration-200"
+                      onError={(e) => {
+                        e.currentTarget.src = "https://via.placeholder.com/150";
+                      }}
+                    />
+                  </Tooltip>
+                </div>
+              );
+            })
+          ) : (
+            <span className="text-gray-400 text-sm">No supporters</span>
+          )}
+        </div>
+      ),
+    },
+    {
+      title: "Start Date",
+      dataIndex: "startDate",
+      key: "startDate",
+      render: (text: string) => (
+        <span className="font-semibold text-sm">
+          {new Date(text).toLocaleDateString('vi-VN')}
+        </span>
+      ),
+    },
+    {
+      title: "End Date",
+      dataIndex: "endDate",
+      key: "endDate",
+      render: (text: string) => (
+        <span className="font-semibold text-sm">
+          {new Date(text).toLocaleDateString('vi-VN')}
+        </span>
+      ),
+    },
+    {
+      title: "Location",
+      dataIndex: "location",
+      key: "location",
+      render: (text: string) => (
+        <span className="font-semibold text-sm">{text}</span>
+      ),
+    },
+  ];
+
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Sider>
@@ -679,6 +847,33 @@ const Dashboard = () => {
             <div>
               <Table columns={healthCheckColumns} dataSource={healthChecks} />
             </div>
+          )}
+          {selectedKey === "6" && (
+            <>
+              <div className="w-full mb-6">
+                <Search
+                  placeholder="Search events by title..."
+                  allowClear
+                  enterButton={
+                    <Button type="primary" icon={<SearchOutlined />}>
+                      Search
+                    </Button>
+                  }
+                  size="large"
+                  onSearch={handleSearch}
+                  style={{ 
+                    width: '100%',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                    borderRadius: '8px'
+                  }}
+                />
+              </div>
+              <Table
+                columns={eventColumns}
+                dataSource={filteredEvents}
+                pagination={{ pageSize: 5 }}
+              />
+            </>
           )}
         </Content>
       </Layout>
