@@ -41,6 +41,13 @@ export const fetchFeedbackByUserId = createAsyncThunk(
       return response.data;
     }
   );
+  export const deleteFeedback = createAsyncThunk(
+    'feedback/deleteFeedback',
+    async (feedbackId: string) => {
+      const response = await axios.delete(`http://localhost:8000/feedback/delete/${feedbackId}`);
+      return response.data;
+    }
+  );
 const feedbackSlice = createSlice({
   name: 'feedback',
   initialState,
@@ -90,6 +97,17 @@ const feedbackSlice = createSlice({
       .addCase(fetchFeedbackByPetId.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message || 'Failed to fetch feedback by pet ID';
+      })
+      .addCase(deleteFeedback.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(deleteFeedback.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.feedback = action.payload;
+      })
+      .addCase(deleteFeedback.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message || 'Failed to delete feedback';
       });
   },
 });
