@@ -9,10 +9,19 @@ import AdoptionRequest from "@/app/adoption-request/page";
 import { fetchFeedbackByPetId } from "@/lib/features/feedback/feedbackSlice";
 import { StarOutlined } from "@ant-design/icons";
 import { fetchUserData } from "@/lib/features/user/userSlice";
-
+import { jwtDecode } from "jwt-decode";
+import axios from "axios";
+interface DecodedToken {
+  id: string;
+  exp: number;
+  iat: number;
+}
 const PetDetail = () => {
   const [OpenAdoptionRequest, setCreateAdoptionRequest] = useState(false);
   const [loading, setLoading] = useState(false); // Khai báo trạng thái loading
+  const [hasHydrated, setHasHydrated] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
+  const [role, setRole] = useState<string | null>(null);
   interface Feedback {
     id: string;
     rating: number;
@@ -24,7 +33,38 @@ const PetDetail = () => {
       avatar: string;
     };
   }
+  useEffect(() => {
+    setHasHydrated(true);
+    if (typeof window !== "undefined") {
+      const storedToken = localStorage.getItem("token"); // Check client-side before accessing localStorage
+      setToken(storedToken);
+      if (storedToken) {
+        try {
+          const decodedToken = jwtDecode<DecodedToken>(storedToken);
+          const userId = decodedToken.id;
+          console.log("userId", userId);
 
+          // Gọi API để lấy thông tin người dùng
+          const fetchUser = async () => {
+            try {
+              const response = await axios.get(
+                `http://localhost:8000/users/${userId}`
+              );
+              console.log("User data:", response.data);
+              setRole(response.data.role);
+            } catch (error) {
+              console.error("Error fetching user data:", error);
+            }
+          };
+          fetchUser();
+        } catch (error) {
+          console.error("Invalid token:", error);
+          localStorage.removeItem("token");
+          setToken(null);
+        }
+      }
+    }
+  }, []);
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const showAdoptPetModal = () => {
     setCreateAdoptionRequest(true); // Mở modal
@@ -155,18 +195,16 @@ const PetDetail = () => {
                 <p className="px-1">{currentPet.color}</p>
               </div>
               <div className="flex gap-4 mt-4">
-                {currentPet.isAdopted === false ? (
+              {currentPet.isAdopted === false && role ? (
                   <button
                     onClick={showAdoptPetModal}
                     className="relative border-2 border-gray-800 rounded-lg bg-transparent py-2.5 px-10 font-medium uppercase text-gray-800 transition-colors before:absolute before:left-0 before:top-0 before:-z-10 before:h-full before:w-full before:origin-top-left before:scale-x-0 before:bg-pink-500 before:transition-transform before:duration-300 before:content-[''] hover:text-white before:hover:scale-x-100"
                   >
                     Adopt
-                  </button>
-                ) : (
+                  </button> ) : currentPet.isAdopted === true && role === "CUSTOMER" ? (
                   <Tag color="green" className="font-semibold uppercase">
                     This pet is already adopted.
-                  </Tag>
-                )}
+                  </Tag> ) : null}
 
                 <Modal
                   open={OpenAdoptionRequest}
