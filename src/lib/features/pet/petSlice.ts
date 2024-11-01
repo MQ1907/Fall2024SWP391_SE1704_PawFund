@@ -290,6 +290,7 @@ interface Pet {
   isVacinted: boolean;
   deliveryStatus: string; // Changed from petStatus to deliveryStatus
   isAdopted: boolean;
+  rescueBy:string;
 }
 
 interface PetState {

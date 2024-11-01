@@ -13,6 +13,7 @@ import axios from "axios";
 import { fetchPets, removePet, deletePet } from "@/lib/features/pet/petSlice";
 
 const Volunteer = () => {
+  const [presentUser,setPresentUser] = useState("");
   const { pets, status, error, sentToShelter } = useAppSelector(
     (state) => state.pets
   );
@@ -141,7 +142,7 @@ const Volunteer = () => {
       if (storedToken) {
         const decodedToken = jwtDecode<DecodedToken>(storedToken);
         const userId = decodedToken.id;
-
+        setPresentUser(userId);
         console.log("userId", userId);
 
         setCheckingBy(userId);
@@ -276,15 +277,17 @@ const Volunteer = () => {
 
   // Map pet data to table data source
   const dataSource = pets
-    .filter(
-      (pet) =>
-        pet.deliveryStatus === "INPROCESS" && !sentToShelter.includes(pet._id)
-    )
-    .map((pet) => ({
-      key: pet._id,
-      image: pet.image,
-      name: pet.name,
-      _id: pet._id,
+  .filter(
+    (pet) =>
+      pet.deliveryStatus === "INPROCESS" &&
+      !sentToShelter.includes(pet._id) &&
+      pet.rescueBy === presentUser
+  )
+  .map((pet) => ({
+    key: pet._id,
+    image: pet.image,
+    name: pet.name,
+    _id: pet._id,
     }));
   return (
     <div className="pt-[148px]">
