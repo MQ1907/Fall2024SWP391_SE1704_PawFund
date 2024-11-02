@@ -4,44 +4,47 @@ import React, { useState } from "react";
 
 const AboutUs = () => {
   const memberData = [
-
     {
       id: 1,
       name: "Pham The Long",
       role: "CEO",
-      detail:"Trước khi sáng lập nên Hanoi Pet Adoption vào năm 2015, Quỳnh đã từng tham gia hoạt động cứu hộ chó mèo ở Hà Nội nhiều năm. Nhìn vóc dáng nhỏ bé và trẻ trung của Quỳnh, không ai nghĩ rằng bạn có được sức mạnh và quyết tâm to lớn để mang lại cuộc sống tốt đẹp hơn cho chó mèo, cũng như năng lượng tích cực để kết nối những người cùng chung chí hướng. Quỳnh luôn ấp ủ ước mơ xây dựng được nhà chung to đẹp nhất Việt Nam để có thể cưu mang nhiều bé chó mèo cơ nhỡ hơn..",
-      image: "/images/avt1.jpg",
+      detail:
+        "Before founding SaiGon Pet Adoption in 2015, Long had been involved in dog and cat rescue activities in SaiGon for many years. Looking at Long's small and youthful stature, no one would think that they had such great strength and determination to bring a better life to dogs and cats, as well as positive energy to connect like-minded people. Long always cherishes the dream of building the most beautiful shared home in Vietnam to be able to shelter more stray dogs and cats.",
+      image: "/images/long.jpg",
     },
     {
       id: 2,
       name: "Le Huynh Minh Tri",
       role: "CEO",
-      detail:"Trước khi sáng lập nên Hanoi Pet Adoption vào năm 2015, Quỳnh đã từng tham gia hoạt động cứu hộ chó mèo ở Hà Nội nhiều năm. Nhìn vóc dáng nhỏ bé và trẻ trung của Quỳnh, không ai nghĩ rằng bạn có được sức mạnh và quyết tâm to lớn để mang lại cuộc sống tốt đẹp hơn cho chó mèo, cũng như năng lượng tích cực để kết nối những người cùng chung chí hướng. Quỳnh luôn ấp ủ ước mơ xây dựng được nhà chung to đẹp nhất Việt Nam để có thể cưu mang nhiều bé chó mèo cơ nhỡ hơn..",
+      detail:
+        "Before founding SaiGon Pet Adoption in 2015, Tri had been involved in dog and cat rescue activities in SaiGon for many years. Looking at Tri's small and youthful stature, no one would think that they had such great strength and determination to bring a better life to dogs and cats, as well as positive energy to connect like-minded people. Tri always cherishes the dream of building the most beautiful shared home in Vietnam to be able to shelter more stray dogs and cats.",
       image: "/images/miti.jpg",
     },
     {
       id: 3,
       name: "Dinh Ba Minh Quan",
       role: "Marketing",
-      detail:"Trước khi sáng lập nên Hanoi Pet Adoption vào năm 2015, Quỳnh đã từng tham gia hoạt động cứu hộ chó mèo ở Hà Nội nhiều năm. Nhìn vóc dáng nhỏ bé và trẻ trung của Quỳnh, không ai nghĩ rằng bạn có được sức mạnh và quyết tâm to lớn để mang lại cuộc sống tốt đẹp hơn cho chó mèo, cũng như năng lượng tích cực để kết nối những người cùng chung chí hướng. Quỳnh luôn ấp ủ ước mơ xây dựng được nhà chung to đẹp nhất Việt Nam để có thể cưu mang nhiều bé chó mèo cơ nhỡ hơn..",
+      detail:
+        "Before founding SaiGon Pet Adoption in 2015, Quan had been involved in dog and cat rescue activities in SaiGon for many years. Looking at Quan's small and youthful stature, no one would think that they had such great strength and determination to bring a better life to dogs and cats, as well as positive energy to connect like-minded people. Quan always cherishes the dream of building the most beautiful shared home in Vietnam to be able to shelter more stray dogs and cats.",
       image: "/images/quanAP.jpg",
     },
     {
       id: 4,
-      name: "Tran Minh Hieu",
+      name: "Tran Nguyen Minh Thien",
       role: "Culi",
-      detail:"Trước khi sáng lập nên Hanoi Pet Adoption vào năm 2015, Quỳnh đã từng tham gia hoạt động cứu hộ chó mèo ở Hà Nội nhiều năm. Nhìn vóc dáng nhỏ bé và trẻ trung của Quỳnh, không ai nghĩ rằng bạn có được sức mạnh và quyết tâm to lớn để mang lại cuộc sống tốt đẹp hơn cho chó mèo, cũng như năng lượng tích cực để kết nối những người cùng chung chí hướng. Quỳnh luôn ấp ủ ước mơ xây dựng được nhà chung to đẹp nhất Việt Nam để có thể cưu mang nhiều bé chó mèo cơ nhỡ hơn..",
-      image: "/images/avt1.jpg",
+      detail:
+        "Before founding SaiGon Pet Adoption in 2015, Thien had been involved in dog and cat rescue activities in SaiGon for many years. Looking at Thien's small and youthful stature, no one would think that they had such great strength and determination to bring a better life to dogs and cats, as well as positive energy to connect like-minded people. Thien always cherishes the dream of building the most beautiful shared home in Vietnam to be able to shelter more stray dogs and cats.",
+      image: "/images/quanAP.jpg",
     },
     {
       id: 5,
       name: "Bui Le Bao Phi",
       role: "CEO",
-      detail:"Trước khi sáng lập nên Hanoi Pet Adoption vào năm 2015, Quỳnh đã từng tham gia hoạt động cứu hộ chó mèo ở Hà Nội nhiều năm. Nhìn vóc dáng nhỏ bé và trẻ trung của Quỳnh, không ai nghĩ rằng bạn có được sức mạnh và quyết tâm to lớn để mang lại cuộc sống tốt đẹp hơn cho chó mèo, cũng như năng lượng tích cực để kết nối những người cùng chung chí hướng. Quỳnh luôn ấp ủ ước mơ xây dựng được nhà chung to đẹp nhất Việt Nam để có thể cưu mang nhiều bé chó mèo cơ nhỡ hơn..",
+      detail:
+        "Before founding SaiGon Pet Adoption in 2015, Phi had been involved in dog and cat rescue activities in SaiGon for many years. Looking at Phi's small and youthful stature, no one would think that they had such great strength and determination to bring a better life to dogs and cats, as well as positive energy to connect like-minded people. Phi always cherishes the dream of building the most beautiful shared home in Vietnam to be able to shelter more stray dogs and cats.",
       image: "/images/miti.jpg",
     },
-    
-  ]
+  ];
   const [isAnimating] = useState(true);
   return (
     <div className="mt-[148px]">
@@ -65,62 +68,91 @@ const AboutUs = () => {
           </div>
         </div>
       </div>
-      <div className="w-[1000px] justify-center ml-[250px] animate__animated animate__zoomIn">
-        <h1 className="mt-[20px] text-[34px] font-medium">ABOUT US</h1>
-        <hr className="w-[60px] border-[1px] bg-black"></hr>
-        <br/>
-        <p className="font-bold">
-          Chúng tôi là một nhóm trẻ gồm tình nguyện viên Việt Nam và một số bạn
-          nước ngoài, cùng hoạt động vì tình yêu chó mèo. Tôn chỉ hoạt động của
-          chúng tôi là không từ bỏ nỗ lực với bất kỳ con vật nào, dù bé có ốm
-          yếu hay tàn tật tới đâu, bởi mỗi thú cưng đều cần có cơ hội hi vọng
-          vào một tương lai tốt đẹp. Chúng tôi cố gắng chăm sóc tốt nhất có thể,
-          phần nào bù đắp lại những tổn thương cho các bé được cứu hộ về dù là
-          hoang, lạc, bị bỏ rơi hay bạo hành. Ngoài ra, chúng tôi cũng luôn nỗ
-          lực tìm mái ấm yêu thương các bé trọn đời . Và cuối cùng, chúng tôi
-          giúp nâng cao nhận thức về trách nhiệm của chủ nuôi thông qua mạng xã
-          hội và các hoạt động thiện nguyện.
-        </p>
-        <br/>
-        <p className="font-bold">Là một trong những trạm cứu hộ thú cưng ít ỏi tại Hà Nội, hoạt động từ năm 2015 đến nay, Nhóm đã góp phần cứu giúp trên 4,000 ca chó mèo bị bỏ rơi, hoang lạc, bị bạo hành, đồng thời tìm mái ấm mới cho hàng trăm bé.
+      <div className="max-w-7xl mx-auto px-4 py-12 animate__animated animate__zoomIn">
+        <div className="text-center mb-10">
+          <h1 className="text-4xl font-semibold text-gray-800 mb-4">
+            ABOUT US
+          </h1>
+          <div className="w-20 h-1 bg-[#D51C63] mx-auto"></div>
+        </div>
 
-</p>
+        <div className="space-y-6 text-gray-700 font-medium">
+          <p className="leading-relaxed text-lg">
+            We are a young group of Vietnamese volunteers and some international
+            friends, working together for the love of dogs and cats. Our
+            operating principle is to never give up on any animal, no matter how
+            sick or disabled they may be, because every pet needs a chance to
+            hope for a better future. We try our best to care for them, somewhat
+            compensating for the trauma of rescued pets whether they are stray,
+            lost, abandoned, or abused. Additionally, we always strive to find
+            loving forever homes for them. Finally, we help raise awareness
+            about owner responsibilities through social media and volunteer
+            activities.
+          </p>
+
+          <p className="leading-relaxed text-lg">
+            As one of the few pet rescue stations in SaiGon, operating since
+            2015, the Group has helped rescue over 4,000 cases of abandoned,
+            stray, and abused dogs and cats, while finding new homes for
+            hundreds of pets.
+          </p>
+        </div>
       </div>
-      <div className="bg-[#F6F6F6] mt-6">
-      <div className={`flex flex-col items-center justify-center pt-10 gap-3 ${isAnimating ? 'animate__animated animate__backInUp  animate__duration-4s' : ''}`}>
-    <div className="font-semibold text-3xl">OUR TEAM</div>
-    <Image src="/images/dogfoot.png" alt="" width={30} height={30} className="transform rotate-12" />
-    </div>
-    <div className=" flex justify-center">
-          <div className="grid grid-cols-4 gap-6 p-6 w-[1100px]">
+      <div className="bg-[#F6F6F6] py-16">
+        <div
+          className={`flex flex-col items-center justify-center mb-12 ${
+            isAnimating
+              ? "animate__animated animate__backInUp animate__duration-4s"
+              : ""
+          }`}
+        >
+          <h2 className="font-bold text-4xl mb-3">OUR TEAM</h2>
+          <Image
+            src="/images/dogfoot.png"
+            alt="Dogfoot icon"
+            width={35}
+            height={35}
+            className="transform rotate-12"
+          />
+        </div>
+
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
             {memberData.slice(0, 16).map((member, index) => (
               <div
                 key={index}
-                className="bg-[#F6F6F6n] rounded-lg shadow-md p-4"
+                className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:-translate-y-2"
               >
-                <Image
-                  src={member.image}
-                  alt=""
-                  width={200}
-                  height={200}
-                  className="w-[300px] h-[270px] object-fill  rounded-md  hover:scale-110 duration-500"
-                />
-                <div className="mt-4">
-                  <h3 className="text-[21px] font-bold">{member.name}</h3>
-                  <p className="text-[16px] font-medium text-blue-500"> {member.role}</p>
-                  <p className="text-sm text-gray-700"> {member.detail}</p>
-                 
+                <div className="relative overflow-hidden group">
+                  <Image
+                    src={member.image}
+                    alt={member.name}
+                    width={400}
+                    height={400}
+                    className="w-full h-[280px] object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                    <span className="text-white text-lg font-medium">
+                      View Profile
+                    </span>
+                  </div>
+                </div>
+
+                <div className="p-6">
+                  <h3 className="text-xl font-bold text-gray-800 mb-1">
+                    {member.name}
+                  </h3>
+                  <p className="text-[#D51C63] font-medium mb-3">
+                    {member.role}
+                  </p>
+                  <p className="text-gray-600 text-sm line-clamp-4 hover:line-clamp-none transition-all duration-300">
+                    {member.detail}
+                  </p>
                 </div>
               </div>
             ))}
           </div>
         </div>
-    {/* <div className="flex flex-wrap">
-  <div>01</div>
-  <div>02</div>
-  <div>03</div>
-  <div>04</div>
-</div> */}
       </div>
     </div>
   );

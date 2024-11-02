@@ -473,7 +473,7 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
   );
 
   return (
-    <div style={{ marginTop: 50 }}>
+    <div>
       {/* Add search bar */}
       <div className="mb-4 px-3">
         <TextField

@@ -210,7 +210,7 @@ const PetManagement = () => {
   ];
 
   return (
-    <div className="mt-[148px]">
+    <div >
       <div style={{ marginBottom: 16 }}></div>
 
       {petsStatus === "loading" && <Spin tip="Loading..." />}
