@@ -34,7 +34,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <ClientLayout>
       <div className="flex bg-gray-100 min-h-screen">
-        <aside className="w-64 bg-gradient-to-b from-gray-800 to-blue-400 min-h-screen shadow-lg">
+        <aside className="w-64 bg-gray-800 min-h-screen shadow-lg">
           <div className="py-6 px-6 text-white">
             <h2 className="text-2xl font-bold">ShelterStaff Dashboard</h2>
           </div>

@@ -1,10 +1,11 @@
 "use client";
-import React, { useState } from 'react';
-import { useAppDispatch } from '@/lib/hook';
-import { Button, Input, Form, InputNumber, message } from 'antd';
-import { useRouter } from 'next/navigation';
+import React, { useState } from "react";
+import { useAppDispatch } from "@/lib/hook";
+import { Button, Input, Form, InputNumber, message } from "antd";
+
 import GoodBaby from "../goodpet/page";
-import Image from 'next/image'; // Thêm dòng này ở đầu file
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const Donate = () => {
   const dispatch = useAppDispatch();
@@ -36,44 +37,45 @@ const Donate = () => {
       image: "/images/sp4.png",
     },
   ];
-  
+
   const handleDonate = async (values: any) => {
     try {
       setLoading(true);
 
       const paymentData = {
         amount: Number(values.amount),
-        returnUrl: 'http://localhost:3000/success',
-        cancelUrl: 'http://localhost:3000/cancel'
+        returnUrl: "http://localhost:3000/success",
+        cancelUrl: "http://localhost:3000/cancel",
       };
 
-      console.log('Sending payment data:', paymentData);
+      console.log("Sending payment data:", paymentData);
 
-      const response = await fetch('/api/payment', {
-        method: 'POST',
+      const response = await fetch("/api/payment", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(paymentData)
+        body: JSON.stringify(paymentData),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'API request failed');
+        throw new Error(errorData.message || "API request failed");
       }
 
       const result = await response.json();
-      console.log('API response:', result);
+      console.log("API response:", result);
 
       if (result.data?.checkoutUrl) {
         window.location.href = result.data.checkoutUrl;
       } else {
-        throw new Error('No checkout URL in response');
+        throw new Error("No checkout URL in response");
       }
-
     } catch (error: any) {
-      console.error('Payment error:', error);
-      message.error(error.message || 'An error occurred while creating the transaction');
+      console.error("Payment error:", error);
+      message.error(
+        error.message || "An error occurred while creating the transaction"
+      );
     } finally {
       setLoading(false);
     }
@@ -137,78 +139,106 @@ const Donate = () => {
             alt="pets"
             width={230}
             height={230}
-               className='transform transition-transform duration-300 hover:scale-110'
+            className="transform transition-transform duration-300 hover:scale-110"
           />
         </div>
-       
-       <div>
-         <div className="bg-yellow-200 p-6 rounded-lg shadow-md ml-[200px] w-[800px]">
-        <h2 className="text-2xl font-bold mb-4">DONATE TO PAWFUND</h2>
-        <Form
-          onFinish={handleDonate}
-          layout="vertical"
-        >
-                   <Form.Item
-            name="amount"
-            label="Donation Amount (VND)"
-            rules={[
-              { required: true, message: 'Please enter amount' },
-              { type: 'number', min: 10000, message: 'Minimum amount is 10,000 VND' },
-              { type: 'number', max: 100000000, message: 'Maximum amount is 100,000,000 VND' }
-            ]}
-          >
-            <InputNumber
-              style={{ width: '100%' }}
-              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-              parser={value => value!.replace(/[^\d]/g, '')} // Only allow digits
-              placeholder="Enter amount"
-              min={10000}
-              max={100000000}
-              precision={0}
-              keyboard={true}
-              controls={false}
-              onKeyPress={(e) => {
-                const charCode = e.which ? e.which : e.keyCode;
-                if (charCode > 31 && (charCode < 48 || charCode > 57)) {
-                  e.preventDefault();
-                }
-              }}
-            />
-          </Form.Item>
 
-          <Form.Item
-            name="description"
-            label="Message"
-          >
-            <Input.TextArea 
-              placeholder="Enter your message (optional)"
-              rows={4}
-            />
-          </Form.Item>
-
-          <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-              loading={loading}
-              className="w-full bg-[#EC4899] hover:bg-[#008ADE]/80"
-            >
-              Donate Now
-            </Button>
-          </Form.Item>
-        </Form>
-      </div>
-      <div className="flex items-end ml-[200px] mt-7">
-          <button
-            onClick={() => {
-              router.push("/contact");
+        <div>
+          <div
+            className="relative bg-cover bg-center h-[500px] ml-[200px] w-[800px] rounded-lg overflow-hidden"
+            style={{
+              backgroundImage: "url('/images/bgdonate.jpg')",
             }}
-            className="bg-pink-500 hover:bg-[#008ADF] text-white text-lg font-bold py-3 px-8 rounded-full w-[200px]"
           >
-           SUPPORT
-          </button>
+            <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-black/50" />
+
+            <div className="relative z-10 h-full p-8">
+              <h2 className="text-4xl font-bold mb-6 text-white drop-shadow-lg">
+                DONATE TO PAWFUND COMMUNITY
+              </h2>
+              <Form onFinish={handleDonate} layout="vertical">
+                <Form.Item
+                  name="amount"
+                  label={
+                    <span className="text-white font-normal text-lg">
+                      Donation Amount (VND)
+                    </span>
+                  }
+                  rules={[
+                    { required: true, message: "Please enter amount" },
+                    {
+                      type: "number",
+                      min: 10000,
+                      message: "Minimum amount is 10,000 VND",
+                    },
+                    {
+                      type: "number",
+                      max: 100000000,
+                      message: "Maximum amount is 100,000,000 VND",
+                    },
+                  ]}
+                >
+                  <InputNumber
+                    className="w-full h-12 text-lg bg-white/80 backdrop-blur-sm rounded-md"
+                    style={{ width: "100%" }}
+                    formatter={(value) =>
+                      `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                    }
+                    parser={(value) => value!.replace(/[^\d]/g, "")} // Only allow digits
+                    placeholder="Enter amount"
+                    min={10000}
+                    max={100000000}
+                    precision={0}
+                    keyboard={true}
+                    controls={false}
+                    onKeyPress={(e) => {
+                      const charCode = e.which ? e.which : e.keyCode;
+                      if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+                        e.preventDefault();
+                      }
+                    }}
+                  />
+                </Form.Item>
+
+                <Form.Item
+                  name="description"
+                  label={
+                    <span className="text-white font-medium text-lg">
+                      Message
+                    </span>
+                  }
+                >
+                  <Input.TextArea
+                    className="bg-white/80 backdrop-blur-sm rounded-md"
+                    placeholder="Enter your message (optional)"
+                    rows={4}
+                  />
+                </Form.Item>
+
+                <Form.Item>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    loading={loading}
+                    className="w-full h-12 text-lg bg-[#EC4899] hover:bg-[#008ADE]/80 border-none"
+                  >
+                    Donate Now
+                  </Button>
+                </Form.Item>
+              </Form>
+            </div>
+          </div>
+          <div className="flex items-end ml-[200px] mt-7">
+            <button
+              onClick={() => {
+                router.push("/contact");
+              }}
+              className="bg-pink-500 hover:bg-[#008ADF] text-white text-lg font-bold py-3 px-8 rounded-full w-[200px]"
+            >
+              SUPPORT
+            </button>
+          </div>
         </div>
-       </div>
       </div>
       <div className="flex flex-col items-center justify-center pt-10 mt-8 gap-3 bg-[#F6F6F6]">
         <div className="font-semibold text-3xl ">SUPPORTER COMMUNITY</div>
@@ -286,9 +316,8 @@ const Donate = () => {
         </div>
       </div>
       <div className="mt-3">
-          <GoodBaby />
+        <GoodBaby />
       </div>
-      
     </div>
   );
 };

@@ -47,7 +47,7 @@ const HealthCheck = () => {
   }, [router]);
 
   return (
-    <div className='mt-[148px]'>healthcheck</div>
+    <div>healthcheck</div>
   );
 }
 
