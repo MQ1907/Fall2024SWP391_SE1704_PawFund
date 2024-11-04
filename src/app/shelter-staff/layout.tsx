@@ -6,8 +6,8 @@ import PetManagement from '../pet-management/page';
 import AdoptableManagement from '../adoptable-management/page';
 
 import Link from "next/link";
-import HealthCheck from "../healthcheck/page";
 import CreatePet from "../create-pet/page";
+import HealcheckManagement from "../healthcheck-management/page";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [currentView, setCurrentView] = useState('dashboard');
@@ -19,7 +19,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       case 'petManagement':
         return <PetManagement />;
         case 'healthCheck':
-        return <HealthCheck />;
+        return <HealcheckManagement />;
       case 'adoptableManagement':
         return <AdoptableManagement />;
       case 'createPet':
