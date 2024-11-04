@@ -1,12 +1,51 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PetManagement from '../pet-management/page';
 import AdoptableManagement from '../adoptable-management/page';
 import CreatePet from '../create-pet/page';
-
-
+import { useAppSelector } from '@/lib/hook';
+import { RootState } from '@/lib/store';
+import { useRouter } from 'next/navigation';
+import { jwtDecode } from "jwt-decode";
+import axios from "axios";
+interface DecodedToken {
+  id: string;
+  exp: number;
+  iat: number;
+}
 const ShelterStaff = () => {
+  const router = useRouter();
+  const [role, setRole] = useState<string | null>(null);
+  const token = useAppSelector((state: RootState) => state.auth.token);
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      if (!token) {
+        router.push("/errorpage");
+        return;
+      }
+  
+      try {
+        const decodedToken = jwtDecode<DecodedToken>(token);
+        const userId = decodedToken.id;
+  
+        const response = await axios.get(
+          `http://localhost:8000/users/${userId}`
+        );
+        const userRole = response.data.role;
+        setRole(userRole);
+  
+        if (!userRole || userRole !== "SHELTER_STAFF") {
+          router.push("/errorpage");
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        router.push("/error");
+      }
+    };
+  
+    fetchUserRole();
+  }, [router, token]);
   const [currentView, setCurrentView] = useState();
 
   const renderCreatePet = () => (

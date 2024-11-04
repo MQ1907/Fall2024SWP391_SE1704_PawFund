@@ -37,14 +37,14 @@ const UserTable = () => {
         const fetchUser = async () => {
           try {
             const response = await axios.get(`http://localhost:8000/users/${userId}`);
-            setRole(response.data.role);
-
-            if (response.data.role !== "ADMIN") {
+            const userRole = response.data.role;
+            setRole(userRole);
+            if (!userRole || userRole !== "ADMIN") {
               router.push("/errorpage");
             }
           } catch (error) {
             console.error("Error fetching user data:", error);
-            router.push("/error");
+            router.push("/errorpage");
           }
         };
 
@@ -52,10 +52,10 @@ const UserTable = () => {
       } catch (error) {
         console.error("Invalid token:", error);
         localStorage.removeItem("token");
-        router.push("/error");
+        router.push("/errorpage");
       }
     } else {
-      router.push("/error");
+      router.push("/errorpage");
     }
   }, [router]);
 
