@@ -24,11 +24,11 @@ const GoodBaby = () => {
   }, [dispatch]);
 
   const handlePrevClick = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === 0
-        ? Math.max(petsData.length - petsPerPage, 0)
-        : prevIndex - petsPerPage
-    );
+    if (currentIndex > 0) {
+      setCurrentIndex((prevIndex) =>
+        prevIndex - petsPerPage < 0 ? 0 : prevIndex - petsPerPage
+      );
+    }
   };
 
   const handleNextClick = () => {
@@ -64,7 +64,10 @@ const GoodBaby = () => {
         <div className="flex justify-between items-center">
           <button
             onClick={handlePrevClick}
-            className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-300 p-3 rounded-full hover:bg-gray-400 transition duration-300 ease-in-out animate__animated animate__fadeInLeft"
+            className={`absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-300 p-3 rounded-full hover:bg-gray-400 transition duration-300 ease-in-out animate__animated animate__fadeInLeft ${
+              currentIndex === 0 ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+            disabled={currentIndex === 0}
           >
             &#9664;
           </button>
@@ -109,10 +112,10 @@ const GoodBaby = () => {
           </div>
 
           <button
-            onClick={handleNextClick}
-            className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-300 p-3 rounded-full hover:bg-gray-400 transition duration-300 ease-in-out animate__animated animate__fadeInRight"
-          >
-            &#9654;
+           onClick={handleNextClick}
+           className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-300 p-3 rounded-full hover:bg-gray-400 transition duration-300 ease-in-out animate__animated animate__fadeInRight"
+         >
+           &#9654;
           </button>
         </div>
 
