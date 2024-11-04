@@ -207,18 +207,27 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
   const handleOk = async () => {
     try {
       if (newStatus === "REJECTED" || newStatus === "APPROVED") {
+        // Refresh danh sách requests trước khi xử lý
+        const latestRequests = await dispatch(fetchAdoptionRequests()).unwrap();
+        const currentRequest = latestRequests.find(
+          (request: any) => request._id === currentRequestId
+        );
+
+        if (!currentRequest || currentRequest.status !== "PENDING") {
+          setNotificationDialog({
+            open: true,
+            title: "Cannot Process Request",
+            message: "This request has already been processed before.",
+          });
+          setIsModalVisible(false);
+          setComment("");
+          return;
+        }
+
         const shelterStaffId = getCurrentShelterStaffId();
 
         if (!shelterStaffId) {
           throw new Error("Shelter staff ID not found");
-        }
-
-        const currentRequest = adoptionRequestsWithPetInfo.find(
-          (request) => request._id === currentRequestId
-        );
-
-        if (!currentRequest) {
-          throw new Error("Request not found");
         }
 
         // Cập nhật trạng thái yêu cầu hiện tại
@@ -384,7 +393,7 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
       title: "Action",
       key: "action",
       render: (_, record: any) => (
-        <>
+        <div className="space-x-2">
           {record.status === "PENDING" ? (
             <>
               <AntButton
@@ -400,17 +409,21 @@ const AdoptableManagement: React.FC<{ petId?: string }> = ({ petId }) => {
               <AntButton
                 danger
                 type="primary"
+                style={{ marginRight: 8 }}
                 onClick={() => showModal(record._id, "REJECTED")}
               >
                 Reject
               </AntButton>
+              <AntButton type="primary" onClick={() => showViewModal(record)}>
+                View Details
+              </AntButton>
             </>
           ) : (
             <AntButton type="primary" onClick={() => showViewModal(record)}>
-              View
+              View Details
             </AntButton>
           )}
-        </>
+        </div>
       ),
     },
   ];

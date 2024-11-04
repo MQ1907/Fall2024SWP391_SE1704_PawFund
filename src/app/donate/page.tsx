@@ -46,6 +46,7 @@ const Donate = () => {
         amount: Number(values.amount),
         returnUrl: "http://localhost:3000/success",
         cancelUrl: "http://localhost:3000/cancel",
+        description: values.description || "DONATE TO PAWFUND"
       };
 
       console.log("Sending payment data:", paymentData);
@@ -159,54 +160,36 @@ const Donate = () => {
               <Form onFinish={handleDonate} layout="vertical">
                 <Form.Item
                   name="amount"
-                  label={
-                    <span className="text-white font-normal text-lg">
-                      Donation Amount (VND)
-                    </span>
-                  }
+                  label={<span className="text-white font-normal text-lg">Donation Amount (VND)</span>}
                   rules={[
-                    { required: true, message: "Please enter amount" },
+                    { required: true, message: "Please enter donation amount" },
                     {
                       type: "number",
                       min: 10000,
-                      message: "Minimum amount is 10,000 VND",
+                      message: "Minimum donation amount is 10,000 VND"
                     },
                     {
                       type: "number",
                       max: 100000000,
-                      message: "Maximum amount is 100,000,000 VND",
-                    },
+                      message: "Maximum donation amount is 100,000,000 VND"
+                    }
                   ]}
                 >
                   <InputNumber
                     className="w-full h-12 text-lg bg-white/80 backdrop-blur-sm rounded-md"
                     style={{ width: "100%" }}
-                    formatter={(value) =>
-                      `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                    }
-                    parser={(value) => value!.replace(/[^\d]/g, "")} // Only allow digits
-                    placeholder="Enter amount"
+                    formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                    parser={value => value!.replace(/\D/g, "")}
+                    placeholder="Enter amount (minimum 10,000 VND)"
                     min={10000}
                     max={100000000}
-                    precision={0}
-                    keyboard={true}
-                    controls={false}
-                    onKeyPress={(e) => {
-                      const charCode = e.which ? e.which : e.keyCode;
-                      if (charCode > 31 && (charCode < 48 || charCode > 57)) {
-                        e.preventDefault();
-                      }
-                    }}
                   />
                 </Form.Item>
 
                 <Form.Item
                   name="description"
-                  label={
-                    <span className="text-white font-medium text-lg">
-                      Message
-                    </span>
-                  }
+                  label={<span className="text-white font-medium text-lg">Message</span>}
+                  rules={[{ max: 100, message: "Message cannot exceed 100 characters" }]}
                 >
                   <Input.TextArea
                     className="bg-white/80 backdrop-blur-sm rounded-md"
