@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     const paymentData = {
       orderCode: orderCode,
       amount: Number(body.amount),
-      description: "DONATE TO PAWFUND",
+      description: body.description,
       cancelUrl: body.cancelUrl,
       returnUrl: body.returnUrl,
       expiredAt: expiredAt,
