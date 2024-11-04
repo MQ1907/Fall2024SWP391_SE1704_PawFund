@@ -4,16 +4,19 @@ import React, { useEffect, useState } from 'react';
 import PetManagement from '../pet-management/page';
 import AdoptableManagement from '../adoptable-management/page';
 import CreatePet from '../create-pet/page';
+import { jwtDecode } from "jwt-decode";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 import { useAppSelector } from '@/lib/hook';
 import { RootState } from '@/lib/store';
-import { useRouter } from 'next/navigation';
-import { jwtDecode } from "jwt-decode";
-import axios from "axios";
+import HealcheckManagement from '../healthcheck-management/page';
 interface DecodedToken {
   id: string;
   exp: number;
   iat: number;
 }
+
+
 const ShelterStaff = () => {
   const router = useRouter();
   const [role, setRole] = useState<string | null>(null);
@@ -56,14 +59,15 @@ const ShelterStaff = () => {
 
   const renderPetManagement = () => (
     <div>
+      
       <PetManagement/>
     </div>
   );
 
   const renderHealthCheck = () => (
     <div>
-      <h2 className="text-2xl font-semibold mb-4">Health Check</h2>
-      <p>Health Check functionality will be implemented here.</p>
+    <h1>HEALCHECK MANAGEMENT</h1>
+     <HealcheckManagement/>
     </div>
   );
  
@@ -104,6 +108,7 @@ const ShelterStaff = () => {
         </button>
       </div> */}
       {currentView === 'createPet' && renderCreatePet()}
+      {currentView === 'healcheckManagement' && renderHealthCheck()}
       {currentView === 'petManagement' && renderPetManagement()}
       {currentView === 'healthCheck' && renderHealthCheck()}
       {currentView === 'adoptableManagement' && renderAdoptableManagement()}

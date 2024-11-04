@@ -50,6 +50,26 @@ export const fetchHealthCheckByPetID = createAsyncThunk(
     }
   }
 );
+
+export const fetchHealthCheckByShelterStaff = createAsyncThunk(
+  "healthCheck/fetchHealthCheckByShelterStaff",
+  async (petId: string) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8000/health-check/checkingBy/${petId}`
+      );
+      return response.data;
+    } catch (error: any) {
+      if (error.response) {
+        throw new Error(
+          error.response.data.message || "Failed to fetch health checks"
+        );
+      }
+      throw new Error("Network error: Failed to fetch health checks");
+    }
+  }
+);
+
 interface HealthCheckState {
   healthChecks: any[]; // List of health checks
   status: "idle" | "loading" | "succeeded" | "failed";
@@ -94,7 +114,18 @@ const healthCheckSlice = createSlice({
       .addCase(fetchHealthCheckByPetID.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message || "Failed to fetch health checks";
-      }); 
+      })
+         .addCase(fetchHealthCheckByShelterStaff.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchHealthCheckByShelterStaff.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.healthChecks = action.payload;
+      })
+      .addCase(fetchHealthCheckByShelterStaff.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message || "Failed to fetch health checks";
+      });
   },
 });
 
