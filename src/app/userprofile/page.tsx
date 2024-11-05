@@ -156,13 +156,13 @@ const UserProfilePage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 mt-36 max-w-2xl">
-      <h2 className="text-2xl font-bold mb-6">Public profile</h2>
-      <div className="bg-white shadow-lg rounded-lg p-6">
-        <div className="flex flex-col items-center mb-6">
-          <div className="relative mb-4">
+    <div className="container mx-auto px-4 py-8 mt-[148px] max-w-3xl">
+      <h2 className="text-3xl font-bold mb-8 text-gray-800">Public Profile</h2>
+      <div className="bg-white shadow-xl rounded-xl p-8">
+        <div className="flex flex-col items-center mb-8">
+          <div className="relative mb-6">
             <img
-              className="w-32 h-32 rounded-full"
+              className="w-40 h-40 rounded-full object-cover border-4 border-gray-100 shadow-lg"
               src={userData.avatar || "/images/unknownUser.jpg"}
               alt="Profile Picture"
             />
@@ -173,125 +173,131 @@ const UserProfilePage = () => {
           <form onSubmit={(e) => {
             e.preventDefault();
             handleSave();
-          }} className="space-y-4">
-            <div>
+          }} className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Name</label>
                 <input
                   type="text"
                   name="name"
                   value={editedData?.name || ""}
                   onChange={handleChange}
-                  className={`w-full p-2 border ${errors.name ? 'border-red-500' : 'border-gray-300'} rounded-md`}
+                  className={`w-full p-3 border ${errors.name ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200`}
                 />
                 {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
               </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={editedData?.email || ""}
+                  onChange={handleChange}
+                  className={`w-full p-3 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200`}
+                />
+                {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+              </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-              <input
-                type="email"
-                name="email"
-                value={editedData?.email || ""}
-                onChange={handleChange}
-                className={`w-full p-2 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-md`}
-              />
-              {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+            <div className="grid gap-6 md:grid-cols-2">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Phone</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={editedData?.phone || ""}
+                  onChange={handleChange}
+                  className={`w-full p-3 border ${errors.phone ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200`}
+                />
+                {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Address</label>
+                <input
+                  type="text"
+                  name="address"
+                  value={editedData?.address || ""}
+                  onChange={handleChange}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                />
+              </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-              <input
-                type="tel"
-                name="phone"
-                value={editedData?.phone || ""}
-                onChange={handleChange}
-                className={`w-full p-2 border ${errors.phone ? 'border-red-500' : 'border-gray-300'} rounded-md`}
-              />
-              {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+            <div className="grid gap-6 md:grid-cols-2">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Role</label>
+                <input
+                  type="text"
+                  name="role"
+                  value={editedData?.role || ""}
+                  disabled
+                  className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 cursor-not-allowed"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Avatar URL</label>
+                <input
+                  type="text"
+                  name="avatar"
+                  value={editedData?.avatar || ""}
+                  onChange={handleChange}
+                  placeholder="Enter image URL"
+                  className={`w-full p-3 border ${errors.avatar ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200`}
+                />
+                {errors.avatar && <p className="text-red-500 text-sm mt-1">{errors.avatar}</p>}
+              </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-              <input
-                type="text"
-                name="address"
-                value={editedData?.address || ""}
-                onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-md"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-              <input
-                type="text"
-                name="role"
-                value={editedData?.role || ""}
-                disabled
-                className="w-full p-2 border border-gray-300 rounded-md bg-gray-50"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Avatar URL</label>
-              <input
-                type="text"
-                name="avatar"
-                value={editedData?.avatar || ""}
-                onChange={handleChange}
-                placeholder="Enter image URL"
-                className={`w-full p-2 border ${errors.avatar ? 'border-red-500' : 'border-gray-300'} rounded-md`}
-              />
-              {errors.avatar && <p className="text-red-500 text-sm mt-1">{errors.avatar}</p>}
-            </div>
-
-            <div className="flex justify-end gap-2 mt-6">
+            <div className="flex justify-end gap-4 mt-8">
               <button
                 type="button"
                 onClick={handleCancel}
-                className="px-4 py-2 border border-gray-300 rounded-md"
+                className="px-6 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition duration-200"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-[#1E1B3A] text-white rounded-md"
+                className="px-6 py-2.5 bg-[#1E1B3A] text-white rounded-lg hover:bg-[#2a2751] transition duration-200"
               >
                 Save
               </button>
             </div>
           </form>
         ) : (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                <p className="text-gray-900">{userData.name}</p>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Name</label>
+                <p className="text-gray-900 p-3 bg-gray-50 rounded-lg">{userData.name}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                <p className="text-gray-900 p-3 bg-gray-50 rounded-lg">{userData.email}</p>
+              </div>
+            </div>
+            <div className="grid gap-6 md:grid-cols-2">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Phone</label>
+                <p className="text-gray-900 p-3 bg-gray-50 rounded-lg">{userData.phone}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Address</label>
+                <p className="text-gray-900 p-3 bg-gray-50 rounded-lg">{userData.address}</p>
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-              <p className="text-gray-900">{userData.email}</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-              <p className="text-gray-900">{userData.phone}</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-              <p className="text-gray-900">{userData.address}</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-              <p className="text-gray-900">{userData.role}</p>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Role</label>
+              <p className="text-gray-900 p-3 bg-gray-50 rounded-lg">{userData.role}</p>
             </div>
             
-            <div className="flex justify-end mt-6">
+            <div className="flex justify-end mt-8">
               <button
                 onClick={handleEdit}
-                className="px-4 py-2 bg-[#1E1B3A] text-white rounded-md"
+                className="px-6 py-2.5 bg-[#1E1B3A] text-white rounded-lg hover:bg-[#2a2751] transition duration-200"
               >
                 Edit Profile
               </button>
