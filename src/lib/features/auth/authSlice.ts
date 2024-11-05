@@ -32,12 +32,14 @@ interface AuthState {
   token: string | null;
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
+  message: string | null;
 }
 
 const initialState: AuthState = {
   token: typeof window !== 'undefined' ? localStorage.getItem('token') : null, 
   status: 'idle',
   error: null,
+  message: null,
 };
 
 const authSlice = createSlice({
@@ -73,6 +75,7 @@ const authSlice = createSlice({
       .addCase(signup.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.token = action.payload.token; 
+        state.message = action.payload.message; 
         console.log('Signup successful:', action.payload); // Log the signup response
         if (typeof window !== 'undefined') {
           localStorage.setItem('token', action.payload.token); 
