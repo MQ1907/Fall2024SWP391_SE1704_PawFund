@@ -406,7 +406,6 @@ const Dashboard = () => {
           }));
           
           setEvents(formattedEvents);
-          message.success("Successfully fetched your joined events");
         } catch (error: any) {
           console.error("Failed to fetch joined events:", error);
           if (error.response?.status === 404) {

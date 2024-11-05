@@ -173,6 +173,7 @@ export const fetchPetById = createAsyncThunk(
         gender,
         locationFound,
         isAdopted,
+        rescueDate
       } = response.data;
       return {
         name,
@@ -184,6 +185,7 @@ export const fetchPetById = createAsyncThunk(
         gender,
         locationFound,
         isAdopted,
+        rescueDate
       };
     } catch (error: any) {
       return rejectWithValue(

@@ -305,33 +305,7 @@ const Adopt = () => {
           />
         </div>
 
-        <div className="flex items-center justify-center mt-6 gap-6">
-          <button
-            type="button"
-            className="text-white text-[20px] bg-[#008ADF] w-[120px] h-[50px] rounded-[30px]"
-          >
-            All
-          </button>
-          <button
-            type="button"
-            className="text-white text-[20px] bg-yellow-400 hover:bg-blue-400 w-[120px] h-[50px] rounded-[30px]"
-          >
-            Dogs
-          </button>
-          <button
-            type="button"
-            className="text-white text-[20px] bg-yellow-400 hover:bg-blue-400 w-[120px] h-[50px] rounded-[30px]"
-          >
-            Cats
-          </button>
-          <button
-            type="button"
-            className="text-white text-[20px] bg-yellow-400 hover:bg-blue-400 w-[120px] h-[50px] rounded-[30px]"
-          >
-            Others
-          </button>
-        </div>
-
+       
         <div className="w-[1100px] mx-auto p-4 mt-[40px]">
           <div className="flex gap-6 items-center">
             <div className="flex-1">
