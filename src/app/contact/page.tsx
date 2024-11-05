@@ -1,7 +1,32 @@
+"use client";
 import Image from "next/image";
 import React from "react";
+import emailjs from "@emailjs/browser";
+import { useRef } from "react";
 
-function Contact() {
+const Contact = () => {
+  const form = useRef();
+  const sendEmail = (e) => {
+    e.preventDefault();
+
+    emailjs
+      .sendForm(
+        "service_i7b87rd",
+        "template_5v5296f",
+        form.current,
+        "lZl4PJXZrqK8HP8mC"
+      )
+      .then(
+        (result) => {
+          console.log(result.text);
+          console.log("Message sent");
+          form.current.reset();
+        },
+        (error) => {
+          console.log(error.text);
+        }
+      );
+  };
   return (
     <div className="mt-[148px]">
       <div
@@ -68,11 +93,12 @@ function Contact() {
                 Send Feedback
               </h2>
 
-              <form>
+              <form ref={form} onSubmit={sendEmail}>
                 <div className="flex space-x-4 mb-4">
                   <div className="w-1/2">
                     <label className="block text-gray-700">Name</label>
                     <input
+                      name="from_name"
                       type="text"
                       className="w-full px-4 py-2 border border-pink-600 rounded-lg focus:outline-none focus:border-pink-800"
                       placeholder="Enter name"
@@ -81,6 +107,7 @@ function Contact() {
                   <div className="w-1/2">
                     <label className="block text-gray-700">Email</label>
                     <input
+                      name="user_email"
                       type="email"
                       className="w-full px-4 py-2 border border-pink-600 rounded-lg focus:outline-none focus:border-pink-800"
                       placeholder="Enter email"
@@ -91,6 +118,7 @@ function Contact() {
                 <div className="mb-4">
                   <label className="block text-gray-700">Title</label>
                   <input
+                    name="user_title"
                     type="text"
                     className="w-full px-4 py-2 border border-pink-600 rounded-lg focus:outline-none focus:border-pink-800"
                     placeholder="Enter title"
@@ -100,6 +128,7 @@ function Contact() {
                 <div className="mb-4">
                   <label className="block text-gray-700">Content </label>
                   <textarea
+                    name="user_content"
                     className="w-full px-4 py-2 border border-pink-600 rounded-lg focus:outline-none focus:border-pink-800"
                     placeholder=""
                     rows="5"
@@ -127,6 +156,6 @@ function Contact() {
       </div>
     </div>
   );
-}
+};
 
 export default Contact;

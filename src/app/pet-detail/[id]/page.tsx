@@ -65,6 +65,8 @@ const PetDetail = () => {
       }
     }
   }, []);
+
+  
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const showAdoptPetModal = () => {
     setCreateAdoptionRequest(true); // Mở modal
@@ -129,8 +131,13 @@ const PetDetail = () => {
     return <div>Pet not found</div>;
   }
 
+    const rescueDate = new Date(currentPet.rescueDate);
+  const formattedDate = `${rescueDate.getDate()}/${
+    rescueDate.getMonth() + 1
+  }/${rescueDate.getFullYear()}`;
+
   return (
-    <div className="mt-[148px] bg-[#f3c62344]">
+    <div className="mt-[148px] ">
       <div
         className="w-full bg-cover bg-center relative "
         style={{ backgroundImage: "url('/images/petdetail.jpg')" }}
@@ -182,7 +189,7 @@ const PetDetail = () => {
               <hr className="border-t-[1px] border-dashed border-gray-300" />
               <div className="flex my-1">
                 <p className="font-semibold">Rescue Day:</p>
-                <p className="px-1">{currentPet.rescueDate}</p>
+                <p className="px-1">{formattedDate}</p>
               </div>
               <hr className="border-t-[1px] border-dashed border-gray-300" />
               <div className="flex my-1">

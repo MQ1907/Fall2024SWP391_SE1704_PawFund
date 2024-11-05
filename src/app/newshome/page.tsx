@@ -86,7 +86,13 @@ const NewsHome = () => {
           disabled={currentIndex === 0}
           style={{ top: "50%", transform: "translateY(-50%)" }}
         >
-          Prev
+          <Image
+            src="/images/arrowleft.png"
+            alt="Logo"
+            width={1000}
+            height={1000}
+            className="w-[20px]"
+          />
         </button>
 
         <div className="flex overflow-hidden w-full justify-center gap-4">
@@ -126,7 +132,13 @@ const NewsHome = () => {
           disabled={currentIndex === items.length - 3}
           style={{ top: "50%", transform: "translateY(-50%)" }}
         >
-          Next
+         <Image
+            src="/images/arrowright.png"
+            alt="Logo"
+            width={1000}
+            height={1000}
+            className="w-[20px]"
+          />
         </button>
       </div>
       <div className="flex justify-center mt-8">
