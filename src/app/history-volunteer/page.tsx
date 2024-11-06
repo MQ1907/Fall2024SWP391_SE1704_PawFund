@@ -254,20 +254,21 @@ const HistoryVolunteer = () => {
       ),
     },
     {
-      title: "Action",
-      key: "action",
-       width: 100,
-      render: (text: string, record: { _id: string }) => (
-        <div>
-          <Button
-            style={{ backgroundColor: "red", color: "white" }}
-            onClick={() => confirmDelete(record._id)}
-          >
-            Delete
-          </Button>
-        </div>
-      ),
-    },
+  title: "Action",
+  key: "action",
+  width: 100,
+  render: (text: string, record: { _id: string; deliveryStatus: string }) =>
+    ["COMPLETED", "PENDING"].includes(record.deliveryStatus) ? null : (
+      <div>
+        <Button
+          style={{ backgroundColor: "red", color: "white" }}
+          onClick={() => confirmDelete(record._id)}
+        >
+          Delete
+        </Button>
+      </div>
+    ),
+}
   ];
 
   return (
