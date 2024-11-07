@@ -13,6 +13,7 @@ import { createPet } from "../../lib/features/pet/petSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/hook";
 import { jwtDecode } from "jwt-decode";
 import { UploadOutlined } from "@ant-design/icons";
+import ImageUploader from "../components/uploadImage/page";
 
 const { TextArea } = Input;
 
@@ -241,7 +242,7 @@ const AddPet: React.FC = () => {
           <Input name="note" value={petData.note} onChange={handleChange} />
         </Form.Item>
 
-        <Form.Item
+         <Form.Item
           label="Upload"
           name="image"
           rules={[
@@ -251,8 +252,9 @@ const AddPet: React.FC = () => {
             },
           ]}
         >
-          <Input name="image" value={petData.image} onChange={handleChange} />
+          <ImageUploader name="image" value={petData.image} onChange={handleChange} />
         </Form.Item>
+
 
         <Form.Item>
           <Button
