@@ -69,6 +69,7 @@ export const fetchPets = createAsyncThunk("pet/fetchAll", async () => {
       isVacinted: pet.isVacinted,
       isAdopted: pet.isAdopted,
       deliveryStatus: pet.deliveryStatus, // Changed from petStatus to deliveryStatus
+      rescueBy: pet.rescueBy,
     }));
   } catch (error: any) {
     if (error.response) {

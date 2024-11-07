@@ -14,6 +14,7 @@ import { fetchPets, removePet, deletePet } from "@/lib/features/pet/petSlice";
 
 const Volunteer = () => {
   const [presentUser,setPresentUser] = useState("");
+  console.log(presentUser)
   const { pets, status, error, sentToShelter } = useAppSelector(
     (state) => state.pets
   );
@@ -275,7 +276,6 @@ const Volunteer = () => {
     },
   ];
 
-  // Map pet data to table data source
   const dataSource = pets
   .filter(
     (pet) =>
@@ -288,7 +288,7 @@ const Volunteer = () => {
     image: pet.image,
     name: pet.name,
     _id: pet._id,
-    }));
+  }));
   return (
     <div className="pt-[148px]">
       <div
@@ -566,38 +566,6 @@ const Volunteer = () => {
                         />
                       </div>
 
-                      {/* <div className="flex flex-col">
-                        <label className="font-semibold">Checking Date:</label>
-                        <Input
-                          type="datetime-local"
-                          value={checkingDate}
-                          onChange={(e) => setCheckingDate(e.target.value)}
-                        />
-                      </div> */}
-                      {/* <div className="flex flex-col">
-                        <label className="font-semibold">Checked By:</label>
-                        <Input
-                          value={hiddenCheckingBy}
-                          onChange={(e) => setCheckingBy(e.target.value)}
-                          disabled
-                        />
-                      </div> */}
-                      {/* <div className="flex flex-col">
-                        <label className="font-semibold">Checking Type:</label>
-                        <Select
-                          value={checkingType}
-                          onChange={(value) =>
-                            setCheckingType(value as CheckingTypeVolunteer)
-                          }
-                          placeholder="Select Checking Type"
-                        >
-                          {Object.values(CheckingTypeVolunteer).map((type) => (
-                            <Select.Option key={type} value={type}>
-                              {type}
-                            </Select.Option>
-                          ))}
-                        </Select>
-                      </div> */}
                     </div>
                   </Modal>
                 </div>
