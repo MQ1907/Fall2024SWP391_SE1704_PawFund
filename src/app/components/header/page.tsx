@@ -8,7 +8,7 @@ import { usePathname } from "next/navigation";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import "animate.css";
-import {  Spin } from "antd";
+import {  Avatar, Spin } from "antd";
 
 interface DecodedToken {
   id: string;
@@ -232,12 +232,11 @@ const Header = () => {
   {token ? (
     <div className="relative" ref={avatarRef}>
       <div className="relative inline-block">
-        <img
+        <Avatar
           src={avatar || "/images/unknownUser.jpg"}
           alt="userAvatar"
-          width={35}
-          height={35}
-          className="rounded-full cursor-pointer mt-1"
+          size={35}
+          className="cursor-pointer mt-1"
           onClick={toggleDropdown}
         />
         <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></span>
@@ -249,8 +248,8 @@ const Header = () => {
         }`}
       >
         <li className="flex gap-5  items-center p-3">
-          <img src={avatar || "/images/unknownUser.jpg"} alt="userAvatar" width={45}
-          height={45} className="rounded-full" />
+          <Avatar src={avatar || "/images/unknownUser.jpg"} alt="userAvatar" size={45}
+            />
           <div className="font-semibold uppercase">{name}</div>
         </li>
         <hr className=" w-[80%]  mx-auto  border border-black " />
