@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import {
-  
   Alert,
   Snackbar,
   TextField,
@@ -13,13 +12,18 @@ import {
 import { useAppDispatch, useAppSelector } from "@/lib/hook";
 import {
   fetchAdoptionRequests,
-  fetchAdoptionRequestsByPetId, 
+  fetchAdoptionRequestsByPetId,
   updateAdoptionRequestStatus,
 } from "../../lib/features/adopt/adoptSlice";
 import { fetchPetById, updateAdoptedStatus } from "@/lib/features/pet/petSlice";
 import { fetchUserData } from "@/lib/features/user/userSlice"; // Assume this action exists
 import { jwtDecode } from "jwt-decode";
-import { Modal, Typography as AntTypography, Button as AntButton, Spin } from "antd";
+import {
+  Modal,
+  Typography as AntTypography,
+  Button as AntButton,
+  Spin,
+} from "antd";
 const { Text, Title } = AntTypography;
 import { Table as AntTable } from "antd"; // Thêm import này
 
