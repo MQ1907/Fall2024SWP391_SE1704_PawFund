@@ -1,20 +1,30 @@
 "use client";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React, {
+  useEffect,
+  useState,
+  lazy,
+  Suspense,
+  useMemo,
+  useCallback,
+} from "react";
 
 import { Button, Input, message, Modal, Select, Table } from "antd";
 import { CheckingTypeVolunteer, HealthStatus } from "../../enum";
 import { createHealthCheck } from "@/lib/features/pet/HealthCheckSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/hook";
-import AddPet from "../addpet/page";
+
 import { jwtDecode } from "jwt-decode";
+
+interface DecodedToken {
+  id: string;
+}
 
 import axios from "axios";
 import { fetchPets, removePet, deletePet } from "@/lib/features/pet/petSlice";
-
+const AddPet = lazy(() => import("../addpet/page"));
 const Volunteer = () => {
-  const [presentUser,setPresentUser] = useState("");
-  console.log(presentUser)
+  const [presentUser, setPresentUser] = useState("");
   const { pets, status, error, sentToShelter } = useAppSelector(
     (state) => state.pets
   );
@@ -22,6 +32,33 @@ const Volunteer = () => {
     [key: string]: boolean;
   }>({});
   const [openAddPetModal, setOpenAddPetModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [petId, setPetId] = useState("");
+  const [displayPetId, setDisplayPetId] = useState("********");
+  const [healthStatus, setHealthStatus] = useState<HealthStatus | undefined>(
+    undefined
+  );
+  const [healthStatusDescription, setHealthStatusDescription] = useState("");
+  const [note, setNote] = useState("");
+  const [checkingDate, setCheckingDate] = useState("");
+  const [checkingBy, setCheckingBy] = useState("");
+  const [checkingType, setCheckingType] = useState<CheckingTypeVolunteer>(
+    CheckingTypeVolunteer.INITIAL
+  );
+  const [role, setRole] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [hasHydrated, setHasHydrated] = useState(false);
+
+  const dispatch = useAppDispatch();
+
+  const resetModalState = () => {
+    setHealthStatus(undefined);
+    setHealthStatusDescription("");
+    setNote("");
+    setCheckingDate("");
+  };
+
   const showAddPetModal = () => {
     setOpenAddPetModal(true);
   };
@@ -38,21 +75,8 @@ const Volunteer = () => {
     }, 3000);
   };
 
-  const dispatch = useAppDispatch();
-  const [loading, setLoading] = useState(false);
-  const [open, setOpen] = useState(false);
-  const resetModalState = () => {
-   
-    setHealthStatus(undefined);
-    setHealthStatusDescription("");
-    setNote("");
-    setCheckingDate("");
-  
-    
-  };
   const showModal = () => {
     resetModalState();
-    
     setOpen(true);
   };
 
@@ -68,35 +92,26 @@ const Volunteer = () => {
     setOpen(false);
   };
 
-   const handleDelete = (petId: string) => {
+  const handleDelete = (petId: string) => {
     dispatch(deletePet(petId));
   };
 
-  const confirmDelete = (petId: string) => {
-    Modal.confirm({
-      title: "Do you want to delete this pet",
-      okText: "Confirm",
-      okType: "danger",
-      cancelText: "Cancel",
-      onOk() {
-        handleDelete(petId);
-        message.success("Delete Pet success!");
-      },
-    });
-  };
-
-  const [petId, setPetId] = useState("");
-  const [displayPetId, setDisplayPetId] = useState("********");
-  const [healthStatus, setHealthStatus] = useState<HealthStatus | undefined>(
-    undefined
+  const confirmDelete = useCallback(
+    (petId) => {
+      Modal.confirm({
+        title: "Do you want to delete this pet",
+        okText: "Confirm",
+        okType: "danger",
+        cancelText: "Cancel",
+        onOk() {
+          handleDelete(petId);
+          message.success("Delete Pet success!");
+        },
+      });
+    },
+    [handleDelete]
   );
-  const [healthStatusDescription, setHealthStatusDescription] = useState("");
-  const [note, setNote] = useState("");
-  const [checkingDate, setCheckingDate] = useState("");
-  const [checkingBy, setCheckingBy] = useState("");
-  const hiddenCheckingBy = checkingBy ? "*".repeat(checkingBy.length) : "";
-  const [checkingType, setCheckingType] = useState<CheckingTypeVolunteer>(CheckingTypeVolunteer.INITIAL);
-  const [role, setRole] = useState<string | null>(null);
+
   const handleSubmit = async () => {
     const currentCheckingDate = new Date();
     const healthCheckData = {
@@ -127,13 +142,7 @@ const Volunteer = () => {
       setLoading(false);
     }
   };
-  const [token, setToken] = useState<string | null>(null);
-  const [hasHydrated, setHasHydrated] = useState(false);
-  interface DecodedToken {
-    id: string;
-    exp: number;
-    iat: number;
-  }
+
   useEffect(() => {
     setHasHydrated(true);
     if (typeof window !== "undefined") {
@@ -144,17 +153,13 @@ const Volunteer = () => {
         const decodedToken = jwtDecode<DecodedToken>(storedToken);
         const userId = decodedToken.id;
         setPresentUser(userId);
-        console.log("userId", userId);
-
         setCheckingBy(userId);
-        console.log(setCheckingBy);
+
         const fetchUser = async () => {
           try {
             const response = await axios.get(
               `http://localhost:8000/users/${userId}`
             );
-            console.log("User data:", response.data);
-
             setRole(response.data.role);
           } catch (error) {
             console.error("Error fetching user data:", error);
@@ -171,9 +176,11 @@ const Volunteer = () => {
       }
     }
   }, []);
+
   useEffect(() => {
     dispatch(fetchPets());
   }, [dispatch]);
+
   useEffect(() => {
     if (hasHydrated) {
       localStorage.setItem(
@@ -182,6 +189,124 @@ const Volunteer = () => {
       );
     }
   }, [healthCheckCreated, hasHydrated]);
+
+  const handleCreateHealthCheckClick = useCallback(
+    (pet) => {
+      setPetId(pet._id);
+      setDisplayPetId("********");
+      setCheckingType(CheckingTypeVolunteer.INITIAL);
+      showModal();
+    },
+    [showModal]
+  );
+
+  const handleSendToShelter = useCallback(
+    async (petId) => {
+      if (!healthCheckCreated[petId]) {
+        message.warning("You must create health check first.");
+        return;
+      }
+      try {
+        const response = await axios.put(
+          `http://localhost:8000/pet/update-delivery-status/${petId}`,
+          {
+            deliveryStatus: "PENDING",
+          }
+        );
+
+        if (response.status === 200) {
+          message.success("Pet has been sent to shelter !");
+          dispatch(removePet(petId));
+        } else {
+          throw new Error("Failed to update pet status");
+        }
+      } catch (error) {
+        console.error("Error updating pet status:", error);
+        alert("Failed to send pet to shelter. Please try again.");
+      }
+    },
+    [healthCheckCreated, dispatch]
+  );
+
+  const columns = useMemo(
+    () => [
+      {
+        title: "Image",
+        dataIndex: "image",
+        key: "image",
+        render: (text, record) => (
+          <img
+            src={record.image}
+            alt={record.name}
+            width={100}
+            height={100}
+            className="w-[100px] h-[100px] object-cover rounded-md"
+          />
+        ),
+      },
+      {
+        title: "Pet Name",
+        dataIndex: "name",
+        key: "name",
+      },
+      {
+        title: "Action",
+        key: "action",
+        render: (text, record) => (
+          <div className="flex gap-5 items-center justify-center">
+            {!healthCheckCreated[record._id] && (
+              <Button
+                onClick={() => handleCreateHealthCheckClick(record)}
+                className="mt-2"
+                type="primary"
+              >
+                Create Health Check
+              </Button>
+            )}
+            <Button
+              onClick={() => handleSendToShelter(record._id)}
+              className="mt-2"
+              style={{ backgroundColor: "green", color: "white" }}
+            >
+              Send to Shelter
+            </Button>
+            <Button
+              onClick={() => confirmDelete(record._id)}
+              className="mt-2"
+              style={{ backgroundColor: "red", color: "white" }}
+            >
+              Delete
+            </Button>
+          </div>
+        ),
+      },
+    ],
+    [
+      healthCheckCreated,
+      handleCreateHealthCheckClick,
+      handleSendToShelter,
+      confirmDelete,
+    ]
+  );
+
+  const dataSource = useMemo(
+    () =>
+      pets
+        .filter(
+          (pet) =>
+            pet.deliveryStatus === "INPROCESS" &&
+            !sentToShelter.includes(pet._id) &&
+            pet.rescueBy === presentUser
+        )
+        .map((pet) => ({
+          key: pet._id,
+          image: pet.image,
+          name: pet.name,
+          _id: pet._id,
+        })),
+    [pets, sentToShelter, presentUser]
+  );
+
   if (status === "loading") {
     return <div>Loading...</div>;
   }
@@ -189,106 +314,6 @@ const Volunteer = () => {
   if (status === "failed") {
     return <div>Error: {error}</div>;
   }
-  const handleCreateHealthCheckClick = (pet) => {
-    setPetId(pet._id);
-    setDisplayPetId("********");
-    setCheckingType(CheckingTypeVolunteer.INITIAL);
-    showModal();
-  };
-
-  const handleSendToShelter = async (petId) => {
-    if (!healthCheckCreated[petId]) {
-      message.warning("You must create health check first.");
-      return;
-    }
-    try {
-      const response = await axios.put(
-        `http://localhost:8000/pet/update-delivery-status/${petId}`,
-        {
-          deliveryStatus: "PENDING",
-        }
-      );
-
-      if (response.status === 200) {
-        message.success("Pet has been sent to shelter !");
-
-        dispatch(removePet(petId));
-      } else {
-        throw new Error("Failed to update pet status");
-      }
-    } catch (error) {
-      console.error("Error updating pet status:", error);
-      alert("Failed to send pet to shelter. Please try again.");
-    }
-  };
-  const columns = [
-    {
-      title: "Image",
-      dataIndex: "image",
-      key: "image",
-      render: (text, record) => (
-        <img
-          src={record.image}
-          alt={record.name}
-          width={100}
-          height={100}
-          className="w-[100px] h-[100px] object-cover rounded-md"
-        />
-      ),
-    },
-    {
-      title: "Pet Name",
-      dataIndex: "name",
-      key: "name",
-    },
-    {
-      title: "Action",
-      key: "action",
-      render: (text, record) => (
-        <div className="flex gap-5 items-center justify-center">
-          {!healthCheckCreated[record._id] && (
-            <Button
-              onClick={() => handleCreateHealthCheckClick(record)}
-              className="mt-2"
-              type="primary"
-            >
-              Create Health Check
-            </Button>
-          )}
-          <Button
-            onClick={() => handleSendToShelter(record._id)}
-            className="mt-2"
-            style={{ backgroundColor: "green", color: "white" }}
-            
-          >
-            Send to Shelter
-          </Button>
-              <Button
-            onClick={() => confirmDelete(record._id)}
-            className="mt-2"
-            style={{ backgroundColor: "red", color: "white" }}
-            
-          >
-            Delete
-          </Button>
-        </div>
-      ),
-    },
-  ];
-
-  const dataSource = pets
-  .filter(
-    (pet) =>
-      pet.deliveryStatus === "INPROCESS" &&
-      !sentToShelter.includes(pet._id) &&
-      pet.rescueBy === presentUser
-  )
-  .map((pet) => ({
-    key: pet._id,
-    image: pet.image,
-    name: pet.name,
-    _id: pet._id,
-  }));
   return (
     <div className="pt-[148px]">
       <div
@@ -309,137 +334,45 @@ const Volunteer = () => {
                 HomePage
               </a>
               <span className="mx-2">&gt;</span>
-              <a className="font-medium" href="/adopt">Adopt</a>
+              <a className="font-medium" href="/adopt">
+                Adopt
+              </a>
             </div>
           </div>
         </div>
       </div>
 
       <div className="mx-[150px] pb-10">
-  <div className="flex mt-10">
-    <div className="w-[70%] h-auto">
-      <div className="pl-10">
-        <h1 className="text-[40px] uppercase font-bold">
-          Introducing dog and cat rescue volunteers
-        </h1>
-        <hr className="w-[15%] bg-gray-400 h-[2px] my-4" />
-        <div className="pt-7 text-lg leading-relaxed">
-          PawFund Adoptions rescue operation can only be successful thanks
-          to the combined efforts of the community and Volunteers. There
-          are many ways for you to do your part to change the life of a
-          dog or cat: become a Foster Caretaker, Volunteer at a Home or
-          Rescue Volunteer. Please see more information below.
-        </div>
-      </div>
-    </div>
-    <div className="w-[30%] h-auto flex items-center justify-center">
-      <Image
-        src="/images/btlogin.png"
-        alt="Dog and Cat"
-        width={1000}
-        height={1000}
-        className="w-[70%] h-[60%] rounded-lg shadow-lg transition-transform duration-300 hover:scale-105"
-      />
-    </div>
-  </div>
-</div>
-
-      <div className="bg-[#F6F6F6] py-10">
-        <div className="mx-[150px]">
-          <div>
-            <h1 className="text-center text-[40px] font-semibold uppercase">
-              Volunteer information
-            </h1>
-            <div className="pt-3 flex">
-              <div className="w-[35%] pl-[50px] pt-[10%]">
-                <Image
-                  src="/images/btlogin.png"
-                  alt="Dog and Cat"
-                  width={1000}
-                  height={1000}
-                  className="w-[70%] h-[50%] rounded-[100%] "
-                />
-              </div>
-              <div className="w-[65%] p-10">
-                <h2 className="text-[24px] font-semibold">The Long</h2>
-                <p className="my-4">
-                  Long is the person who helps the group take care of the babies
-                  temporarily while they cant find their owners. These may be
-                  healthy babies or need more special care. If you cannot adopt,
-                  please open the door to give them a temporary home, help them
-                  become healthier, more obedient, and enjoy the love from an
-                  animal lover, while helping us reduce the load. workload.
-                </p>
-                <div>
-                  <div className="bg-[#DDDDDD] rounded-[10px]">
-                    <div className="py-5 px-2">
-                      <div className="flex">
-                        <Image
-                          src="/images/footpet.png"
-                          alt="Dog and Cat"
-                          width={1000}
-                          height={1000}
-                          className="w-[20px] h-[100%] ml-5 pt-1"
-                        />
-                        <p className="ml-5 text-[#6F7073] text-[16px] font-semibold">
-                          The temporary adopter (Long) is responsible for
-                          providing shelter, food, water, necessary items and
-                          love for the baby.
-                        </p>
-                      </div>
-
-                      <div className="flex pt-3">
-                        <Image
-                          src="/images/footpet.png"
-                          alt="Dog and Cat"
-                          width={1000}
-                          height={1000}
-                          className="w-[20px] h-[100%] ml-5 pt-1"
-                        />
-                        <p className="ml-5 text-[#6F7073] text-[16px] font-semibold">
-                          In case of necessity, the foster will monitor the
-                          babys treatment process, ensure the required diet and
-                          help train the baby. All medical expenses will be paid
-                          by PawFund Adoption. Long can contribute to this cost
-                          but is not required.
-                        </p>
-                      </div>
-
-                      <div className="flex pt-3">
-                        <Image
-                          src="/images/footpet.png"
-                          alt="Dog and Cat"
-                          width={1000}
-                          height={1000}
-                          className="w-[20px] h-[100%] ml-5 pt-1"
-                        />
-                        <p className="ml-5 text-[#6F7073] text-[16px] font-semibold">
-                          Long needs to immediately notify the person in charge
-                          of the baby if anything happens: illness, strange
-                          behavior, unusual behavior, etc.
-                        </p>
-                      </div>
-
-                      <div className="flex pt-3">
-                        <Image
-                          src="/images/footpet.png"
-                          alt="Dog and Cat"
-                          width={1000}
-                          height={1000}
-                          className="w-[20px] h-[100%] ml-5 pt-1"
-                        />
-                        <p className="ml-5 text-[#6F7073] text-[16px] font-semibold">
-                          Do not arbitrarily transfer animals in my temporary
-                          care to someone elses care or adoption without
-                          approval from the HPA team.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+        <div className="flex mt-10">
+          <div className="w-[70%] h-auto">
+            <div className="pl-10">
+              <h1 className="text-[40px] uppercase font-bold">
+                Introducing dog and cat rescue volunteers
+              </h1>
+              <hr className="w-[15%] bg-gray-400 h-[2px] my-4" />
+              <div className="pt-7 text-lg leading-relaxed">
+                PawFund Adoptions rescue operation can only be successful thanks
+                to the combined efforts of the community and Volunteers. There
+                are many ways for you to do your part to change the life of a
+                dog or cat: become a Foster Caretaker, Volunteer at a Home or
+                Rescue Volunteer. Please see more information below.
               </div>
             </div>
           </div>
+          <div className="w-[30%] h-auto flex items-center justify-center">
+            <Image
+              src="/images/btlogin.png"
+              alt="Dog and Cat"
+              width={1000}
+              height={1000}
+              className="w-[70%] h-[60%] rounded-lg shadow-lg transition-transform duration-300 hover:scale-105"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-[#F6F6F6] py-10">
+        <div className="mx-[150px]">
           <div className="flex justify-center">
             <div className="bg-white w-[80%] px-5 py-3 flex justify-between">
               <div className="w-[80%]">
@@ -502,7 +435,9 @@ const Volunteer = () => {
                       </Button>,
                     ]}
                   >
-                    <AddPet />
+                    <Suspense fallback={<div>Loading...</div>}>
+                      <AddPet />
+                    </Suspense>
                   </Modal>
                   <Modal
                     open={open}
@@ -565,7 +500,6 @@ const Volunteer = () => {
                           onChange={(e) => setNote(e.target.value)}
                         />
                       </div>
-
                     </div>
                   </Modal>
                 </div>
