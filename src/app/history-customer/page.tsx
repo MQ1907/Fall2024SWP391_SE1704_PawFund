@@ -19,6 +19,9 @@ import {
   HistoryOutlined,
   HomeOutlined,
   StarOutlined,
+  HeartOutlined,
+  FormOutlined,
+  CarryOutOutlined,
 } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/lib/hook";
@@ -29,7 +32,10 @@ import {
 } from "@/lib/features/adopt/adoptSlice";
 import { fetchPetById } from "@/lib/features/pet/petSlice";
 import { jwtDecode } from "jwt-decode";
-import { createHealthCheck, fetchHealthCheckByPetID } from "@/lib/features/pet/HealthCheckSlice";
+import {
+  createHealthCheck,
+  fetchHealthCheckByPetID,
+} from "@/lib/features/pet/HealthCheckSlice";
 import {
   createFeedback,
   deleteFeedback,
@@ -37,10 +43,10 @@ import {
   updateFeedback,
 } from "@/lib/features/feedback/feedbackSlice";
 import { CheckingTypeCustomer, HealthStatus } from "@/enum";
-import { fetchEvents as fetchEventsAction } from "@/lib/features/event/eventSlice";
+
 import axios from "axios";
 import { fetchUserList } from "@/lib/features/user/userSlice";
-import { SearchOutlined } from '@ant-design/icons';
+import { SearchOutlined } from "@ant-design/icons";
 const { Search } = Input;
 
 interface AdoptionRequest {
@@ -102,7 +108,7 @@ const Dashboard = () => {
 
   const { userList } = useAppSelector((state) => state.user);
 
-  const [searchKeyword, setSearchKeyword] = useState('');
+  const [searchKeyword, setSearchKeyword] = useState("");
   const [filteredEvents, setFilteredEvents] = useState<any[]>([]);
 
   useEffect(() => {
@@ -110,7 +116,7 @@ const Dashboard = () => {
   }, [dispatch]);
 
   const getVolunteerInfo = (supporterId: string) => {
-    return userList.find(user => user._id === supporterId);
+    return userList.find((user) => user._id === supporterId);
   };
 
   const handleDeleteRequest = async (requestId: string) => {
@@ -157,11 +163,9 @@ const Dashboard = () => {
       handleGoHome();
     } else if (e.key === "4") {
       fetchUserFeedbacks();
-    }
-    else if (e.key === "3") {
+    } else if (e.key === "3") {
       fetchHealthChecks();
-    }
-    else if (e.key === "6") {
+    } else if (e.key === "6") {
       fetchEvents();
     }
   };
@@ -218,8 +222,12 @@ const Dashboard = () => {
       try {
         const allHealthChecks = await Promise.all(
           adoptionRequests.map(async (request) => {
-            const healthCheckResponse = await dispatch(fetchHealthCheckByPetID(request.petId)).unwrap();
-            const petDetails = await dispatch(fetchPetById(request.petId)).unwrap();
+            const healthCheckResponse = await dispatch(
+              fetchHealthCheckByPetID(request.petId)
+            ).unwrap();
+            const petDetails = await dispatch(
+              fetchPetById(request.petId)
+            ).unwrap();
             return healthCheckResponse.map((healthCheck: any) => ({
               ...healthCheck,
               petName: petDetails.name,
@@ -227,11 +235,11 @@ const Dashboard = () => {
             }));
           })
         );
-  
-        const adoptedHealthChecks = allHealthChecks.flat().filter(
-          (healthCheck: any) => healthCheck.checkingType === "ADOPTED"
-        );
-  
+
+        const adoptedHealthChecks = allHealthChecks
+          .flat()
+          .filter((healthCheck: any) => healthCheck.checkingType === "ADOPTED");
+
         console.log(adoptedHealthChecks); // Verify the data here
         setHealthChecks(adoptedHealthChecks);
       } catch (error) {
@@ -288,7 +296,6 @@ const Dashboard = () => {
       }
     }
   }, [dispatch]);
-
   const showModal = () => {
     setOpen(true);
   };
@@ -353,7 +360,7 @@ const Dashboard = () => {
       setFeedbackOpen(false);
     } catch (error) {
       console.error("Error from API:", error);
-      message.error("Failed to create Feedback. Please try again.");
+      message.error("Failed to create feedback. Please try again.");
       setLoading(false);
     }
   };
@@ -394,17 +401,19 @@ const Dashboard = () => {
       const userId = getUserIdFromToken(token);
       if (userId) {
         try {
-          const response = await axios.get(`http://localhost:8000/event/view-event-joined/${userId}`);
+          const response = await axios.get(
+            `http://localhost:8000/event/view-event-joined/${userId}`
+          );
           console.log("Fetched joined events:", response.data);
-          
+
           const formattedEvents = response.data.map((event: any) => ({
             ...event,
             key: event._id,
             startDate: event.start,
             endDate: event.end,
-            volunteer: event.supporters?.join(", ") || "No volunteers yet"
+            volunteer: event.supporters?.join(", ") || "No volunteers yet",
           }));
-          
+
           setEvents(formattedEvents);
         } catch (error: any) {
           console.error("Failed to fetch joined events:", error);
@@ -424,8 +433,8 @@ const Dashboard = () => {
       setFilteredEvents(events);
       return;
     }
-    
-    const filtered = events.filter(event => 
+
+    const filtered = events.filter((event) =>
       event.title.toLowerCase().includes(value.toLowerCase())
     );
     setFilteredEvents(filtered);
@@ -444,21 +453,21 @@ const Dashboard = () => {
     {
       key: "2",
       icon: <HistoryOutlined />,
-      label: "History",
+      label: "Adopt History",
     },
     {
       key: "3",
-      icon: <LogoutOutlined />,
+      icon: <HeartOutlined />,
       label: "Pet Health Check",
     },
     {
       key: "4",
-      icon: <HistoryOutlined />,
+      icon: <FormOutlined />,
       label: "Pet Feedback",
     },
     {
       key: "6",
-      icon: <HistoryOutlined />,
+      icon: <CarryOutOutlined />,
       label: "Event ",
     },
     {
@@ -771,7 +780,10 @@ const Dashboard = () => {
                 <div key={supporterId} className="relative">
                   <Tooltip title={volunteerInfo.name}>
                     <img
-                      src={volunteerInfo.avatar || "https://via.placeholder.com/150"}
+                      src={
+                        volunteerInfo.avatar ||
+                        "https://via.placeholder.com/150"
+                      }
                       alt={volunteerInfo.name}
                       className="w-16 h-16 rounded-full border-4 border-white shadow-lg hover:scale-110 transition-transform duration-200"
                       onError={(e) => {
@@ -794,7 +806,7 @@ const Dashboard = () => {
       key: "startDate",
       render: (text: string) => (
         <span className="font-semibold text-sm">
-          {new Date(text).toLocaleDateString('vi-VN')}
+          {new Date(text).toLocaleDateString("vi-VN")}
         </span>
       ),
     },
@@ -804,7 +816,7 @@ const Dashboard = () => {
       key: "endDate",
       render: (text: string) => (
         <span className="font-semibold text-sm">
-          {new Date(text).toLocaleDateString('vi-VN')}
+          {new Date(text).toLocaleDateString("vi-VN")}
         </span>
       ),
     },
@@ -842,7 +854,7 @@ const Dashboard = () => {
               <Table columns={feedbackColumns} dataSource={feedbacks} />
             </div>
           )}
-           {selectedKey === "3" && (
+          {selectedKey === "3" && (
             <div>
               <Table columns={healthCheckColumns} dataSource={healthChecks} />
             </div>
@@ -860,10 +872,10 @@ const Dashboard = () => {
                   }
                   size="large"
                   onSearch={handleSearch}
-                  style={{ 
-                    width: '100%',
-                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                    borderRadius: '8px'
+                  style={{
+                    width: "100%",
+                    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                    borderRadius: "8px",
                   }}
                 />
               </div>

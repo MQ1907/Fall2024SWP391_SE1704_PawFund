@@ -33,42 +33,48 @@ const HealcheckManagement = () => {
   const [role, setRole] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchUserRole = async () => {
-      if (!token) {
-        router.push("/error");
-        return;
-      }
-
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
       try {
-        const decodedToken = jwtDecode<DecodedToken>(token);
+        const decodedToken = jwtDecode<DecodedToken>(storedToken);
         const userId = decodedToken.id;
 
-        const cachedRole = localStorage.getItem(`userRole_${userId}`);
-        if (cachedRole) {
-          setRole(cachedRole);
-          if (cachedRole !== "SHELTER_STAFF") {
-            router.push("/errorpage");
-          }
-        } else {
-          const response = await axios.get(
-            `http://localhost:8000/users/${userId}`
-          );
-          const userRole = response.data.role;
-          setRole(userRole);
-          localStorage.setItem(`userRole_${userId}`, userRole);
+        const fetchUser = async () => {
+          try {
+            const cachedRole = localStorage.getItem(`userRole_${userId}`);
+            if (cachedRole) {
+              setRole(cachedRole);
+              if (cachedRole !== "SHELTER_STAFF") {
+                router.push("/errorpage");
+              }
+            } else {
+              const response = await axios.get(
+                `http://localhost:8000/users/${userId}`
+              );
+              const userRole = response.data.role;
+              setRole(userRole);
+              localStorage.setItem(`userRole_${userId}`, userRole);
 
-          if (userRole !== "SHELTER_STAFF") {
-            router.push("/errorpage");
+              if (userRole !== "SHELTER_STAFF") {
+                router.push("/errorpage");
+              }
+            }
+          } catch (error) {
+            console.error("Error fetching user data:", error);
+            router.push("/error");
           }
-        }
+        };
+
+        fetchUser();
       } catch (error) {
-        console.error("Error fetching user data:", error);
+        console.error("Invalid token:", error);
+        localStorage.removeItem("token");
         router.push("/error");
       }
-    };
-
-    fetchUserRole();
-  }, [router, token]);
+    } else {
+      router.push("/error");
+    }
+  }, [router]);
 
   useEffect(() => {
     if (shelterStaffId) {
