@@ -13,7 +13,10 @@ const Adopt = () => {
   };
   const dispatch = useAppDispatch();
   const { pets, status, error } = useAppSelector((state) => state.pets);
-    const [searchTerm, setSearchTerm] = useState("");
+  const [breedFilter, setBreedFilter] = useState("All");
+  const [genderFilter, setGenderFilter] = useState("All");
+  const [colorFilter, setColorFilter] = useState("All");
+  const [searchTerm, setSearchTerm] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
   const petsPerPage = 6;
 
@@ -35,16 +38,21 @@ const Adopt = () => {
       goToPage(currentPage + 1);
     }
   };
-  const filteredPets = pets.filter(
-    (pet) =>
-      pet.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      pet.deliveryStatus === "COMPLETED"
-  );
 
-   const currentPets = filteredPets.slice(
-    currentIndex,
-    currentIndex + petsPerPage
-  );
+  const getFilteredPets = () => {
+    return pets.filter((pet) => {
+      const matchesBreed = breedFilter === "All" || pet.breed === breedFilter;
+      const matchesGender = genderFilter === "All" || pet.gender === genderFilter;
+      const matchesColor = colorFilter === "All" || pet.color === colorFilter;
+      const matchesSearch = pet.name.toLowerCase().includes(searchTerm.toLowerCase());
+      const isCompleted = pet.deliveryStatus === "COMPLETED";
+
+      return matchesBreed && matchesGender && matchesColor && matchesSearch && isCompleted;
+    });
+  };
+
+  const filteredPets = getFilteredPets();
+  const currentPets = filteredPets.slice(currentIndex, currentIndex + petsPerPage);
 
   useEffect(() => {
     dispatch(fetchPetsByStatus("Completed"));
@@ -312,21 +320,32 @@ const Adopt = () => {
               <label className="block text-gray-700 font-medium mb-2">
                 Gender
               </label>
-              <select className="block w-full border border-red-500 text-gray-700 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
-                <option>All</option>
-                <option>Male</option>
-                <option>Female</option>
+              <select 
+                className="block w-full border border-red-500 text-gray-700 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                value={genderFilter}
+                onChange={(e) => setGenderFilter(e.target.value)}
+              >
+                <option value="All">All</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
               </select>
             </div>
 
             <div className="flex-1">
               <label className="block text-gray-700 font-medium mb-2">
-                Sterilization
+                Breed
               </label>
-              <select className="block w-full border border-red-500 text-gray-700 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
-                <option>All</option>
-                <option>Yes</option>
-                <option>No</option>
+              <select 
+                className="block w-full border border-red-500 text-gray-700 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                value={breedFilter}
+                onChange={(e) => setBreedFilter(e.target.value)}
+              >
+                <option value="All">All</option>
+                <option value="Golden">Golden</option>
+                <option value="Poodle">Poodle</option>
+                <option value="Chihuahua">Chihuahua</option>
+                <option value="Husky">Husky</option>
+                <option value="Corgi">Corgi</option>
               </select>
             </div>
 
@@ -334,11 +353,16 @@ const Adopt = () => {
               <label className="block text-gray-700 font-medium mb-2">
                 Color
               </label>
-              <select className="block w-full border border-red-500 text-gray-700 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
-                <option>All</option>
-                <option>White</option>
-                <option>Black</option>
-                <option>Yellow</option>
+              <select 
+                className="block w-full border border-red-500 text-gray-700 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                value={colorFilter}
+                onChange={(e) => setColorFilter(e.target.value)}
+              >
+                <option value="All">All</option>
+                <option value="White">White</option>
+                <option value="Black">Black</option>
+                <option value="Yellow">Yellow</option>
+                <option value="Brown">Brown</option>
               </select>
             </div>
 
