@@ -156,6 +156,8 @@ export const fetchCreateByVolunteerId = createAsyncThunk(
 );
 
 
+
+
 // Update the fetchPetById thunk
 export const fetchPetById = createAsyncThunk(
   "pet/fetchById",
@@ -279,21 +281,40 @@ export const updateAdoptedStatus = createAsyncThunk(
   }
 );
 
+export const fetchPetsByBreed = createAsyncThunk(
+  "pet/fetchByBreed",
+  async (breed: string, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8000/pet/find-by-breed/${breed}`
+      );
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch pets by breed"
+      );
+    }
+  }
+);
+
 interface UpdateVaccinatedPayload {
   petId: string;
   isVaccinated: boolean;
 }
 
 interface Pet {
-  _id: string;
+ _id: string;
   name: string;
   image: string;
   breed: string;
+  color: string;
+  gender: string;
+  rescueDate: Date;
   description: string;
-  isVacinted: boolean;
-  deliveryStatus: string; // Changed from petStatus to deliveryStatus
+  isVaccinated: boolean;
   isAdopted: boolean;
-  rescueBy:string;
+  deliveryStatus: string;
+  rescueBy: string;
 }
 
 interface PetState {
@@ -484,11 +505,23 @@ const petSlice = createSlice({
       .addCase(changeVaccinated.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
+      })
+      //find pet by breed
+      .addCase(fetchPetsByBreed.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchPetsByBreed.fulfilled, (state, action: PayloadAction<Pet[]>) => {
+        state.status = "succeeded";
+        state.filteredPets = action.payload; // Store the pets found by breed
+      })
+      .addCase(fetchPetsByBreed.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload as string;
       });
   },
 });
+
 import { RootState } from "../../store";
-import ShelterStaff from "@/app/shelter-staff/page";
 
 export const selectPendingPets = (state: RootState) =>
   state.pets.pets.filter((pet) => pet.deliveryStatus === "PENDING");
