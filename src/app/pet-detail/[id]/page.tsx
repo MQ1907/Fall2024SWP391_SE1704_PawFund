@@ -16,6 +16,7 @@ interface DecodedToken {
   exp: number;
   iat: number;
 }
+
 const PetDetail = () => {
   const [OpenAdoptionRequest, setCreateAdoptionRequest] = useState(false);
   const [loading, setLoading] = useState(false); // Khai báo trạng thái loading
