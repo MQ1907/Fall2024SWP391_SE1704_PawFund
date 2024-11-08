@@ -1,28 +1,30 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
-import PetManagement from '../pet-management/page';
-import AdoptableManagement from '../adoptable-management/page';
-import CreatePet from '../create-pet/page';
+import React, { useEffect, useState, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { jwtDecode } from "jwt-decode";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { useAppSelector } from '@/lib/hook';
-import { RootState } from '@/lib/store';
-import HealcheckManagement from '../healthcheck-management/page';
+import { useAppSelector } from "@/lib/hook";
+import { RootState } from "@/lib/store";
+
+const PetManagement = dynamic(() => import("../pet-management/page"));
+const AdoptableManagement = dynamic(() => import("../adoptable-management/page"));
+const CreatePet = dynamic(() => import("../create-pet/page"));
+const HealcheckManagement = dynamic(() => import("../healthcheck-management/page"));
+
 interface DecodedToken {
   id: string;
   exp: number;
   iat: number;
 }
 
-
 const ShelterStaff = () => {
   const router = useRouter();
   const [role, setRole] = useState<string | null>(null);
   const token = useAppSelector((state: RootState) => state.auth.token);
 
-useEffect(() => {
+  useEffect(() => {
     const storedToken = localStorage.getItem("token");
     if (storedToken) {
       try {
@@ -31,12 +33,23 @@ useEffect(() => {
 
         const fetchUserRole = async () => {
           try {
-            const response = await axios.get(`http://localhost:8000/users/${userId}`);
-            const userRole = response.data.role;
-            setRole(userRole);
+            const cachedRole = localStorage.getItem(`userRole_${userId}`);
+            if (cachedRole) {
+              setRole(cachedRole);
+              if (cachedRole !== "SHELTER_STAFF") {
+                router.push("/errorpage");
+              }
+            } else {
+              const response = await axios.get(
+                `http://localhost:8000/users/${userId}`
+              );
+              const userRole = response.data.role;
+              setRole(userRole);
+              localStorage.setItem(`userRole_${userId}`, userRole);
 
-            if (!userRole || userRole !== "SHELTER_STAFF" ) {
-              router.push("/errorpage");
+              if (!userRole || userRole !== "SHELTER_STAFF") {
+                router.push("/errorpage");
+              }
             }
           } catch (error) {
             console.error("Error fetching user data:", error);
@@ -53,75 +66,45 @@ useEffect(() => {
     } else {
       router.push("/errorpage");
     }
-  
-   
   }, [router, token]);
 
-  const [currentView, setCurrentView] = useState();
+  const [currentView, setCurrentView] = useState<string | null>(null);
 
-  const renderCreatePet = () => (
+  const renderCreatePet = useCallback(() => (
     <div>
-      <CreatePet/>
+      <CreatePet />
     </div>
-  );
+  ), []);
 
-  const renderPetManagement = () => (
+  const renderPetManagement = useCallback(() => (
     <div>
-      
-      <PetManagement/>
+      <PetManagement />
     </div>
-  );
+  ), []);
 
-  const renderHealthCheck = () => (
+  const renderHealthCheck = useCallback(() => (
     <div>
-    <h1>HEALCHECK MANAGEMENT</h1>
-     <HealcheckManagement/>
+      <h1>HEALCHECK MANAGEMENT</h1>
+      <HealcheckManagement />
     </div>
-  );
- 
-  const renderAdoptableManagement = () => (
+  ), []);
+
+  const renderAdoptableManagement = useCallback(() => (
     <div>
       <h1>ADOPTABLE MANAGEMENT</h1>
-      <AdoptableManagement/>
+      <AdoptableManagement />
     </div>
-  );
+  ), []);
 
   return (
     <div className="container mx-auto px-4 py-8">
-     
-      {/* <div className="flex justify-between mb-8">
-        <button
-          onClick={() => setCurrentView('createPet')}
-          className={`px-4 py-2 ${currentView === 'createPet' ? 'text-blue-600 font-bold' : 'text-gray-600'}`}
-        >
-          REQUEST CREATE PET
-        </button>
-        <button
-          onClick={() => setCurrentView('petManagement')}
-          className={`px-4 py-2 ${currentView === 'petManagement' ? 'text-blue-600 font-bold' : 'text-gray-600'}`}
-        >
-          PET MANAGEMENT
-        </button>
-        <button
-          onClick={() => setCurrentView('healthCheck')}
-          className={`px-4 py-2 ${currentView === 'healthCheck' ? 'text-blue-600 font-bold' : 'text-gray-600'}`}
-        >
-          HEALTH-CHECK
-        </button>
-        <button
-          onClick={() => setCurrentView('adoptableManagement')}
-          className={`px-4 py-2 ${currentView === 'adoptableManagement' ? 'text-blue-600 font-bold' : 'text-gray-600'}`}
-        >
-          ADOPTABLE MANAGEMENT
-        </button>
-      </div> */}
-      {currentView === 'createPet' && renderCreatePet()}
-      {currentView === 'healcheckManagement' && renderHealthCheck()}
-      {currentView === 'petManagement' && renderPetManagement()}
-      {currentView === 'healthCheck' && renderHealthCheck()}
-      {currentView === 'adoptableManagement' && renderAdoptableManagement()}
+      {currentView === "createPet" && renderCreatePet()}
+      {currentView === "healcheckManagement" && renderHealthCheck()}
+      {currentView === "petManagement" && renderPetManagement()}
+      {currentView === "healthCheck" && renderHealthCheck()}
+      {currentView === "adoptableManagement" && renderAdoptableManagement()}
     </div>
   );
-}
+};
 
 export default ShelterStaff;

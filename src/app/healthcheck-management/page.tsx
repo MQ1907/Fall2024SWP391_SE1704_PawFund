@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Layout, Table, Image } from "antd";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
+import { Layout, Table, Image, Spin, Alert } from "antd";
 import { useAppDispatch, useAppSelector } from "../../lib/hook";
 import { fetchHealthCheckByShelterStaff } from "../../lib/features/pet/HealthCheckSlice";
 import { fetchPetById } from "@/lib/features/pet/petSlice";
@@ -43,13 +43,23 @@ const HealcheckManagement = () => {
         const decodedToken = jwtDecode<DecodedToken>(token);
         const userId = decodedToken.id;
 
-        const response = await axios.get(
-          `http://localhost:8000/users/${userId}`
-        );
-        setRole(response.data.role);
+        const cachedRole = localStorage.getItem(`userRole_${userId}`);
+        if (cachedRole) {
+          setRole(cachedRole);
+          if (cachedRole !== "SHELTER_STAFF") {
+            router.push("/errorpage");
+          }
+        } else {
+          const response = await axios.get(
+            `http://localhost:8000/users/${userId}`
+          );
+          const userRole = response.data.role;
+          setRole(userRole);
+          localStorage.setItem(`userRole_${userId}`, userRole);
 
-        if (response.data.role !== "SHELTER_STAFF") {
-          router.push("/errorpage");
+          if (userRole !== "SHELTER_STAFF") {
+            router.push("/errorpage");
+          }
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -88,7 +98,7 @@ const HealcheckManagement = () => {
     }
   }, [healthChecks, dispatch]);
 
-  const columns = [
+  const columns = useMemo(() => [
     {
       title: "Pet Image",
       dataIndex: "petImage",
@@ -112,11 +122,11 @@ const HealcheckManagement = () => {
       key: "checkingDate",
       render: (date: string) => new Date(date).toLocaleString(),
     },
-  ];
+  ], []);
 
-  if (status === "loading") return <p>Loading health checks...</p>;
+  if (status === "loading") return <Spin tip="Loading health checks..." />;
   if (status === "failed")
-    return <p>{error || "Failed to load health checks."}</p>;
+    return <Alert message="Error" description={error || "Failed to load health checks."} type="error" showIcon />;
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
