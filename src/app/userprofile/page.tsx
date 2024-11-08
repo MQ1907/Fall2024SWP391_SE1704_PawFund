@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Image from "next/image";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import ImageUploader from '../components/uploadImage/page';
 
 interface DecodedToken {
   id: string;
@@ -100,13 +100,6 @@ const UserProfilePage = () => {
       const decodedToken = jwtDecode<DecodedToken>(token);
       const userId = decodedToken.id;
 
-      console.log(
-        "Sending request to:",
-        `http://localhost:8000/users/${userId}`
-      );
-      console.log("Data being sent:", editedData);
-
-     
       const response = await axios.put(
         `http://localhost:8000/users/${userId}`,
         editedData,
@@ -119,7 +112,6 @@ const UserProfilePage = () => {
       );
 
       if (response.status === 200) {
-        
         setUserData(response.data);
         setIsEditing(false);
         alert("Profile updated successfully!");
@@ -147,7 +139,6 @@ const UserProfilePage = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!editedData) return;
     setEditedData({ ...editedData, [e.target.name]: e.target.value });
-    // Clear the error for this field when the user starts typing
     setErrors({ ...errors, [e.target.name]: undefined });
   };
 
@@ -156,7 +147,7 @@ const UserProfilePage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 mt-[148px] max-w-3xl">
+    <div className="container mx-auto px-4 py-8 mt-10 max-w-3xl">
       <h2 className="text-3xl font-bold mb-8 text-gray-800">Public Profile</h2>
       <div className="bg-white shadow-xl rounded-xl p-8">
         <div className="flex flex-col items-center mb-8">
@@ -182,7 +173,7 @@ const UserProfilePage = () => {
                   name="name"
                   value={editedData?.name || ""}
                   onChange={handleChange}
-                  className={`w-full p-3 border ${errors.name ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200`}
+                  className={`w-full p-3 border ${errors.name ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 transition duration-200`}
                 />
                 {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
               </div>
@@ -194,7 +185,7 @@ const UserProfilePage = () => {
                   name="email"
                   value={editedData?.email || ""}
                   onChange={handleChange}
-                  className={`w-full p-3 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200`}
+                  className={`w-full p-3 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 transition duration-200`}
                 />
                 {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
               </div>
@@ -208,7 +199,7 @@ const UserProfilePage = () => {
                   name="phone"
                   value={editedData?.phone || ""}
                   onChange={handleChange}
-                  className={`w-full p-3 border ${errors.phone ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200`}
+                  className={`w-full p-3 border ${errors.phone ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 transition duration-200`}
                 />
                 {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
               </div>
@@ -220,12 +211,12 @@ const UserProfilePage = () => {
                   name="address"
                   value={editedData?.address || ""}
                   onChange={handleChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 transition duration-200"
                 />
               </div>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-6 md:grid-cols-1">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Role</label>
                 <input
@@ -236,19 +227,16 @@ const UserProfilePage = () => {
                   className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 cursor-not-allowed"
                 />
               </div>
+            </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Avatar URL</label>
-                <input
-                  type="text"
-                  name="avatar"
-                  value={editedData?.avatar || ""}
-                  onChange={handleChange}
-                  placeholder="Enter image URL"
-                  className={`w-full p-3 border ${errors.avatar ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200`}
-                />
-                {errors.avatar && <p className="text-red-500 text-sm mt-1">{errors.avatar}</p>}
-              </div>
+            <div className="flex flex-col ">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Avatar</label>
+              <ImageUploader 
+                name="avatar" 
+                value={editedData?.avatar} 
+                onChange={handleChange}
+              />
+              {errors.avatar && <p className="text-red-500 text-sm mt-1">{errors.avatar}</p>}
             </div>
 
             <div className="flex justify-end gap-4 mt-8">
