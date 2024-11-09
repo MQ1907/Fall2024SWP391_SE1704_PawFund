@@ -1,16 +1,36 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAppDispatch } from "@/lib/hook";
 import { Button, Input, Form, InputNumber, message } from "antd";
+import { useRouter } from "next/navigation";
+
 
 import GoodBaby from "../goodpet/page";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { jwtDecode } from "jwt-decode";
 
 const Donate = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      try {
+        const decodedToken = jwtDecode<DecodedToken>(storedToken);
+        setToken(storedToken);
+        setUserId(decodedToken.id);
+      } catch (error) {
+        console.error("Invalid token:", error);
+        localStorage.removeItem("token");
+        setToken(null);
+      }
+    }
+  }, []);
+
   const supporterData = [
     {
       id: 1,
@@ -42,14 +62,23 @@ const Donate = () => {
     try {
       setLoading(true);
 
+      const storedToken = localStorage.getItem("token");
+      if (!storedToken) {
+        message.error("Please login to donate");
+        return;
+      }
+
+      const decodedToken = jwtDecode<DecodedToken>(storedToken);
+      const userId = decodedToken.id;
+
       const paymentData = {
         amount: Number(values.amount),
-        returnUrl: "http://localhost:3000/success",
-        cancelUrl: "http://localhost:3000/cancel",
-        description: values.description || "DONATE TO PAWFUND"
+        description: values.description || "DONATE TO PAWFUND",
+        userId: userId,
+        type: 'DONATION',
+        status: 'COMPLETED',
+        paymentMethod: 'PayOS'
       };
-
-      console.log("Sending payment data:", paymentData);
 
       const response = await fetch("/api/payment", {
         method: "POST",
@@ -59,18 +88,13 @@ const Donate = () => {
         body: JSON.stringify(paymentData),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "API request failed");
-      }
-
       const result = await response.json();
       console.log("API response:", result);
 
-      if (result.data?.checkoutUrl) {
+      if (result.error === 0 && result.data?.checkoutUrl) {
         window.location.href = result.data.checkoutUrl;
       } else {
-        throw new Error("No checkout URL in response");
+        throw new Error("Failed to get payment URL");
       }
     } catch (error: any) {
       console.error("Payment error:", error);

@@ -1,58 +1,106 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-
-import { PaymentState, PaymentLink, PaymentResponse } from '@/lib/types/payment.types';
-import { createPaymentLink } from '@/services/paymentService';
-
-const initialState: PaymentState = {
-  loading: false,
-  error: null,
-  paymentData: null
-};
-
-export const createPayment = createAsyncThunk<PaymentResponse, PaymentLink>(
-  'payment/create',
-  async (paymentData: PaymentLink, { rejectWithValue }) => {
+// Create PayOS payment link
+export const createPayOSLink = createAsyncThunk(
+  'payment/createPayOSLink',
+  async (paymentData: { amount: number; description: string; userId: string }, { rejectWithValue }) => {
     try {
-      const response = await createPaymentLink(paymentData);
-      if (response.error === 0) {
-        return response; // Changed from response.data to response
+      const response = await fetch('http://localhost:8000/payment/create-payos-link', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...paymentData,
+          returnUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/success?userId=${paymentData.userId}&amount=${paymentData.amount}&description=${encodeURIComponent(paymentData.description)}`,
+          cancelUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/cancel`
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        return rejectWithValue(data.message || 'Failed to create payment link');
       }
-      return rejectWithValue('Có lỗi xảy ra');
-    } catch (error) {
-      return rejectWithValue('Không thể kết nối đến server');
+      
+      // Redirect to PayOS checkout page
+      if (data.data?.checkoutUrl) {
+        window.open(data.data.checkoutUrl, '_self');
+      }
+      
+      return data;
+    } catch (error: any) {
+      return rejectWithValue(error.message);
     }
   }
 );
+
+// Fetch user transaction history
+export const fetchUserTransactionHistory = createAsyncThunk(
+  'payment/fetchHistory',
+  async (userId: string, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`http://localhost:8000/payment/history/${userId}`);
+      const data = await response.json();
+      
+      if (!response.ok) {
+        return rejectWithValue(data.message || 'Failed to fetch transaction history');
+      }
+      
+      return data.data || [];
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+const initialState: PaymentState = {
+  transactions: [],
+  loading: false,
+  error: null,
+};
 
 const paymentSlice = createSlice({
   name: 'payment',
   initialState,
   reducers: {
-    resetPayment: (state) => {
+    resetPaymentState: (state) => {
+      state.transactions = [];
       state.loading = false;
       state.error = null;
-      state.paymentData = null;
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(createPayment.pending, (state) => {
+      // Handle createPayOSLink
+      .addCase(createPayOSLink.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(createPayment.fulfilled, (state, action) => {
+      .addCase(createPayOSLink.fulfilled, (state) => {
         state.loading = false;
-        state.paymentData = action.payload;
         state.error = null;
       })
-      .addCase(createPayment.rejected, (state, action) => {
+      .addCase(createPayOSLink.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string || 'Có lỗi xảy ra';
-        state.paymentData = null;
+        state.error = action.payload as string;
+      })
+      // Handle fetchUserTransactionHistory
+      .addCase(fetchUserTransactionHistory.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchUserTransactionHistory.fulfilled, (state, action) => {
+        state.loading = false;
+        state.transactions = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchUserTransactionHistory.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
   },
 });
 
-export const { resetPayment } = paymentSlice.actions;
+export const { resetPaymentState } = paymentSlice.actions;
 export default paymentSlice.reducer;
