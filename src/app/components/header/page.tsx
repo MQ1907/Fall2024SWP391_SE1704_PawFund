@@ -53,7 +53,7 @@ const Header = () => {
     } else {
       router.push("/errorpage");
     }
-  }, 3000);
+  });
 };
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -125,16 +125,16 @@ const Header = () => {
     setSpinning(true);
     setTimeout(() => {
       router.push(path);
-      setSpinning(false);
-    }, 1000); // Simulate a delay for loading
+    
+    }); 
   };
 
   const handleLoginClick = () => {
     setSpinning(true);
     setTimeout(() => {
       router.push("/signin");
-      setSpinning(false);
-    }, 1000); // Simulate a delay for loading
+   
+    }); 
   };
 
   const handleLogoutClick = () => {
@@ -142,16 +142,16 @@ const Header = () => {
     setTimeout(() => {
       dispatch(logout());
       router.push("/signin");
-      setSpinning(false);
-    }, 1000); // Simulate a delay for loading
+    
+    }); 
   };
 
   const handleAdminClick = () => {
     setSpinning(true);
     setTimeout(() => {
       router.push("/admin");
-      setSpinning(false);
-    }, 1000); // Simulate a delay for loading
+    
+    }); 
   };
   
 
@@ -159,15 +159,15 @@ const Header = () => {
     setSpinning(true);
     setTimeout(() => {
       router.push("/shelter-staff");
-      setSpinning(false);
-    }, 3000); // Simulate a delay for loading
+     
+    });
   };
   const handleProfileClick = () => {
     setSpinning(true);
     setTimeout(() => {
       router.push("/userprofile");
-      setSpinning(false);
-    }, 1000);
+     
+    } );
   };
   const toggleDropdown = () => {
     setDropdownVisible((prev) => !prev);
@@ -177,8 +177,8 @@ const Header = () => {
     setSpinning(true);
     setTimeout(() => {
       router.push("/task-event");
-      setSpinning(false);
-    }, 1000);
+      
+    });
   };
 
   if (!hasHydrated) {
