@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { PaymentLink, PaymentResponse } from '../types/payment.types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_URL = process.env.NEXT_PUBLIC_PAYOS_API_URL || 'http://localhost:8000';
 
 export const createPaymentLink = async (paymentData: PaymentLink): Promise<PaymentResponse> => {
   try {

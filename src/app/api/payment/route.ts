@@ -10,18 +10,20 @@ const payOS = new PayOS(
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-
+    console.log('Payment request body:', body);
+    
     const orderCode = Math.floor(Math.random() * 1000000000);
+    const expiredAt = Math.floor(Date.now() / 1000) + 15 * 60; // 15 phút
 
-    const expiredAt = Math.floor(Date.now() / 1000) + 1 * 60;
+    // Tạo returnUrl với đầy đủ thông tin
+    const returnUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/success?userId=${body.userId}&amount=${body.amount}&description=${encodeURIComponent(body.description)}`;
 
-    // Tạo payment data
     const paymentData = {
       orderCode: orderCode,
       amount: Number(body.amount),
       description: body.description,
-      cancelUrl: body.cancelUrl,
-      returnUrl: body.returnUrl,
+      cancelUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/cancel`,
+      returnUrl: returnUrl,
       expiredAt: expiredAt,
       signature: "",
       items: [
@@ -33,10 +35,25 @@ export async function POST(request: Request) {
       ],
     };
 
-    console.log("PayOS Request Data:", paymentData);
-
+    console.log('PayOS payment data:', paymentData);
     const paymentLink = await payOS.createPaymentLink(paymentData);
-    console.log("PayOS Response:", paymentLink);
+
+    // Gọi API backend để tạo transaction với status PENDING
+    await fetch('http://localhost:8000/payment/create-payos-link', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userId: body.userId,
+        amount: Number(body.amount),
+        description: body.description,
+        paymentId: orderCode.toString(),
+        status: 'COMPLETED',
+        type: 'DONATION',
+        paymentMethod: 'PayOS'
+      }),
+    });
 
     return NextResponse.json({
       error: 0,
@@ -45,10 +62,11 @@ export async function POST(request: Request) {
         checkoutUrl: paymentLink.checkoutUrl,
         orderId: orderCode.toString(),
         amount: body.amount,
+        userId: body.userId
       },
     });
   } catch (error: any) {
-    console.error("PayOS Error:", error);
+    console.error('Payment error:', error);
     return NextResponse.json(
       {
         error: -1,
