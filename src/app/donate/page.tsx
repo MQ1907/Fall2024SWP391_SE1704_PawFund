@@ -4,7 +4,6 @@ import { useAppDispatch } from "@/lib/hook";
 import { Button, Input, Form, InputNumber, message } from "antd";
 import { useRouter } from "next/navigation";
 
-
 import GoodBaby from "../goodpet/page";
 import Image from "next/image";
 import { jwtDecode } from "jwt-decode";
@@ -75,9 +74,9 @@ const Donate = () => {
         amount: Number(values.amount),
         description: values.description || "DONATE TO PAWFUND",
         userId: userId,
-        type: 'DONATION',
-        status: 'COMPLETED',
-        paymentMethod: 'PayOS'
+        type: "DONATION",
+        status: "COMPLETED",
+        paymentMethod: "PayOS",
       };
 
       const response = await fetch("/api/payment", {
@@ -184,26 +183,32 @@ const Donate = () => {
               <Form onFinish={handleDonate} layout="vertical">
                 <Form.Item
                   name="amount"
-                  label={<span className="text-white font-normal text-lg">Donation Amount (VND)</span>}
+                  label={
+                    <span className="text-white font-normal text-lg">
+                      Donation Amount (VND)
+                    </span>
+                  }
                   rules={[
                     { required: true, message: "Please enter donation amount" },
                     {
                       type: "number",
                       min: 10000,
-                      message: "Minimum donation amount is 10,000 VND"
+                      message: "Minimum donation amount is 10,000 VND",
                     },
                     {
                       type: "number",
                       max: 100000000,
-                      message: "Maximum donation amount is 100,000,000 VND"
-                    }
+                      message: "Maximum donation amount is 100,000,000 VND",
+                    },
                   ]}
                 >
                   <InputNumber
                     className="w-full h-12 text-lg bg-white/80 backdrop-blur-sm rounded-md"
                     style={{ width: "100%" }}
-                    formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-                    parser={value => value!.replace(/\D/g, "")}
+                    formatter={(value) =>
+                      `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                    }
+                    parser={(value) => value!.replace(/\D/g, "")}
                     placeholder="Enter amount (minimum 10,000 VND)"
                     min={10000}
                     max={100000000}
@@ -212,8 +217,17 @@ const Donate = () => {
 
                 <Form.Item
                   name="description"
-                  label={<span className="text-white font-medium text-lg">Message</span>}
-                  rules={[{ max: 100, message: "Message cannot exceed 100 characters" }]}
+                  label={
+                    <span className="text-white font-medium text-lg">
+                      Message
+                    </span>
+                  }
+                  rules={[
+                    {
+                      max: 200,
+                      message: "Message cannot exceed 100 characters",
+                    },
+                  ]}
                 >
                   <Input.TextArea
                     className="bg-white/80 backdrop-blur-sm rounded-md"

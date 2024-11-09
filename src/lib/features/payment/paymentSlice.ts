@@ -1,33 +1,52 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+
+
+interface PaymentState {
+  transactions: any[]; 
+  loading: boolean;
+  error: string | null;
+}
 
 // Create PayOS payment link
 export const createPayOSLink = createAsyncThunk(
-  'payment/createPayOSLink',
-  async (paymentData: { amount: number; description: string; userId: string }, { rejectWithValue }) => {
+  "payment/createPayOSLink",
+  async (
+    paymentData: { amount: number; description: string; userId: string },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await fetch('http://localhost:8000/payment/create-payos-link', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...paymentData,
-          returnUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/success?userId=${paymentData.userId}&amount=${paymentData.amount}&description=${encodeURIComponent(paymentData.description)}`,
-          cancelUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/cancel`
-        }),
-      });
-      
+      const response = await fetch(
+        "http://localhost:8000/payment/create-payos-link",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...paymentData,
+            returnUrl: `${
+              process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+            }/success?userId=${paymentData.userId}&amount=${
+              paymentData.amount
+            }&description=${encodeURIComponent(paymentData.description)}`,
+            cancelUrl: `${
+              process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+            }/cancel`,
+          }),
+        }
+      );
+
       const data = await response.json();
-      
+
       if (!response.ok) {
-        return rejectWithValue(data.message || 'Failed to create payment link');
+        return rejectWithValue(data.message || "Failed to create payment link");
       }
-      
+
       // Redirect to PayOS checkout page
       if (data.data?.checkoutUrl) {
-        window.open(data.data.checkoutUrl, '_self');
+        window.open(data.data.checkoutUrl, "_self");
       }
-      
+
       return data;
     } catch (error: any) {
       return rejectWithValue(error.message);
@@ -37,16 +56,20 @@ export const createPayOSLink = createAsyncThunk(
 
 // Fetch user transaction history
 export const fetchUserTransactionHistory = createAsyncThunk(
-  'payment/fetchHistory',
+  "payment/fetchHistory",
   async (userId: string, { rejectWithValue }) => {
     try {
-      const response = await fetch(`http://localhost:8000/payment/history/${userId}`);
+      const response = await fetch(
+        `http://localhost:8000/payment/history/${userId}`
+      );
       const data = await response.json();
-      
+
       if (!response.ok) {
-        return rejectWithValue(data.message || 'Failed to fetch transaction history');
+        return rejectWithValue(
+          data.message || "Failed to fetch transaction history"
+        );
       }
-      
+
       return data.data || [];
     } catch (error: any) {
       return rejectWithValue(error.message);
@@ -61,7 +84,7 @@ const initialState: PaymentState = {
 };
 
 const paymentSlice = createSlice({
-  name: 'payment',
+  name: "payment",
   initialState,
   reducers: {
     resetPaymentState: (state) => {
