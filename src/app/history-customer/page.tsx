@@ -22,6 +22,7 @@ import {
   HeartOutlined,
   FormOutlined,
   CarryOutOutlined,
+  DollarOutlined,
 } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/lib/hook";
@@ -47,6 +48,7 @@ import { CheckingTypeCustomer, HealthStatus } from "@/enum";
 import axios from "axios";
 import { fetchUserList } from "@/lib/features/user/userSlice";
 import { SearchOutlined } from "@ant-design/icons";
+import { fetchUserTransactionHistory } from "@/lib/features/payment/paymentSlice";
 const { Search } = Input;
 
 interface AdoptionRequest {
@@ -111,6 +113,8 @@ const Dashboard = () => {
   const [searchKeyword, setSearchKeyword] = useState("");
   const [filteredEvents, setFilteredEvents] = useState<any[]>([]);
 
+  const [transactions, setTransactions] = useState<any[]>([]);
+
   useEffect(() => {
     dispatch(fetchUserList());
   }, [dispatch]);
@@ -157,7 +161,9 @@ const Dashboard = () => {
 
   const handleMenuClick = (e: { key: string }) => {
     setSelectedKey(e.key);
-    if (e.key === "5") {
+    if (e.key === "7") {
+      fetchTransactionHistory();
+    } else if (e.key === "5") {
       handleLogOut();
     } else if (e.key === "1") {
       handleGoHome();
@@ -444,6 +450,24 @@ const Dashboard = () => {
     setFilteredEvents(events);
   }, [events]);
 
+  const fetchTransactionHistory = async () => {
+    if (token) {
+      const userId = getUserIdFromToken(token);
+      if (userId) {
+        try {
+          await dispatch(fetchUserTransactionHistory(userId))
+            .unwrap()
+            .then((data) => {
+              setTransactions(data);
+            });
+        } catch (error) {
+          console.error("Failed to fetch transactions:", error);
+          message.error("Failed to fetch donation history");
+        }
+      }
+    }
+  };
+
   const menuItems = [
     {
       key: "1",
@@ -469,6 +493,11 @@ const Dashboard = () => {
       key: "6",
       icon: <CarryOutOutlined />,
       label: "Event ",
+    },
+    {
+      key: "7",
+      icon: <DollarOutlined />,
+      label: "Donate History",
     },
     {
       key: "5",
@@ -830,6 +859,57 @@ const Dashboard = () => {
     },
   ];
 
+  const transactionColumns = [
+    {
+      title: "Amount",
+      dataIndex: "amount",
+      key: "amount",
+      render: (amount: number) => (
+        <span className="font-semibold text-sm">
+          {amount.toLocaleString('vi-VN')} {" VND"}
+        </span>
+      ),
+    },
+    {
+      title: "Description", 
+      dataIndex: "description",
+      key: "description",
+      render: (text: string) => (
+        <span className="font-semibold text-sm">{text}</span>
+      ),
+    },
+    {
+      title: "Payment Method",
+      dataIndex: "paymentMethod",
+      key: "paymentMethod",
+      render: (text: string) => (
+        <Tag color="blue" className="font-semibold">
+          {text}
+        </Tag>
+      ),
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status", 
+      render: (status: string) => (
+        <Tag color={status === "COMPLETED" ? "green" : "red"} className="font-semibold">
+          {status}
+        </Tag>
+      ),
+    },
+    {
+      title: "Created At",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (text: string) => (
+        <span className="font-semibold text-sm">
+          {new Date(text).toLocaleString('vi-VN')}
+        </span>
+      ),
+    }
+  ];
+
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Sider>
@@ -885,6 +965,16 @@ const Dashboard = () => {
                 pagination={{ pageSize: 5 }}
               />
             </>
+          )}
+          {selectedKey === "7" && (
+            <div>
+              <h2 className="text-2xl font-bold mb-4">Donation History</h2>
+              <Table 
+                columns={transactionColumns} 
+                dataSource={transactions.map(t => ({...t, key: t._id}))}
+                pagination={{ pageSize: 5 }}
+              />
+            </div>
           )}
         </Content>
       </Layout>
