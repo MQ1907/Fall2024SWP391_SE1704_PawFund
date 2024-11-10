@@ -5,13 +5,14 @@ import { message } from "antd";
 import { useAppDispatch, useAppSelector } from "../../../lib/hook";
 import { fetchEventById, joinEvent } from "../../../lib/features/event/eventSlice";
 import { jwtDecode } from "jwt-decode";
-
+import axios from "axios";
 
 interface DecodedToken {
     id: string;
     exp: number;
     iat: number;
-  }
+}
+
 const Page = () => {
     const router = useRouter();
     const params = useParams();
@@ -20,6 +21,7 @@ const Page = () => {
     const { currentEvent, status, error } = useAppSelector((state) => state.events);
     const [hasHydrated, setHasHydrated] = useState(false);
     const [token, setToken] = useState<string | null>(null);
+    const [role, setRole] = useState<string | null>(null);
     const [isJoining, setIsJoining] = useState(false);
     const [hasJoined, setHasJoined] = useState(false);
 
@@ -32,30 +34,46 @@ const Page = () => {
     useEffect(() => {
         setHasHydrated(true);
         if (typeof window !== "undefined") {
-          const storedToken = localStorage.getItem("token");
-          setToken(storedToken);
-    
-          if (storedToken) {
-            try {
-              const decodedToken = jwtDecode<DecodedToken>(storedToken);
-              const userId = decodedToken.id;
-              
-              if (currentEvent && currentEvent.participants) {
-                setHasJoined(currentEvent.participants.includes(userId));
-              }
-    
-            } catch (error) {
-              console.error("Invalid token:", error);
-              localStorage.removeItem("token");
-              setToken(null);
+            const storedToken = localStorage.getItem("token");
+            setToken(storedToken);
+
+            if (storedToken) {
+                try {
+                    const decodedToken = jwtDecode<DecodedToken>(storedToken);
+                    const userId = decodedToken.id;
+
+                    const fetchUserRole = async () => {
+                        try {
+                            const response = await axios.get(`http://localhost:8000/users/${userId}`);
+                            setRole(response.data.role);
+                        } catch (error) {
+                            console.error("Error fetching user role:", error);
+                        }
+                    };
+
+                    fetchUserRole();
+
+                    if (currentEvent && currentEvent.participants) {
+                        setHasJoined(currentEvent.participants.includes(userId));
+                    }
+
+                } catch (error) {
+                    console.error("Invalid token:", error);
+                    localStorage.removeItem("token");
+                    setToken(null);
+                }
             }
-          }
         }
-      }, [currentEvent]);
+    }, [currentEvent]);
 
     const handleJoinEvent = async () => {
         if (!token) {
             router.push('/signin');
+            return;
+        }
+
+        if (role === "ADMIN") {
+            message.error('Admin accounts cannot join events.');
             return;
         }
 
@@ -73,12 +91,12 @@ const Page = () => {
             setIsJoining(true);
             const decodedToken = jwtDecode<DecodedToken>(token);
             const userId = decodedToken.id;
-            
+
             await dispatch(joinEvent({ 
                 eventId: currentEvent._id, 
                 userId: userId 
             })).unwrap();
-            
+
             message.success('Joined event successfully!');
         } catch (error: any) {
             message.error(error.message || 'Failed to join event');
@@ -124,9 +142,9 @@ const Page = () => {
                                     </p>
                                 </div>
                                 <div className='flex gap-4 text-[#6F6F6F] font-medium mb-4'>
-                                <p>
+                                    <p>
                                         Location: {currentEvent.location}
-                                </p>
+                                    </p>
                                 </div>
                                 <hr className="border-t border-[#6F6F6F] my-4" />
                                 <div className='text-[#6F6F6F] font-medium leading-relaxed'>
