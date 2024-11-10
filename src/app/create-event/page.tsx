@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/lib/store';
 import { fetchUserList } from '@/lib/features/user/userSlice';
 import { createEvent } from '@/lib/features/event/eventSlice';
+import ImageUploader from '../components/uploadImage/page';
 
 interface Volunteer {
   _id: string;
@@ -234,28 +235,14 @@ const CreateEventPage = () => {
 
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Image URL
+                  Upload Image
                 </label>
-                <input
-                  type="text"
-                  placeholder="Enter image URL"
-                  value={image}
-                  onChange={handleImageChange}
-                  className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.image ? 'border-red-500' : ''}`}
+                <ImageUploader 
+                  name="image" 
+                  value={image} 
+                  onChange={(e) => setImage(e.target.value)} 
                 />
                 {errors.image && <p className="text-red-500 text-sm mt-1">{errors.image}</p>}
-                {image && (
-                  <div className="mt-2">
-                    <img 
-                      src={image} 
-                      alt="Event preview" 
-                      className="w-32 h-32 object-cover rounded"
-                      onError={(e) => {
-                        e.currentTarget.src = '/default-image.png'; 
-                      }}
-                    />
-                  </div>
-                )}
               </div>
             </div>
           </div>

@@ -3,8 +3,9 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/lib/store';
-import { fetchEvents, deleteEvent, updateEvent, updateEventStatus } from '@/lib/features/event/eventSlice';
+import { fetchEvents, deleteEvent, updateEvent } from '@/lib/features/event/eventSlice';
 import { fetchUserList } from '@/lib/features/user/userSlice';
+import ImageUploader from '../components/uploadImage/page';
 
 interface Volunteer {
   _id: string;
@@ -339,6 +340,7 @@ const UpdateEventModal = ({ event, onClose, onUpdate }) => {
                   type="date"
                   value={startDate.split('T')[0]}
                   onChange={(e) => setStartDate(e.target.value)}
+                  min={new Date().toISOString().split('T')[0]} // Ngăn chọn ngày trong quá khứ
                   className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.startDate ? 'border-red-500' : ''}`}
                 />
                 {errors.startDate && <p className="text-red-500 text-sm mt-1">{errors.startDate}</p>}
@@ -356,28 +358,15 @@ const UpdateEventModal = ({ event, onClose, onUpdate }) => {
               </div>
             </div>
 
-            {/* Image URL */}
+            {/* Image Upload */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
-              <input
-                type="text"
-                value={image}
-                onChange={(e) => setImage(e.target.value)}
-                className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.image ? 'border-red-500' : ''}`}
+              <label className="block text-sm font-medium text-gray-700 mb-1">Upload Image</label>
+              <ImageUploader 
+                name="image" 
+                value={image} 
+                onChange={(e) => setImage(e.target.value)} 
               />
               {errors.image && <p className="text-red-500 text-sm mt-1">{errors.image}</p>}
-              {image && (
-                <div className="mt-2">
-                  <img 
-                    src={image} 
-                    alt="Event preview" 
-                    className="w-32 h-32 object-cover rounded"
-                    onError={(e) => {
-                      e.currentTarget.src = '/default-image.png';
-                    }}
-                  />
-                </div>
-              )}
             </div>
 
             {/* Volunteers */}
