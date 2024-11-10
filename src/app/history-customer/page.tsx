@@ -861,6 +861,14 @@ const Dashboard = () => {
 
   const transactionColumns = [
     {
+      title: "#",
+      key: "index",
+      width: 60,
+      render: (_: any, __: any, index: number) => (
+        <span className="font-semibold text-sm">{index + 1}</span>
+      ),
+    },
+    {
       title: "Amount",
       dataIndex: "amount",
       key: "amount",
@@ -899,7 +907,7 @@ const Dashboard = () => {
       ),
     },
     {
-      title: "Created At",
+      title: "Donation Date",
       dataIndex: "createdAt",
       key: "createdAt",
       render: (text: string) => (

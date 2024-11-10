@@ -9,9 +9,13 @@ import { useAppSelector } from "@/lib/hook";
 import { RootState } from "@/lib/store";
 
 const PetManagement = dynamic(() => import("../pet-management/page"));
-const AdoptableManagement = dynamic(() => import("../adoptable-management/page"));
+const AdoptableManagement = dynamic(
+  () => import("../adoptable-management/page")
+);
 const CreatePet = dynamic(() => import("../create-pet/page"));
-const HealcheckManagement = dynamic(() => import("../healthcheck-management/page"));
+const HealcheckManagement = dynamic(
+  () => import("../healthcheck-management/page")
+);
 
 interface DecodedToken {
   id: string;
@@ -70,31 +74,43 @@ const ShelterStaff = () => {
 
   const [currentView, setCurrentView] = useState<string | null>(null);
 
-  const renderCreatePet = useCallback(() => (
-    <div>
-      <CreatePet />
-    </div>
-  ), []);
+  const renderCreatePet = useCallback(
+    () => (
+      <div>
+        <CreatePet />
+      </div>
+    ),
+    []
+  );
 
-  const renderPetManagement = useCallback(() => (
-    <div>
-      <PetManagement />
-    </div>
-  ), []);
+  const renderPetManagement = useCallback(
+    () => (
+      <div>
+        <PetManagement />
+      </div>
+    ),
+    []
+  );
 
-  const renderHealthCheck = useCallback(() => (
-    <div>
-      <h1>HEALCHECK MANAGEMENT</h1>
-      <HealcheckManagement />
-    </div>
-  ), []);
+  const renderHealthCheck = useCallback(
+    () => (
+      <div>
+        <h1>HEALCHECK MANAGEMENT</h1>
+        <HealcheckManagement />
+      </div>
+    ),
+    []
+  );
 
-  const renderAdoptableManagement = useCallback(() => (
-    <div>
-      <h1>ADOPTABLE MANAGEMENT</h1>
-      <AdoptableManagement />
-    </div>
-  ), []);
+  const renderAdoptableManagement = useCallback(
+    () => (
+      <div>
+        <h1>ADOPTABLE MANAGEMENT</h1>
+        <AdoptableManagement />
+      </div>
+    ),
+    []
+  );
 
   return (
     <div className="container mx-auto px-4 py-8">

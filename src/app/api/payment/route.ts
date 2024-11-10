@@ -10,6 +10,19 @@ const payOS = new PayOS(
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    
+    // Verify user role
+    const response = await fetch(`http://localhost:8000/users/${body.userId}`);
+    const userData = await response.json();
+    
+    if (userData.role !== "CUSTOMER") {
+      return new Response(JSON.stringify({ 
+        error: "Only customers can make donations" 
+      }), { 
+        status: 403 
+      });
+    }
+
     console.log("Payment request body:", body);
 
     const orderCode = Math.floor(Math.random() * 1000000000);

@@ -1,31 +1,47 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { useAppDispatch } from "@/lib/hook";
 import { Button, Input, Form, InputNumber, message } from "antd";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 
 import GoodBaby from "../goodpet/page";
 import Image from "next/image";
 import { jwtDecode } from "jwt-decode";
 
 const Donate = () => {
-  const dispatch = useAppDispatch();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [token, setToken] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
+
+  const [role, setRole] = useState<string | null>(null);
+  const [canDonate, setCanDonate] = useState(false);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    if (storedToken) {
-      try {
-        const decodedToken = jwtDecode<DecodedToken>(storedToken);
-        setToken(storedToken);
-        setUserId(decodedToken.id);
-      } catch (error) {
-        console.error("Invalid token:", error);
-        localStorage.removeItem("token");
-        setToken(null);
+    if (typeof window !== "undefined") {
+      const storedToken = localStorage.getItem("token");
+      if (storedToken) {
+        try {
+          const decodedToken = jwtDecode<DecodedToken>(storedToken);
+          const userId = decodedToken.id;
+          setToken(storedToken);
+
+          const fetchUser = async () => {
+            try {
+              const response = await axios.get(
+                `http://localhost:8000/users/${userId}`
+              );
+              setRole(response.data.role);
+              setCanDonate(response.data.role === "CUSTOMER");
+            } catch (error) {
+              console.error("Error fetching user data:", error);
+            }
+          };
+          fetchUser();
+        } catch (error) {
+          console.error("Invalid token:", error);
+          localStorage.removeItem("token");
+          setToken(null);
+        }
       }
     }
   }, []);
@@ -180,73 +196,90 @@ const Donate = () => {
               <h2 className="text-4xl font-bold mb-6 text-white drop-shadow-lg">
                 DONATE TO PAWFUND COMMUNITY
               </h2>
-              <Form onFinish={handleDonate} layout="vertical">
-                <Form.Item
-                  name="amount"
-                  label={
-                    <span className="text-white font-normal text-lg">
-                      Donation Amount (VND)
-                    </span>
-                  }
-                  rules={[
-                    { required: true, message: "Please enter donation amount" },
-                    {
-                      type: "number",
-                      min: 10000,
-                      message: "Minimum donation amount is 10,000 VND",
-                    },
-                    {
-                      type: "number",
-                      max: 100000000,
-                      message: "Maximum donation amount is 100,000,000 VND",
-                    },
-                  ]}
-                >
-                  <InputNumber
-                    className="w-full h-12 text-lg bg-white/80 backdrop-blur-sm rounded-md"
-                    style={{ width: "100%" }}
-                    formatter={(value) =>
-                      `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+              {!token && (
+                <div className="text-center p-4 text-red-500">
+                  Please login to donate
+                </div>
+              )}
+
+              {token && !canDonate && (
+                <div className="text-center p-4 text-red-500">
+                  Only customers can make donations
+                </div>
+              )}
+
+              {token && canDonate && (
+                <Form onFinish={handleDonate} layout="vertical">
+                  <Form.Item
+                    name="amount"
+                    label={
+                      <span className="text-white font-normal text-lg">
+                        Donation Amount (VND)
+                      </span>
                     }
-                    parser={(value) => value!.replace(/\D/g, "")}
-                    placeholder="Enter amount (minimum 10,000 VND)"
-                    min={10000}
-                    max={100000000}
-                  />
-                </Form.Item>
-
-                <Form.Item
-                  name="description"
-                  label={
-                    <span className="text-white font-medium text-lg">
-                      Message
-                    </span>
-                  }
-                  rules={[
-                    {
-                      max: 200,
-                      message: "Message cannot exceed 100 characters",
-                    },
-                  ]}
-                >
-                  <Input.TextArea
-                    className="bg-white/80 backdrop-blur-sm rounded-md"
-                    placeholder="Enter your message (optional)"
-                    rows={4}
-                  />
-                </Form.Item>
-
-                <Form.Item>
-                  <Button
-                    type="primary"
-                    htmlType="submit"
-                    loading={loading}
-                    className="w-full h-12 text-lg bg-[#EC4899] hover:bg-[#008ADE]/80 border-none"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please enter donation amount",
+                      },
+                      {
+                        type: "number",
+                        min: 10000,
+                        message: "Minimum donation amount is 10,000 VND",
+                      },
+                      {
+                        type: "number",
+                        max: 100000000,
+                        message: "Maximum donation amount is 100,000,000 VND",
+                      },
+                    ]}
                   >
-                    Donate Now
-                  </Button>
-                </Form.Item>
-              </Form>
+                    <InputNumber
+                      className="w-full h-12 text-lg bg-white/80 backdrop-blur-sm rounded-md"
+                      style={{ width: "100%" }}
+                      formatter={(value) =>
+                        `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                      }
+                      parser={(value) => value!.replace(/\D/g, "")}
+                      placeholder="Enter amount (minimum 10,000 VND)"
+                      min={10000}
+                      max={100000000}
+                    />
+                  </Form.Item>
+
+                  <Form.Item
+                    name="description"
+                    label={
+                      <span className="text-white font-medium text-lg">
+                        Message
+                      </span>
+                    }
+                    rules={[
+                      {
+                        max: 25,
+                        message: "Message cannot exceed 25 characters",
+                      },
+                    ]}
+                  >
+                    <Input.TextArea
+                      className="bg-white/80 backdrop-blur-sm rounded-md"
+                      placeholder="Enter your message (max 25 characters)"
+                      rows={4}
+                    />
+                  </Form.Item>
+
+                  <Form.Item>
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      loading={loading}
+                      className="w-full h-12 text-lg bg-[#EC4899] hover:bg-[#008ADE]/80 border-none"
+                    >
+                      Donate Now
+                    </Button>
+                  </Form.Item>
+                </Form>
+              )}
             </div>
           </div>
           <div className="flex items-end ml-[200px] mt-7">
