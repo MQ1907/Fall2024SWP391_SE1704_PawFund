@@ -185,9 +185,9 @@ const UserProfilePage = () => {
                   name="email"
                   value={editedData?.email || ""}
                   onChange={handleChange}
-                  className={`w-full p-3 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-blue-500 transition duration-200`}
+                  disabled
+                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 transition duration-200 cursor-not-allowed`}
                 />
-                {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
               </div>
             </div>
 
