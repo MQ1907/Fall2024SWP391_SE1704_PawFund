@@ -43,7 +43,7 @@ const Event = () => {
   return (
     <div>
       <div className="h-[620px] bg-[#F6F6F7]">
-        <div className={`flex flex-col items-center justify-center pt-10 gap-3 ${isAnimating ? 'animate__animated animate__fadeInLeft animate__delay-2s animate__duration-4s' : ''}`}>
+        <div className={`flex flex-col items-center justify-center pt-10 gap-3 ${isAnimating ? 'animate__animated animate__fadeInLeft animate__delay-1s animate__duration-2s' : ''}`}>
           <div className="font-semibold text-3xl">Event</div>
           <Image src="/images/dogfoot.png" alt="" width={30} height={30} className="transform rotate-12" />
         </div>
@@ -62,7 +62,7 @@ const Event = () => {
                   }
                 }}
               >
-                <div className={`bg-white w-80 h-auto rounded-lg shadow-md overflow-hidden relative ${isAnimating ? 'animate__animated animate__fadeInLeft animate__delay-2s animate__duration-4s' : ''}`}>
+                <div className={`bg-white w-80 h-auto rounded-lg shadow-md overflow-hidden relative ${isAnimating ? 'animate__animated animate__fadeInLeft animate__delay-1s animate__duration-2s' : ''}`}>
                   <div 
                     className="overflow-hidden" 
                     style={{ height: '200px' }}

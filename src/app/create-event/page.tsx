@@ -48,6 +48,10 @@ const CreateEventPage = () => {
 
   const volunteers = userList.filter(user => user.role === 'VOLUNTEER');
 
+  const availableVolunteers = volunteers.filter(volunteer => 
+    !selectedVolunteers.find(v => v._id === volunteer._id)
+  );
+
   const addVolunteer = (volunteer: Volunteer) => {
     if (!selectedVolunteers.find(v => v._id === volunteer._id)) {
       setSelectedVolunteers([...selectedVolunteers, volunteer]);
@@ -275,7 +279,7 @@ const CreateEventPage = () => {
                     <div className="absolute top-full left-0 mt-2 w-48 bg-white border rounded shadow-lg z-10 max-h-60 overflow-y-auto">
                       {status === 'loading' && <p className="p-2">Loading...</p>}
                       {status === 'failed' && <p className="p-2 text-red-500">{error}</p>}
-                      {status === 'succeeded' && volunteers.map(volunteer => (
+                      {status === 'succeeded' && availableVolunteers.map(volunteer => (
                         <button
                           type="button"
                           key={volunteer._id}
