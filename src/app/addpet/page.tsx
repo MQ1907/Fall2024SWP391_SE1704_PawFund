@@ -40,6 +40,7 @@ const AddPet: React.FC = () => {
     rescueFee: null,
     locationFound: "",
   });
+  
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
@@ -243,7 +244,7 @@ const AddPet: React.FC = () => {
         </Form.Item>
 
          <Form.Item
-          label="Upload"
+          label="Image"
           name="image"
           rules={[
             {

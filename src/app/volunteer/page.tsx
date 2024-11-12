@@ -41,6 +41,7 @@ const Volunteer = () => {
   );
   const [healthStatusDescription, setHealthStatusDescription] = useState("");
   const [note, setNote] = useState("");
+  const [name, setName] = useState("");
   const [checkingDate, setCheckingDate] = useState("");
   const [checkingBy, setCheckingBy] = useState("");
   const [checkingType, setCheckingType] = useState<CheckingTypeVolunteer>(
@@ -58,6 +59,7 @@ const Volunteer = () => {
     setNote("");
     setCheckingDate("");
   };
+ 
 
   const showAddPetModal = () => {
     setOpenAddPetModal(true);
