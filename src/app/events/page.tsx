@@ -69,6 +69,13 @@ const EventRow = ({ event, onView, onUpdate }) => {
     return userList.find(user => user._id === supporterId);
   };
 
+  // Kiểm tra nếu userList chưa được tải, dispatch fetchUserList
+  useEffect(() => {
+    if (userList.length === 0) {
+      dispatch(fetchUserList());
+    }
+  }, [dispatch, userList.length]);
+
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to cancel this event?')) {
       try {
