@@ -71,11 +71,11 @@ const UserTable = () => {
     const userToDelete = userList.find(user => user._id === id);
     
     if (userToDelete && userToDelete.role === "ADMIN") {
-      alert("Bạn không thể xóa tài khoản với vai trò ADMIN.");
+      alert("You cannot delete an account with the ADMIN role.");
       return;
     }
     
-    if (window.confirm('Bạn có chắc chắn muốn xóa người dùng này?')) {
+    if (window.confirm('Are you sure you want to delete this user?')) {
       try {
         const resultAction = await dispatch(deleteUser(id));
         if (deleteUser.fulfilled.match(resultAction)) {
