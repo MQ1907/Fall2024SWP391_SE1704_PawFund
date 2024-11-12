@@ -22,6 +22,7 @@ import { useAppDispatch, useAppSelector } from "@/lib/hook";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import ImageUploader from "../components/uploadImage/page";
 
 interface DecodedToken {
   id: string;
@@ -114,13 +115,14 @@ const PetManagement = () => {
   );
 
   const showUpdateModal = useCallback(
-    (pet) => {
-      setCurrentPet(pet);
-      form.setFieldsValue(pet);
-      setIsModalVisible(true);
-    },
-    [form]
-  );
+  (pet) => {
+    form.resetFields();
+    setCurrentPet(pet); 
+    form.setFieldsValue(pet); 
+    setIsModalVisible(true);
+  },
+  [form]
+);
 
   const handleUpdate = useCallback(() => {
     form.validateFields().then((values) => {
@@ -132,7 +134,7 @@ const PetManagement = () => {
         .unwrap()
         .then(() => {
           setIsModalVisible(false);
-          message.success("Cập nhật pet thành công!");
+          message.success("Update successfully");
         })
         .catch((error) => {
           message.error("Failed to update pet: " + error);
@@ -251,13 +253,7 @@ const PetManagement = () => {
         onCancel={() => setIsModalVisible(false)}
       >
         <Form form={form} layout="vertical">
-          <Form.Item
-            name="image"
-            label="Image"
-            rules={[{ required: true, message: "Please upload an image!" }]}
-          >
-            <Input />
-          </Form.Item>
+          
           <Form.Item
             name="name"
             label="Name"
@@ -304,6 +300,13 @@ const PetManagement = () => {
             valuePropName="checked"
           >
             <Switch />
+          </Form.Item>
+          <Form.Item
+            name="image"
+            label="Image"
+            rules={[{ required: true, message: "Please upload an image!" }]}
+          >
+           <ImageUploader name="image"  />
           </Form.Item>
         </Form>
       </Modal>
