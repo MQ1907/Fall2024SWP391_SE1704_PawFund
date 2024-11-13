@@ -165,7 +165,12 @@ const CreateEventPage = () => {
     <div className="max-w-6xl mx-auto p-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-semibold">Create event</h1>
-        <button className="text-gray-600 hover:text-gray-800">Cancel</button>
+        <button 
+          className="text-gray-600 hover:text-gray-800" 
+          onClick={resetForm}
+        >
+          Cancel
+        </button>
       </div>
       <form onSubmit={handleSubmit}>
         <div className="flex gap-8">
