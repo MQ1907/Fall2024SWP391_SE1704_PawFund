@@ -95,7 +95,7 @@ export const updateEvent = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       if (error.response?.status === 404) {
-        throw new Error('Event cannot be updated when ongoing or deleted');
+        throw new Error('Event cannot be updated when ongoing or canceled');
       }
       throw error;
     }
