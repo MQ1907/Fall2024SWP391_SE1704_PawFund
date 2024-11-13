@@ -80,9 +80,9 @@ const EventRow = ({ event, onView, onUpdate }) => {
     if (window.confirm('Are you sure you want to cancel this event?')) {
       try {
         await dispatch(deleteEvent(event._id)).unwrap();
-        alert('Event canceld successfully!');
+        alert('Event canceled successfully!');
       } catch (error: any) {
-        console.error('Canceld event error:', error);
+        console.error('Canceled event error:', error);
         alert(error.message || 'Failed to cancel event');
       }
     }
