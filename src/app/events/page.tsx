@@ -349,6 +349,7 @@ const UpdateEventModal = ({ event, onClose, onUpdate }) => {
                   onChange={(e) => setStartDate(e.target.value)}
                   min={new Date().toISOString().split('T')[0]} // Ngăn chọn ngày trong quá khứ
                   className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.startDate ? 'border-red-500' : ''}`}
+                  disabled={eventStatus === 'ON_GOING' || eventStatus === 'COMPLETED'} // Disable if status is ON GOING or COMPLETED
                 />
                 {errors.startDate && <p className="text-red-500 text-sm mt-1">{errors.startDate}</p>}
               </div>
@@ -360,6 +361,7 @@ const UpdateEventModal = ({ event, onClose, onUpdate }) => {
                   onChange={(e) => setEndDate(e.target.value)}
                   min={startDate.split('T')[0]} // Đảm bảo end date không thể chọn trước start date
                   className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.endDate ? 'border-red-500' : ''}`}
+                  disabled={eventStatus === 'ON_GOING' || eventStatus === 'COMPLETED'} // Disable if status is ON GOING or COMPLETED
                 />
                 {errors.endDate && <p className="text-red-500 text-sm mt-1">{errors.endDate}</p>}
               </div>
