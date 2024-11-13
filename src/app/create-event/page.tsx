@@ -97,7 +97,7 @@ const CreateEventPage = () => {
     // Validate minimum time difference (30 minutes)
     const timeDifferenceInMinutes = (endDateTime.getTime() - startDateTime.getTime()) / (1000 * 60);
     if (timeDifferenceInMinutes < 30) {
-      newErrors.endDate = 'End time must be at least 30 minutes after start time';
+      newErrors.endDate = 'End time must be at least 1 date after start time';
     }
 
     // Validate location
